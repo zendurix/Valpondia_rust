@@ -2,6 +2,7 @@ use rltk::{Console, GameState, Rltk, RGB};
 use specs::{prelude::*, Component};
 
 use crate::ecs::components::*;
+use crate::ecs::systems;
 
 pub struct State {
     pub ecs: World,
@@ -21,6 +22,8 @@ impl State {
     pub fn register_all_components(&mut self) {
         self.ecs.register::<Position>();
         self.ecs.register::<Renderable>();
+        self.ecs.register::<Player>();
+        self.ecs.register::<Movable>();
     }
 
     pub fn render_tiles(&self, ctx: &mut Rltk) {
@@ -36,6 +39,10 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
+        systems::get_input(self, ctx);
+        systems::handle_input(self, ctx);
+        systems::move_all(self, ctx);
+
         ctx.cls();
         self.render_tiles(ctx);
     }

@@ -1,5 +1,6 @@
 extern crate specs;
 
+mod base;
 mod ecs;
 
 use ecs::State;
@@ -10,8 +11,9 @@ use specs::World;
 use rltk::{Console, GameState, Rltk, RGB};
 
 fn main() {
-    let context = rltk::RltkBuilder::simple80x50()
-        .with_title("Roguelike Tutorial")
+    let context = rltk::RltkBuilder::simple(120, 40)
+        .unwrap()
+        .with_title("Valpondia")
         .build()
         .unwrap();
     let mut gs = State::new();
@@ -19,6 +21,8 @@ fn main() {
 
     gs.ecs
         .create_entity()
+        .with(ecs::Player { input: None })
+        .with(ecs::Movable { move_dir: None })
         .with(ecs::Position {
             x: 40,
             y: 25,

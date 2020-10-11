@@ -1,11 +1,7 @@
-extern crate rltk;
-extern crate specs;
-extern crate specs_derive;
-
 use specs::prelude::*;
 use specs_derive::Component;
 
-use rltk::RGB;
+use crate::base::{Dir, Key, RGB};
 
 #[derive(Component)]
 pub struct Position {
@@ -20,4 +16,14 @@ pub struct Renderable {
     pub texture: Option<()>, // add textures here
     pub fg: RGB,
     pub bg: RGB,
+}
+
+#[derive(Component)]
+pub struct Player {
+    pub input: Option<Key>,
+}
+
+#[derive(Component)]
+pub struct Movable {
+    pub move_dir: Option<Dir>,
 }
