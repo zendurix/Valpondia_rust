@@ -7,5 +7,6 @@ edition = "2018"
 
 [dependencies]
 rltk = "0.8.1"
-specs = "0.16.1"  
+specs = "0.17.0"  
 specs-derive = "0.4.1"
+rand = "0.8.4"

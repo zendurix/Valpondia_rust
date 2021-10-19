@@ -27,3 +27,7 @@ pub struct Player {
 pub struct Movable {
     pub move_dir: Option<Dir>,
 }
+
+#[derive(Component)]
+pub struct AI {
+}

@@ -24,6 +24,7 @@ impl State {
         self.ecs.register::<Renderable>();
         self.ecs.register::<Player>();
         self.ecs.register::<Movable>();
+        self.ecs.register::<AI>();
     }
 
     pub fn render_tiles(&self, ctx: &mut Rltk) {
@@ -41,6 +42,7 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         systems::get_input(self, ctx);
         systems::handle_input(self, ctx);
+        systems::ai_random_mov::move_all(self, ctx);
         systems::move_all(self, ctx);
 
         ctx.cls();

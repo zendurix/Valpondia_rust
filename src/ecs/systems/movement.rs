@@ -44,5 +44,9 @@ pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
             },
             None => (),
         }
+        if pos.x > 39 {pos.x = 39;}
+        if pos.y > 39 {pos.y = 39;}
+        if pos.x < 0 {pos.x = 0;}
+        if pos.y < 0 {pos.y = 0;}
     }
 }
