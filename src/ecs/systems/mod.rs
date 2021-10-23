@@ -1,7 +1,7 @@
-mod input;
-mod movement;
 pub mod ai_random_mov;
+mod movement;
 
-pub use input::{get_input, handle_input};
+mod ai;
+pub mod player;
+
 pub use movement::move_all;
-

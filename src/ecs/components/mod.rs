@@ -1,12 +1,13 @@
 use specs::prelude::*;
 use specs_derive::Component;
 
-use crate::base::{Dir, Key, RGB};
+use crate::base::Dir;
+pub use rltk::{VirtualKeyCode, RGB};
 
 #[derive(Component)]
 pub struct Position {
-    pub x: i32,
-    pub y: i32,
+    pub x: usize,
+    pub y: usize,
     pub level: i16,
 }
 
@@ -20,7 +21,7 @@ pub struct Renderable {
 
 #[derive(Component)]
 pub struct Player {
-    pub input: Option<Key>,
+    pub input: Option<VirtualKeyCode>,
 }
 
 #[derive(Component)]
@@ -29,5 +30,4 @@ pub struct Movable {
 }
 
 #[derive(Component)]
-pub struct AI {
-}
+pub struct AI {}

@@ -1,4 +1,7 @@
-use crate::ecs::{Movable, Position, State};
+use crate::{
+    data::map::TileType,
+    ecs::{Movable, Position, State},
+};
 
 use rltk::{Console, GameState, Rltk, RGB};
 use specs::{prelude::*, Component};
@@ -8,45 +11,55 @@ use crate::base::Dir;
 /// Pauses game, until some input is providen.
 pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
     let mut positions = gs.ecs.write_storage::<Position>();
-    let mut movables = gs.ecs.read_storage::<Movable>();
+    let movables = gs.ecs.read_storage::<Movable>();
+
     for (mov, pos) in (&movables, &mut positions).join() {
+        let mut try_x = pos.x;
+        let mut try_y = pos.y;
+
         match mov.move_dir {
             Some(dir) => match dir {
                 Dir::Up => {
-                    pos.y -= 1;
+                    try_y -= 1;
                 }
                 Dir::Down => {
-                    pos.y += 1;
+                    try_y += 1;
                 }
                 Dir::Left => {
-                    pos.x -= 1;
+                    try_x -= 1;
                 }
                 Dir::Right => {
-                    pos.x += 1;
+                    try_x += 1;
                 }
                 Dir::UpLeft => {
-                    pos.y -= 1;
-                    pos.x -= 1;
+                    try_y -= 1;
+                    try_x -= 1;
                 }
                 Dir::UpRight => {
-                    pos.y -= 1;
-                    pos.x += 1;
+                    try_y -= 1;
+                    try_x += 1;
                 }
                 Dir::DownLeft => {
-                    pos.y += 1;
-                    pos.x -= 1;
+                    try_y += 1;
+                    try_x -= 1;
                 }
                 Dir::DownRight => {
-                    pos.y += 1;
-                    pos.x += 1;
+                    try_y += 1;
+                    try_x += 1;
                 }
                 _ => (),
             },
             None => (),
         }
-        if pos.x > 39 {pos.x = 39;}
-        if pos.y > 39 {pos.y = 39;}
-        if pos.x < 0 {pos.x = 0;}
-        if pos.y < 0 {pos.y = 0;}
+
+        let map = gs.map();
+
+        try_x = try_x.min(map.width_max());
+        try_y = try_y.min(map.height_max());
+
+        if map.tile_at_xy(try_x, try_y) != TileType::Wall {
+            pos.x = try_x;
+            pos.y = try_y;
+        }
     }
 }

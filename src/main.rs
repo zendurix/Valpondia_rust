@@ -1,9 +1,12 @@
-extern crate specs;
 extern crate rand;
+extern crate specs;
 
-mod base;
-mod ecs;
+pub mod base;
+pub mod data;
+pub mod ecs;
+pub mod graphics;
 
+use data::map::Map;
 use ecs::State;
 
 use specs::prelude::*;
@@ -17,8 +20,12 @@ fn main() {
         .with_title("Valpondia")
         .build()
         .unwrap();
+
     let mut gs = State::new();
     gs.register_all_components();
+
+    let map = Map::new(40, 40).with_edges_solid();
+    gs.ecs.insert(map);
 
     gs.ecs
         .create_entity()
@@ -41,12 +48,12 @@ fn main() {
         gs.ecs
             .create_entity()
             .with(ecs::Position {
-                x: i ,
+                x: i,
                 y: i,
                 level: 0,
             })
             .with(ecs::Movable { move_dir: None })
-            .with(ecs::AI{})
+            .with(ecs::AI {})
             .with(ecs::Renderable {
                 ascii: rltk::to_cp437('☺'),
                 texture: None,
