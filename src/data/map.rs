@@ -53,11 +53,20 @@ impl Map {
         self.tiles[map_index]
     }
 
+    pub fn set_tile_at_index(&mut self, index: usize, tile_type: TileType) {
+        if index < self.index_max() {
+            self.tiles[index] = tile_type;
+        }
+    }
+
     pub fn width_max(&self) -> usize {
         self.width - 1
     }
     pub fn height_max(&self) -> usize {
         self.height - 1
+    }
+    pub fn index_max(&self) -> usize {
+        self.height * self.width
     }
 
     pub fn tiles(&self) -> &[TileType] {
