@@ -30,16 +30,6 @@ impl State {
         self.ecs.register::<AI>();
     }
 
-    pub fn render_tiles(&self, ctx: &mut Rltk) {
-        let positions = self.ecs.read_storage::<Position>();
-        let renderables = self.ecs.read_storage::<Renderable>();
-        for (position, render) in (&positions, &renderables).join() {
-            if position.level == self.current_level {
-                ctx.set(position.x, position.y, render.fg, render.bg, render.ascii);
-            }
-        }
-    }
-
     /// equivalent to -> &Map
     pub fn map(&self) -> Fetch<Map> {
         self.ecs.fetch::<Map>()
@@ -57,6 +47,6 @@ impl GameState for State {
 
         let map = self.ecs.fetch::<Map>();
         graphics::draw_map(&map, ctx);
-        self.render_tiles(ctx);
+        graphics::draw_entities(&self, ctx);
     }
 }

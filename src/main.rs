@@ -28,8 +28,7 @@ fn main() {
     let mut gs = State::new();
     gs.register_all_components();
 
-    let map = CAMapGen::new(100, 100)
-        .generate();
+    let map = CAMapGen::new(100, 100).generate();
     gs.ecs.insert(map);
 
     gs.ecs
