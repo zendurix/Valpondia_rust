@@ -2,9 +2,9 @@ use std::{default, ops::Not};
 
 use rltk::RandomNumberGenerator;
 
-use crate::data::map::{Map, TileType};
-
-use super::MapGenerator;
+use crate::levels::map::{Map, TileType};
+use crate::map_generators::errors::{self, Error, Result};
+use crate::MapGenerator;
 
 pub struct CAMapGenConfig {
     pub alive_on_start_chance_percent: usize,
@@ -61,7 +61,12 @@ pub struct CAMapGen {
 }
 
 impl CAMapGen {
-    pub fn new(width: usize, height: usize) -> CAMapGen {
+    pub fn new(width: usize, height: usize) -> Result<CAMapGen> {
+        if width == 0 || height == 0 {
+            return Err(Error::IncorrectMapDimensions {
+                map_dimensions: (width, height),
+            });
+        }
         let mut ca_map = vec![CAPlace::default(); width * height];
         let mut x = 0;
         let mut y = 0;
@@ -75,12 +80,12 @@ impl CAMapGen {
             }
         }
 
-        CAMapGen {
+        Ok(CAMapGen {
             ca_map,
             width,
             height,
             config: CAMapGenConfig::default(),
-        }
+        })
     }
 
     pub fn with_config(mut self, config: CAMapGenConfig) -> CAMapGen {
@@ -88,7 +93,7 @@ impl CAMapGen {
         self
     }
 
-    pub fn make_cave_map(&mut self) -> Map {
+    pub fn make_cave_map(&mut self) -> Result<Map> {
         self.set_random_state();
 
         for _ in 0..=self.config.step_limit {
@@ -101,7 +106,7 @@ impl CAMapGen {
 
         let mut map = Map::new(self.width, self.height);
         self.set_map(&mut map);
-        map.with_edges_solid()
+        Ok(map.with_edges_solid())
     }
 
     fn set_map(&self, map: &mut Map) {
@@ -343,7 +348,7 @@ impl CAMapGen {
 }
 
 impl MapGenerator for CAMapGen {
-    fn generate(mut self) -> Map {
+    fn generate(mut self) -> Result<Map> {
         self.make_cave_map()
     }
 }

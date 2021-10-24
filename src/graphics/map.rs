@@ -1,6 +1,6 @@
 use rltk::{Rltk, RGB};
 
-use crate::data::map::{Map, TileType};
+use crate::levels::map::{Map, TileType};
 
 pub fn draw_map(map: &Map, ctx: &mut Rltk) {
     let mut x = 0;

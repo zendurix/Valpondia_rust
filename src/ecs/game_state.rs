@@ -2,10 +2,10 @@ use rltk::{Console, GameState, Rltk, RGB};
 use specs::shred::Fetch;
 use specs::{prelude::*, Component};
 
-use crate::data::map::Map;
-use crate::ecs::components::*;
+use crate::ecs::components;
 use crate::ecs::systems;
 use crate::graphics;
+use crate::levels::map::Map;
 
 pub struct State {
     pub ecs: World,
@@ -23,11 +23,11 @@ impl State {
     }
 
     pub fn register_all_components(&mut self) {
-        self.ecs.register::<Position>();
-        self.ecs.register::<Renderable>();
-        self.ecs.register::<Player>();
-        self.ecs.register::<Movable>();
-        self.ecs.register::<AI>();
+        self.ecs.register::<components::Position>();
+        self.ecs.register::<components::Renderable>();
+        self.ecs.register::<components::Player>();
+        self.ecs.register::<components::Movable>();
+        self.ecs.register::<components::AI>();
     }
 
     /// equivalent to -> &Map

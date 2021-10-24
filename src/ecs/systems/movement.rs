@@ -1,6 +1,6 @@
 use crate::{
-    data::map::TileType,
     ecs::{Movable, Position, State},
+    levels::map::TileType,
 };
 
 use rltk::{Console, GameState, Rltk, RGB};

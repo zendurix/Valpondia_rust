@@ -1,7 +1,12 @@
-use crate::data::map::Map;
+use crate::levels::map::Map;
 
 pub mod cellular_automata;
+pub(crate) mod errors;
+
+pub use errors::Error;
+
+use errors::Result;
 
 pub trait MapGenerator {
-    fn generate(self) -> Map;
+    fn generate(self) -> Result<Map>;
 }

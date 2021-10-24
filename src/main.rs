@@ -1,15 +1,14 @@
-extern crate rand;
-extern crate specs;
-
 pub mod base;
-pub mod data;
 pub mod ecs;
+pub mod errors;
 pub mod graphics;
+pub mod levels;
 pub mod map_generators;
 
-use data::map::Map;
 use ecs::State;
+use levels::map::Map;
 
+use log::error;
 use map_generators::cellular_automata::CAMapGen;
 use map_generators::cellular_automata::CAMapGenConfig;
 use map_generators::MapGenerator;
@@ -28,7 +27,20 @@ fn main() {
     let mut gs = State::new();
     gs.register_all_components();
 
-    let map = CAMapGen::new(100, 100).generate();
+    let map = match CAMapGen::new(100, 100) {
+        Ok(map_gen) => match map_gen.generate() {
+            Ok(m) => m,
+            Err(e) => {
+                println!("ERROR: {}", e);
+                std::process::exit(1);
+            }
+        },
+        Err(e) => {
+            println!("ERROR: {}", e);
+            std::process::exit(1);
+        }
+    };
+
     gs.ecs.insert(map);
 
     gs.ecs
