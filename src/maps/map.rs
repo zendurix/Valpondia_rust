@@ -1,7 +1,15 @@
+use rltk::{Algorithm2D, BaseMap};
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum TileType {
     Floor,
     Wall,
+}
+
+impl TileType {
+    pub fn blocks_visibility(self) -> bool {
+        self == TileType::Wall
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -51,6 +59,14 @@ impl Map {
         self.tiles[map_index]
     }
 
+    pub fn try_get_tile_at_xy(&self, x: usize, y: usize) -> Option<TileType> {
+        if x < 0 || x > self.width_max() || y < 0 || x > self.height_max() {
+            return None;
+        }
+        let map_index = self.xy_to_index(x, y);
+        Some(self.tiles[map_index])
+    }
+
     pub fn set_tile_at_index(&mut self, index: usize, tile_type: TileType) {
         if index < self.index_max() {
             self.tiles[index] = tile_type;
@@ -73,5 +89,17 @@ impl Map {
 
     fn xy_to_index(&self, x: usize, y: usize) -> usize {
         x + y * self.width
+    }
+}
+
+impl BaseMap for Map {
+    fn is_opaque(&self, idx: usize) -> bool {
+        self.tiles[idx].blocks_visibility()
+    }
+}
+
+impl Algorithm2D for Map {
+    fn dimensions(&self) -> rltk::Point {
+        rltk::Point::new(self.width, self.height)
     }
 }

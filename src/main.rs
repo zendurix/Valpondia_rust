@@ -7,7 +7,7 @@ pub mod graphics;
 pub mod levels;
 pub mod maps;
 
-use ecs::State;
+use ecs::{components, State};
 use levels::level::LevelType;
 
 use maps::MapGenerator;
@@ -35,14 +35,18 @@ fn main() {
 
     gs.ecs
         .create_entity()
-        .with(ecs::Player { input: None })
-        .with(ecs::Movable { move_dir: None })
-        .with(ecs::Position {
+        .with(components::Player { input: None })
+        .with(components::Movable { move_dir: None })
+        .with(components::View {
+            range: 40,
+            visible_tiles: vec![],
+        })
+        .with(components::Position {
             x: 20,
             y: 25,
             level: 0,
         })
-        .with(ecs::Renderable {
+        .with(components::Renderable {
             ascii: rltk::to_cp437('@'),
             texture: None,
             fg: RGB::named(rltk::YELLOW),
@@ -53,14 +57,14 @@ fn main() {
     for i in 2..5 {
         gs.ecs
             .create_entity()
-            .with(ecs::Position {
+            .with(ecs::components::Position {
                 x: i,
                 y: i,
                 level: 0,
             })
-            .with(ecs::Movable { move_dir: None })
-            .with(ecs::AI {})
-            .with(ecs::Renderable {
+            .with(components::Movable { move_dir: None })
+            .with(components::AI {})
+            .with(components::Renderable {
                 ascii: rltk::to_cp437('☺'),
                 texture: None,
                 fg: RGB::named(rltk::RED),

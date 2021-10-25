@@ -1,4 +1,4 @@
-use crate::ecs::{Movable, Player, State};
+use crate::ecs::{components, State};
 
 use rltk::{Rltk, VirtualKeyCode};
 use specs::prelude::*;
@@ -7,8 +7,8 @@ use crate::base::Dir;
 
 /// Pauses game, until some input is providen.
 pub fn get_input(gs: &mut State, ctx: &mut Rltk) {
-    let mut players = gs.ecs.write_storage::<Player>();
-    let movables = gs.ecs.read_storage::<Movable>();
+    let mut players = gs.ecs.write_storage::<components::Player>();
+    let movables = gs.ecs.read_storage::<components::Movable>();
     for (player, _) in (&mut players, &movables).join() {
         //while ctx.key.is_none() {}
         player.input = ctx.key;
@@ -16,8 +16,8 @@ pub fn get_input(gs: &mut State, ctx: &mut Rltk) {
 }
 
 pub fn handle_input(gs: &mut State, _ctx: &mut Rltk) {
-    let players = gs.ecs.read_storage::<Player>();
-    let mut movables = gs.ecs.write_storage::<Movable>();
+    let players = gs.ecs.read_storage::<components::Player>();
+    let mut movables = gs.ecs.write_storage::<components::Movable>();
     for (player, mov) in (&players, &mut movables).join() {
         mov.move_dir = match player.input {
             Some(key) => match key {

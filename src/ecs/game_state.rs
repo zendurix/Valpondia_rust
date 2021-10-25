@@ -31,6 +31,7 @@ impl State {
         self.ecs.register::<components::Player>();
         self.ecs.register::<components::Movable>();
         self.ecs.register::<components::AI>();
+        self.ecs.register::<components::View>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -62,8 +63,9 @@ impl GameState for State {
         }
         ctx.cls();
 
+        systems::update_view(self, ctx);
         let map = self.current_map();
-        graphics::draw_map(map, ctx);
+        graphics::draw_map_with_fov(self, ctx);
         graphics::draw_entities(self, ctx);
     }
 }

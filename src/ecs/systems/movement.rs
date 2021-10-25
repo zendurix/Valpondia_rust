@@ -1,5 +1,5 @@
 use crate::{
-    ecs::{Movable, Position, State},
+    ecs::{components, State},
     maps::TileType,
 };
 
@@ -10,8 +10,8 @@ use crate::base::Dir;
 
 /// Pauses game, until some input is providen.
 pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
-    let mut positions = gs.ecs.write_storage::<Position>();
-    let movables = gs.ecs.read_storage::<Movable>();
+    let mut positions = gs.ecs.write_storage::<components::Position>();
+    let movables = gs.ecs.read_storage::<components::Movable>();
 
     for (mov, pos) in (&movables, &mut positions).join() {
         let mut try_x = pos.x;

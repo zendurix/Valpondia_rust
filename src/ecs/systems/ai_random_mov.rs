@@ -1,4 +1,4 @@
-use crate::ecs::{Movable, State, AI};
+use crate::ecs::{components, State};
 
 use rand::Rng;
 use rltk::Rltk;
@@ -8,8 +8,8 @@ use crate::base::Dir;
 
 /// ai random movement
 pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
-    let ais = gs.ecs.read_storage::<AI>();
-    let mut movables = gs.ecs.write_storage::<Movable>();
+    let ais = gs.ecs.read_storage::<components::AI>();
+    let mut movables = gs.ecs.write_storage::<components::Movable>();
     for (_ais, mov) in (&ais, &mut movables).join() {
         let mut rng = rand::thread_rng();
         let rand = rng.gen_range(1..=9);

@@ -36,3 +36,9 @@ pub struct AI;
 impl Component for AI {
     type Storage = NullStorage<AI>;
 }
+
+#[derive(Component)]
+pub struct View {
+    pub range: usize,
+    pub visible_tiles: Vec<rltk::Point>,
+}
