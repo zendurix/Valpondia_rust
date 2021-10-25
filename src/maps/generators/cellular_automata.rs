@@ -1,8 +1,8 @@
-use std::{default, ops::Not};
+use std::ops::Not;
 
 use rltk::RandomNumberGenerator;
 
-use crate::maps::errors::{self, Error, Result};
+use crate::maps::errors::{Error, Result};
 use crate::maps::{Map, TileType};
 use crate::MapGenerator;
 

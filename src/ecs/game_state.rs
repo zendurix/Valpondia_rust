@@ -3,12 +3,17 @@ use specs::shred::Fetch;
 use specs::{prelude::*, Component};
 
 use crate::ecs::components;
+use crate::ecs::errors::{Error, Result};
 use crate::ecs::systems;
 use crate::graphics;
+use crate::levels::level::{Level, LevelType};
+use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
 
 pub struct State {
     pub ecs: World,
+
+    pub level_manager: LevelManager,
     pub current_level: i16,
 }
 
@@ -19,6 +24,7 @@ impl State {
         State {
             current_level: 0,
             ecs,
+            level_manager: LevelManager::new(),
         }
     }
 
@@ -30,9 +36,23 @@ impl State {
         self.ecs.register::<components::AI>();
     }
 
-    /// equivalent to -> &Map
-    pub fn map(&self) -> Fetch<Map> {
-        self.ecs.fetch::<Map>()
+    pub fn current_map(&self) -> &Map {
+        &self.level_manager.current_level().map
+    }
+
+    pub fn current_level(&self) -> &Level {
+        &self.level_manager.current_level()
+    }
+
+    pub fn create_new_level(
+        &mut self,
+        level_type: LevelType,
+        width: usize,
+        height: usize,
+    ) -> Result<()> {
+        self.level_manager
+            .crete_new_level(level_type, width, height)?;
+        Ok(())
     }
 }
 
@@ -45,7 +65,7 @@ impl GameState for State {
         }
         ctx.cls();
 
-        let map = self.ecs.fetch::<Map>();
+        let map = self.current_map();
         graphics::draw_map(&map, ctx);
         graphics::draw_entities(&self, ctx);
     }

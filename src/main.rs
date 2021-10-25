@@ -11,7 +11,6 @@ use levels::level_manager;
 use levels::level_manager::LevelManager;
 use maps::Map;
 
-use log::error;
 use maps::generators::cellular_automata::CAMapGen;
 use maps::generators::cellular_automata::CAMapGenConfig;
 use maps::MapGenerator;
@@ -30,8 +29,7 @@ fn main() {
     let mut gs = State::new();
     gs.register_all_components();
 
-    let mut level_manager = LevelManager::new();
-    let test = level_manager.crete_new_level(LevelType::Cave, 100, 100);
+    let test = gs.create_new_level(LevelType::Cave, 100, 100);
 
     match test {
         Ok(m) => (),

@@ -1,5 +1,6 @@
-mod components;
-mod game_state;
+pub mod components;
+pub mod errors;
+pub mod game_state;
 pub mod systems;
 
 pub use components::*;

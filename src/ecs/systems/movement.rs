@@ -52,7 +52,7 @@ pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
             None => (),
         }
 
-        let map = gs.map();
+        let map = gs.current_map();
 
         try_x = try_x.min(map.width_max());
         try_y = try_y.min(map.height_max());
