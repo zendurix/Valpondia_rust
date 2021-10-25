@@ -6,6 +6,7 @@ pub enum LevelType {
     Dungeon,
 }
 
+#[derive(Debug)]
 pub struct Level {
     pub map: Map,
     pub level_index: usize,

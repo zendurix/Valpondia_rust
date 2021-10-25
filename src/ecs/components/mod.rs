@@ -1,4 +1,6 @@
 use specs::prelude::*;
+
+use specs::storage::NullStorage;
 use specs_derive::Component;
 
 use crate::base::Dir;
@@ -29,5 +31,8 @@ pub struct Movable {
     pub move_dir: Option<Dir>,
 }
 
-#[derive(Component)]
-pub struct AI {}
+#[derive(Default)]
+pub struct AI;
+impl Component for AI {
+    type Storage = NullStorage<AI>;
+}

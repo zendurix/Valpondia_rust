@@ -1,19 +1,19 @@
 [package]
 name = "valpondia"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["zendurix <mich111222333@gmail.com>"]
 edition = "2018"
 
 
 [dependencies]
 rand = "0.8.4"
+
 # graphics, window, game loop
 rltk = "0.8.1"
+
 # Entity component system
 specs = "0.17.0"  
 specs-derive = "0.4.1"
+
 # errors
 snafu = "0.6.10"
-
-
-

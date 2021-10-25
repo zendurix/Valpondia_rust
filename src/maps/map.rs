@@ -1,5 +1,3 @@
-use rltk::Tile;
-
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum TileType {
     Floor,

@@ -2,9 +2,10 @@ use crate::maps::{generators::cellular_automata::CAMapGen, MapGenerator};
 
 use super::level::{Level, LevelType};
 
-use crate::levels::errors::{Error, Result};
+use crate::levels::errors::Result;
 
 ///
+#[derive(Debug)]
 pub struct LevelManager {
     pub current_level_index: usize,
     levels: Vec<Level>,

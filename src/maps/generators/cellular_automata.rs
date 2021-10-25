@@ -223,7 +223,7 @@ impl CAMapGen {
         ) {
             count += 1;
         }
-        return count;
+        count
     }
 
     fn is_alive_on_xy(
@@ -338,12 +338,12 @@ impl CAMapGen {
         };
 
         try_place_on_xy(x - 1, y)
-            .or(try_place_on_xy(x + 1, y))
-            .or(try_place_on_xy(x, y - 1))
-            .or(try_place_on_xy(x, y + 1))
-            .or(try_place_on_xy(x - 1, y - 1))
-            .or(try_place_on_xy(x + 1, y - 1))
-            .or(try_place_on_xy(x - 1, y + 1))
+            .or_else(|| try_place_on_xy(x + 1, y))
+            .or_else(|| try_place_on_xy(x, y - 1))
+            .or_else(|| try_place_on_xy(x, y + 1))
+            .or_else(|| try_place_on_xy(x - 1, y - 1))
+            .or_else(|| try_place_on_xy(x + 1, y - 1))
+            .or_else(|| try_place_on_xy(x - 1, y + 1))
     }
 }
 

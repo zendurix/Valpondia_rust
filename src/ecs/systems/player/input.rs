@@ -1,7 +1,7 @@
 use crate::ecs::{Movable, Player, State};
 
-use rltk::{Console, GameState, Rltk, VirtualKeyCode};
-use specs::{prelude::*, Component};
+use rltk::{Rltk, VirtualKeyCode};
+use specs::prelude::*;
 
 use crate::base::Dir;
 
@@ -15,8 +15,8 @@ pub fn get_input(gs: &mut State, ctx: &mut Rltk) {
     }
 }
 
-pub fn handle_input(gs: &mut State, ctx: &mut Rltk) {
-    let mut players = gs.ecs.read_storage::<Player>();
+pub fn handle_input(gs: &mut State, _ctx: &mut Rltk) {
+    let players = gs.ecs.read_storage::<Player>();
     let mut movables = gs.ecs.write_storage::<Movable>();
     for (player, mov) in (&players, &mut movables).join() {
         mov.move_dir = match player.input {

@@ -1,4 +1,4 @@
-use rltk::{GameState, Rltk};
+use rltk::Rltk;
 
 use crate::ecs::State;
 

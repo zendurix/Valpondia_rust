@@ -3,13 +3,13 @@ use crate::{
     maps::TileType,
 };
 
-use rltk::{Console, GameState, Rltk, RGB};
-use specs::{prelude::*, Component};
+use rltk::Rltk;
+use specs::prelude::*;
 
 use crate::base::Dir;
 
 /// Pauses game, until some input is providen.
-pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
+pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
     let mut positions = gs.ecs.write_storage::<Position>();
     let movables = gs.ecs.read_storage::<Movable>();
 
@@ -17,8 +17,8 @@ pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
         let mut try_x = pos.x;
         let mut try_y = pos.y;
 
-        match mov.move_dir {
-            Some(dir) => match dir {
+        if let Some(dir) = mov.move_dir {
+            match dir {
                 Dir::Up => {
                     try_y -= 1;
                 }
@@ -47,9 +47,8 @@ pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
                     try_y += 1;
                     try_x += 1;
                 }
-                _ => (),
-            },
-            None => (),
+                Dir::Center => (),
+            }
         }
 
         let map = gs.current_map();

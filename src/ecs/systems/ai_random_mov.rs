@@ -1,16 +1,16 @@
-use crate::ecs::{Movable, Position, State, AI};
+use crate::ecs::{Movable, State, AI};
 
 use rand::Rng;
-use rltk::{Console, GameState, Rltk, RGB};
-use specs::{prelude::*, Component};
+use rltk::Rltk;
+use specs::prelude::*;
 
 use crate::base::Dir;
 
 /// ai random movement
-pub fn move_all(gs: &mut State, ctx: &mut Rltk) {
-    let mut ais = gs.ecs.read_storage::<AI>();
+pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
+    let ais = gs.ecs.read_storage::<AI>();
     let mut movables = gs.ecs.write_storage::<Movable>();
-    for (ais, mov) in (&ais, &mut movables).join() {
+    for (_ais, mov) in (&ais, &mut movables).join() {
         let mut rng = rand::thread_rng();
         let rand = rng.gen_range(1..=9);
         mov.move_dir = match rand {

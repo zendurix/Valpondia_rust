@@ -1,9 +1,8 @@
-use rltk::{Console, GameState, Rltk, RGB};
-use specs::shred::Fetch;
-use specs::{prelude::*, Component};
+use rltk::{GameState, Rltk};
+use specs::prelude::*;
 
 use crate::ecs::components;
-use crate::ecs::errors::{Error, Result};
+use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::graphics;
 use crate::levels::level::{Level, LevelType};
@@ -19,11 +18,9 @@ pub struct State {
 
 impl State {
     pub fn new() -> State {
-        let ecs = World::new();
-
         State {
             current_level: 0,
-            ecs,
+            ecs: World::new(),
             level_manager: LevelManager::new(),
         }
     }
@@ -41,7 +38,7 @@ impl State {
     }
 
     pub fn current_level(&self) -> &Level {
-        &self.level_manager.current_level()
+        self.level_manager.current_level()
     }
 
     pub fn create_new_level(
@@ -66,7 +63,7 @@ impl GameState for State {
         ctx.cls();
 
         let map = self.current_map();
-        graphics::draw_map(&map, ctx);
-        graphics::draw_entities(&self, ctx);
+        graphics::draw_map(map, ctx);
+        graphics::draw_entities(self, ctx);
     }
 }
