@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use specs::prelude::*;
 
 use specs::storage::NullStorage;
@@ -40,5 +42,10 @@ impl Component for AI {
 #[derive(Component)]
 pub struct View {
     pub range: usize,
-    pub visible_tiles: Vec<rltk::Point>,
+    pub visible_tiles: HashSet<rltk::Point>,
+}
+
+#[derive(Component)]
+pub struct ViewMemory {
+    pub seen_tiles: HashSet<rltk::Point>,
 }

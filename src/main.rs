@@ -7,6 +7,8 @@ pub mod graphics;
 pub mod levels;
 pub mod maps;
 
+use std::collections::HashSet;
+
 use ecs::{components, State};
 use levels::level::LevelType;
 
@@ -39,7 +41,10 @@ fn main() {
         .with(components::Movable { move_dir: None })
         .with(components::View {
             range: 40,
-            visible_tiles: vec![],
+            visible_tiles: HashSet::<rltk::Point>::new(),
+        })
+        .with(components::ViewMemory {
+            seen_tiles: HashSet::<rltk::Point>::new(),
         })
         .with(components::Position {
             x: 20,

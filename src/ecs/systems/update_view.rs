@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rltk::{field_of_view, Rltk};
+use rltk::{Rltk, field_of_view, field_of_view_set};
 use specs::{Join, WorldExt};
 
 use crate::{
@@ -16,12 +16,11 @@ pub fn update_view2(gs: &mut State, _ctx: &mut Rltk) {
 
     for (pos, view) in (&positions, &mut views).join() {
         view.visible_tiles.clear();
-        view.visible_tiles = field_of_view(rltk::Point::new(pos.x, pos.y), view.range as i32, map);
+        view.visible_tiles = field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map);
         view.visible_tiles
             .retain(|p| p.x >= 0 && p.x < map.width as i32 && p.y >= 0 && p.y < map.height as i32);
     }
 }
-
 
 pub fn update_view(gs: &mut State, _ctx: &mut Rltk) {
     let positions = gs.ecs.read_storage::<components::Position>();
@@ -41,11 +40,19 @@ pub fn update_view(gs: &mut State, _ctx: &mut Rltk) {
 
         for i in 0..max {
             let alpha = i as f32 * degre_step;
-            visible_tiles.extend(tracer(map, start, alpha, view.range, accuracy ));
+            visible_tiles.extend(tracer(map, start, alpha, view.range, accuracy));
         }
 
+        view.visible_tiles = visible_tiles;
+    }
+}
 
-        view.visible_tiles = visible_tiles.into_iter().collect();
+pub fn update_view_memory(gs: &mut State, _ctx: &mut Rltk) {
+    let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
+    let views = gs.ecs.read_storage::<components::View>();
+
+    for (view, view_memory) in (&views, &mut views_memories).join() {
+        view_memory.seen_tiles.extend(view.visible_tiles.clone());
     }
 }
 
@@ -101,13 +108,11 @@ fn tracer(
                     b -= 1.0;
                     step_tracer(&mut tracer, quarter, TracerStepDir::Vertical);
                     step_counter += 1;
-
                 } else if a >= 1.0 {
                     a = 0.0;
                     step_tracer(&mut tracer, quarter, TracerStepDir::Horizontal);
                     step_counter += 1;
                 }
-
             } else {
                 break;
             }

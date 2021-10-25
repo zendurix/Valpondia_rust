@@ -6,4 +6,4 @@ mod ai;
 pub mod player;
 
 pub use movement::move_all;
-pub use update_view::update_view;
+pub use update_view::{update_view, update_view_memory};

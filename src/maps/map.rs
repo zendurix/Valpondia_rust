@@ -17,6 +17,7 @@ pub struct Map {
     pub tiles: Vec<TileType>,
     pub width: usize,
     pub height: usize,
+    pub revealed_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -28,6 +29,7 @@ impl Map {
             width,
             height,
             tiles,
+            revealed_tiles: vec![false; width * height],
         }
     }
 
