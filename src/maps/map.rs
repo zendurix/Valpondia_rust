@@ -17,7 +17,6 @@ pub struct Map {
     pub tiles: Vec<TileType>,
     pub width: usize,
     pub height: usize,
-    pub revealed_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -29,8 +28,14 @@ impl Map {
             width,
             height,
             tiles,
-            revealed_tiles: vec![false; width * height],
         }
+    }
+
+    pub fn with_all_solid(mut self) -> Map {
+        for tile in self.tiles.iter_mut() {
+            *tile = TileType::Wall;
+        }
+        self
     }
 
     pub fn with_edges_solid(mut self) -> Map {
@@ -89,7 +94,7 @@ impl Map {
         &self.tiles
     }
 
-    fn xy_to_index(&self, x: usize, y: usize) -> usize {
+    pub fn xy_to_index(&self, x: usize, y: usize) -> usize {
         x + y * self.width
     }
 }

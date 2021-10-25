@@ -43,9 +43,11 @@ impl Component for AI {
 pub struct View {
     pub range: usize,
     pub visible_tiles: HashSet<rltk::Point>,
+    pub should_update: bool,
 }
 
 #[derive(Component)]
 pub struct ViewMemory {
     pub seen_tiles: HashSet<rltk::Point>,
+    pub should_update: bool,
 }

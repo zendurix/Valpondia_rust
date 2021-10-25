@@ -8,12 +8,15 @@ use specs::prelude::*;
 
 use crate::base::Dir;
 
-/// Pauses game, until some input is providen.
 pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
     let mut positions = gs.ecs.write_storage::<components::Position>();
     let movables = gs.ecs.read_storage::<components::Movable>();
 
-    for (mov, pos) in (&movables, &mut positions).join() {
+    let mut views = gs.ecs.write_storage::<components::View>();
+    let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
+    let entities = gs.ecs.entities();
+
+    for (entity, mov, pos) in (&entities, &movables, &mut positions).join() {
         let mut try_x = pos.x;
         let mut try_y = pos.y;
 
@@ -59,6 +62,13 @@ pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
         if map.tile_at_xy(try_x, try_y) != TileType::Wall {
             pos.x = try_x;
             pos.y = try_y;
+        }
+
+        if let Some(view) = views.get_mut(entity) {
+            view.should_update = true;
+        }
+        if let Some(view_memory) = views_memories.get_mut(entity) {
+            view_memory.should_update = true;
         }
     }
 }

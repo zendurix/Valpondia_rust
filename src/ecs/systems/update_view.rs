@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rltk::{Rltk, field_of_view, field_of_view_set};
+use rltk::{field_of_view, field_of_view_set, Rltk};
 use specs::{Join, WorldExt};
 
 use crate::{
@@ -9,42 +9,39 @@ use crate::{
 };
 
 /// rltk implementation
-pub fn update_view2(gs: &mut State, _ctx: &mut Rltk) {
-    let positions = gs.ecs.read_storage::<components::Position>();
-    let mut views = gs.ecs.write_storage::<components::View>();
-    let map = gs.current_map();
-
-    for (pos, view) in (&positions, &mut views).join() {
-        view.visible_tiles.clear();
-        view.visible_tiles = field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map);
-        view.visible_tiles
-            .retain(|p| p.x >= 0 && p.x < map.width as i32 && p.y >= 0 && p.y < map.height as i32);
-    }
-}
-
 pub fn update_view(gs: &mut State, _ctx: &mut Rltk) {
     let positions = gs.ecs.read_storage::<components::Position>();
     let mut views = gs.ecs.write_storage::<components::View>();
     let map = gs.current_map();
 
-    for (pos, view) in (&positions, &mut views).join() {
+    for (pos, view) in (&positions, &mut views)
+        .join()
+        .filter(|(_pos, view)| view.should_update)
+    {
         view.visible_tiles.clear();
-        let mut visible_tiles = HashSet::<rltk::Point>::new();
-
-        let accuracy = 0.00625;
-        let degre_step = 0.125;
-
-        let max = (360.0 / degre_step) as usize;
-        let start = rltk::Point::new(pos.x, pos.y);
-        visible_tiles.insert(start);
-
-        for i in 0..max {
-            let alpha = i as f32 * degre_step;
-            visible_tiles.extend(tracer(map, start, alpha, view.range, accuracy));
-        }
-
-        view.visible_tiles = visible_tiles;
+        view.visible_tiles =
+            field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map);
+        // calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map);
+        view.visible_tiles
+            .retain(|p| p.x >= 0 && p.x < map.width as i32 && p.y >= 0 && p.y < map.height as i32);
+        view.should_update = false;
     }
+}
+fn calculate_field_of_view(start: rltk::Point, range: usize, map: &Map) -> HashSet<rltk::Point> {
+    let mut visible_tiles = HashSet::<rltk::Point>::new();
+
+    let accuracy = 0.00625;
+    let degre_step = 0.125;
+
+    let max = (360.0 / degre_step) as usize;
+    visible_tiles.insert(start);
+
+    for i in 0..max {
+        let alpha = i as f32 * degre_step;
+        visible_tiles.extend(tracer(map, start, alpha, range, accuracy));
+    }
+
+    visible_tiles
 }
 
 pub fn update_view_memory(gs: &mut State, _ctx: &mut Rltk) {

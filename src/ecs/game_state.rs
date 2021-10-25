@@ -67,6 +67,7 @@ impl GameState for State {
         systems::update_view(self, ctx);
         systems::update_view_memory(self, ctx);
         graphics::draw_map_with_fov(self, ctx);
+        // graphics::draw_map_without_fov(self.current_map(), ctx);
         graphics::draw_entities(self, ctx);
     }
 }

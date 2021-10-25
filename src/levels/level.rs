@@ -3,7 +3,8 @@ use crate::maps::Map;
 #[derive(Debug, Clone, Copy)]
 pub enum LevelType {
     Cave,
-    Dungeon,
+    BasicDungeon,
+    TestLevel,
 }
 
 #[derive(Debug)]

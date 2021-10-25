@@ -7,9 +7,9 @@ use crate::{
 };
 
 pub fn draw_map_with_fov(gs: &State, ctx: &mut Rltk) {
-    let mut views = gs.ecs.read_storage::<components::View>();
-    let mut views_memories = gs.ecs.read_storage::<components::ViewMemory>();
-    let mut players = gs.ecs.read_storage::<components::Player>();
+    let views = gs.ecs.read_storage::<components::View>();
+    let views_memories = gs.ecs.read_storage::<components::ViewMemory>();
+    let players = gs.ecs.read_storage::<components::Player>();
     let map = gs.current_map();
 
     for (view, view_memory, _player) in (&views, &views_memories, &players).join() {
@@ -39,7 +39,10 @@ pub fn draw_map_with_fov(gs: &State, ctx: &mut Rltk) {
                 }
             }
         }
-        for pos in view_memory.seen_tiles.symmetric_difference(&view.visible_tiles) { 
+        for pos in view_memory
+            .seen_tiles
+            .symmetric_difference(&view.visible_tiles)
+        {
             let x = pos.x;
             let y = pos.y;
             let tile = map.tile_at_xy(x as usize, y as usize);
@@ -64,7 +67,6 @@ pub fn draw_map_with_fov(gs: &State, ctx: &mut Rltk) {
                     );
                 }
             }
-
         }
     }
 }

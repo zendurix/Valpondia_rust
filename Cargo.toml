@@ -6,7 +6,7 @@ edition = "2018"
 
 
 [dependencies]
-rand = "0.8.4"
+lazy_static = "1.4.0"
 
 # graphics, window, game loop
 rltk = "0.8.1"
@@ -17,3 +17,4 @@ specs-derive = "0.4.1"
 
 # errors
 snafu = "0.6.10"
+

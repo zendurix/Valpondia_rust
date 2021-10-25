@@ -1,6 +1,8 @@
-use crate::ecs::{components, State};
+use crate::{
+    ecs::{components, State},
+    rng,
+};
 
-use rand::Rng;
 use rltk::Rltk;
 use specs::prelude::*;
 
@@ -11,8 +13,7 @@ pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
     let ais = gs.ecs.read_storage::<components::AI>();
     let mut movables = gs.ecs.write_storage::<components::Movable>();
     for (_ais, mov) in (&ais, &mut movables).join() {
-        let mut rng = rand::thread_rng();
-        let rand = rng.gen_range(1..=9);
+        let rand = rng::range(1, 10);
         mov.move_dir = match rand {
             1 => Some(Dir::DownLeft),
             2 => Some(Dir::Down),

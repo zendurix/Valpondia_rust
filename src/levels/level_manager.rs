@@ -1,4 +1,11 @@
-use crate::maps::{generators::cellular_automata::CAMapGen, MapGenerator};
+use crate::maps::{
+    generators::{
+        basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig},
+        cellular_automata::CAMapGen,
+        test_map::TestMap,
+    },
+    MapGenerator,
+};
 
 use super::level::{Level, LevelType};
 
@@ -35,6 +42,14 @@ impl LevelManager {
         height: usize,
     ) -> Result<usize> {
         match level_type {
+            LevelType::TestLevel => {
+                let new_map = TestMap::new(width, height).generate()?;
+                let new_level = Level {
+                    map: new_map,
+                    level_index: self.levels.len(),
+                };
+                self.levels.push(new_level);
+            }
             LevelType::Cave => {
                 let new_map = CAMapGen::new(width, height)?.generate()?;
                 let new_level = Level {
@@ -43,7 +58,15 @@ impl LevelManager {
                 };
                 self.levels.push(new_level);
             }
-            LevelType::Dungeon => (),
+            LevelType::BasicDungeon => {
+                let new_map = BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default())
+                    .generate()?;
+                let new_level = Level {
+                    map: new_map,
+                    level_index: self.levels.len(),
+                };
+                self.levels.push(new_level);
+            }
         }
         Ok(self.levels.len() - 1)
     }
