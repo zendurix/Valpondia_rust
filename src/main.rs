@@ -3,15 +3,18 @@ pub mod ecs;
 pub mod errors;
 pub mod graphics;
 pub mod levels;
-pub mod map_generators;
+pub mod maps;
 
 use ecs::State;
-use levels::map::Map;
+use levels::level::LevelType;
+use levels::level_manager;
+use levels::level_manager::LevelManager;
+use maps::Map;
 
 use log::error;
-use map_generators::cellular_automata::CAMapGen;
-use map_generators::cellular_automata::CAMapGenConfig;
-use map_generators::MapGenerator;
+use maps::generators::cellular_automata::CAMapGen;
+use maps::generators::cellular_automata::CAMapGenConfig;
+use maps::MapGenerator;
 use specs::prelude::*;
 use specs::World;
 
@@ -26,6 +29,17 @@ fn main() {
 
     let mut gs = State::new();
     gs.register_all_components();
+
+    let mut level_manager = LevelManager::new();
+    let test = level_manager.crete_new_level(LevelType::Cave, 100, 100);
+
+    match test {
+        Ok(m) => (),
+        Err(e) => {
+            println!("ERROR: {}", e);
+            std::process::exit(1);
+        }
+    }
 
     let map = match CAMapGen::new(100, 100) {
         Ok(map_gen) => match map_gen.generate() {

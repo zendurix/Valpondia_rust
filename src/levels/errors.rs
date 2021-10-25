@@ -8,6 +8,6 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 #[snafu(visibility(pub))]
 pub enum Error {
     #[snafu(context(false))]
-    #[snafu(display("Error in map_generators: {:?}", source.to_string()))]
-    MapGeneratorError { source: maps::Error },
+    #[snafu(display("Error in maps: {:?}", source.to_string()))]
+    MapDError { source: maps::Error },
 }

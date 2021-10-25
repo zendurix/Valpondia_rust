@@ -1,14 +1,12 @@
-use super::map::Map;
-
+use crate::maps::Map;
 
 #[derive(Debug, Clone, Copy)]
 pub enum LevelType {
     Cave,
-    Dungeon
+    Dungeon,
 }
 
-
 pub struct Level {
-    map: Map,
-    level_index: usize,
+    pub map: Map,
+    pub level_index: usize,
 }

@@ -5,7 +5,7 @@ use specs::{prelude::*, Component};
 use crate::ecs::components;
 use crate::ecs::systems;
 use crate::graphics;
-use crate::levels::map::Map;
+use crate::maps::Map;
 
 pub struct State {
     pub ecs: World,
