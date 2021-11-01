@@ -16,3 +16,7 @@ pub fn roll_dice(n: i32, die_type: i32) -> i32 {
 pub fn range(min: i32, max: i32) -> i32 {
     RNG.lock().unwrap().range(min, max)
 }
+
+pub fn rand_bool() -> bool {
+    roll_dice(1, 2) == 1
+}

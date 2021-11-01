@@ -1,5 +1,6 @@
 use super::{Map, TileType};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Rect {
     pub x1: usize,
     pub x2: usize,

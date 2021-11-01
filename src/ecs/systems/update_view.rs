@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rltk::{field_of_view, field_of_view_set, Rltk};
+use rltk::{field_of_view_set, Rltk};
 use specs::{Join, WorldExt};
 
 use crate::{
@@ -9,7 +9,7 @@ use crate::{
 };
 
 /// rltk implementation
-pub fn update_view(gs: &mut State, _ctx: &mut Rltk) {
+pub fn update_view(gs: &mut State, use_rltk_fov: bool) {
     let positions = gs.ecs.read_storage::<components::Position>();
     let mut views = gs.ecs.write_storage::<components::View>();
     let map = gs.current_map();
@@ -19,9 +19,11 @@ pub fn update_view(gs: &mut State, _ctx: &mut Rltk) {
         .filter(|(_pos, view)| view.should_update)
     {
         view.visible_tiles.clear();
-        view.visible_tiles =
-            field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map);
-        // calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map);
+        view.visible_tiles = if use_rltk_fov {
+            field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map)
+        } else {
+            calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map)
+        };
         view.visible_tiles
             .retain(|p| p.x >= 0 && p.x < map.width as i32 && p.y >= 0 && p.y < map.height as i32);
         view.should_update = false;

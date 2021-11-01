@@ -46,6 +46,7 @@ fn main() {
         p_y = rng::range(2, gs.current_map().height_max() as i32 - 2) as usize;
     }
 
+    gs.ecs.insert(rltk::Point::new(p_x, p_y));
     gs.ecs
         .create_entity()
         .with(components::Player { input: None })
@@ -70,24 +71,41 @@ fn main() {
             fg: RGB::named(rltk::YELLOW),
             bg: RGB::named(rltk::BLACK),
         })
+        .with(components::OccupiesTile{})
         .build();
 
-    for i in 2..5 {
+    let rooms = gs.current_map().rooms.clone();
+    for room in rooms.iter() {
+        let (x, y) = room.center();
+        let rand = rng::rand_bool();
         gs.ecs
             .create_entity()
-            .with(ecs::components::Position {
-                x: i,
-                y: i,
-                level: 0,
-            })
-            .with(components::Movable { move_dir: None })
-            .with(components::AI {})
+            .with(components::Position { x, y, level: 0 })
             .with(components::Renderable {
-                ascii: rltk::to_cp437('☺'),
+                ascii: if rand {
+                    rltk::to_cp437('g')
+                } else {
+                    rltk::to_cp437('o')
+                },
                 texture: None,
                 fg: RGB::named(rltk::RED),
                 bg: RGB::named(rltk::BLACK),
             })
+            .with(components::Name {
+                name: if rand {
+                    "goblin".to_string()
+                } else {
+                    "orc".to_string()
+                },
+            })
+            .with(components::View {
+                visible_tiles: HashSet::<rltk::Point>::new(),
+                range: 8,
+                should_update: true,
+            })
+            .with(components::AI {})
+            .with(components::Movable { move_dir: None })
+            .with(components::OccupiesTile{})
             .build();
     }
 

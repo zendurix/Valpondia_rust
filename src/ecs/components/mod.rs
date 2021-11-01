@@ -8,6 +8,8 @@ use specs_derive::Component;
 use crate::base::Dir;
 pub use rltk::{VirtualKeyCode, RGB};
 
+use super::systems::player::InputType;
+
 #[derive(Component)]
 pub struct Position {
     pub x: usize,
@@ -25,7 +27,7 @@ pub struct Renderable {
 
 #[derive(Component)]
 pub struct Player {
-    pub input: Option<VirtualKeyCode>,
+    pub input: Option<InputType>,
 }
 
 #[derive(Component)]
@@ -51,3 +53,10 @@ pub struct ViewMemory {
     pub seen_tiles: HashSet<rltk::Point>,
     pub should_update: bool,
 }
+
+#[derive(Component)]
+pub struct Name {
+    pub name: String,
+}
+#[derive(Component, Debug)]
+pub struct OccupiesTile {}

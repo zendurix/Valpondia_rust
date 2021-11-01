@@ -1,4 +1,4 @@
-use specs::Builder;
+use itertools::Itertools;
 
 use crate::{
     maps::{
@@ -46,7 +46,7 @@ impl BasicDungeonMap {
     pub fn create_basic_dungeon_map(&mut self) -> Map {
         let mut map = Map::new(self.width, self.height).with_all_solid();
         self.add_rooms(&mut map);
-        apply_horizontal_tunnel(&mut map, 25, 40, 23);
+        self.add_corridors(&mut map);
         map
     }
 
@@ -64,26 +64,27 @@ impl BasicDungeonMap {
             );
             let x = rng::range(1, self.width as i32 - 1 - w);
             let y = rng::range(1, self.height as i32 - 1 - h);
-
             let new_room = Rect::new(x as usize, y as usize, w as usize, h as usize);
             if rooms.iter().all(|room| !new_room.intersect(room)) {
                 apply_room_to_map(&new_room, map);
-
-                // corridors
-                if !rooms.is_empty() {
-                    let (new_x, new_y) = new_room.center();
-                    let (prev_x, prev_y) = rooms[rooms.len() - 1].center();
-
-                    if rng::range(0, 2) == 1 {
-                        apply_horizontal_tunnel(map, prev_x, new_x, prev_y);
-                        apply_vertical_tunnel(map, prev_y, new_y, new_x);
-                    } else {
-                        apply_vertical_tunnel(map, prev_y, new_y, prev_x);
-                        apply_horizontal_tunnel(map, prev_x, new_x, new_y);
-                    }
-                }
-
                 rooms.push(new_room);
+            }
+        }
+        map.rooms = rooms;
+    }
+
+    fn add_corridors(&mut self, map: &mut Map) {
+        let rooms = map.rooms.clone();
+        for (room1, room2) in rooms.iter().tuple_windows() {
+            let (new_x, new_y) = room1.center();
+            let (prev_x, prev_y) = room2.center();
+
+            if rng::range(0, 2) == 1 {
+                apply_horizontal_tunnel(map, prev_x, new_x, prev_y);
+                apply_vertical_tunnel(map, prev_y, new_y, new_x);
+            } else {
+                apply_vertical_tunnel(map, prev_y, new_y, prev_x);
+                apply_horizontal_tunnel(map, prev_x, new_x, new_y);
             }
         }
     }

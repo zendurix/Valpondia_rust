@@ -18,3 +18,4 @@ specs-derive = "0.4.1"
 # errors
 snafu = "0.6.10"
 
+itertools = "0.10.1"

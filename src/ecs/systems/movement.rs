@@ -14,7 +14,9 @@ pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
 
     let mut views = gs.ecs.write_storage::<components::View>();
     let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
+    let mut player_pos = gs.ecs.write_resource::<rltk::Point>();
     let entities = gs.ecs.entities();
+    let players = gs.ecs.read_storage::<components::Player>();
 
     for (entity, mov, pos) in (&entities, &movables, &mut positions).join() {
         let mut try_x = pos.x;
@@ -69,6 +71,14 @@ pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
         }
         if let Some(view_memory) = views_memories.get_mut(entity) {
             view_memory.should_update = true;
+        }
+        if let Some(_player) = players.get(entity) {
+            gs.player_pos = components::Position {
+                x: pos.x,
+                y: pos.y,
+                level: pos.level,
+            };
+            *player_pos = rltk::Point::new(pos.x, pos.y);
         }
     }
 }

@@ -9,8 +9,19 @@ use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
 
+use super::systems::ai::AISystem;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RunState {
+    Running,
+    Paused,
+}
+
 pub struct State {
     pub ecs: World,
+    pub run_state: RunState,
+
+    pub player_pos: components::Position,
 
     pub level_manager: LevelManager,
     pub current_level: i16,
@@ -19,9 +30,15 @@ pub struct State {
 impl State {
     pub fn new() -> State {
         State {
+            run_state: RunState::Paused,
             current_level: 0,
             ecs: World::new(),
             level_manager: LevelManager::new(),
+            player_pos: components::Position {
+                x: 0,
+                y: 0,
+                level: 0,
+            },
         }
     }
 
@@ -33,6 +50,8 @@ impl State {
         self.ecs.register::<components::AI>();
         self.ecs.register::<components::View>();
         self.ecs.register::<components::ViewMemory>();
+        self.ecs.register::<components::Name>();
+        self.ecs.register::<components::OccupiesTile>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -57,15 +76,16 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
-        systems::player::try_player_turn(self, ctx);
-        if ctx.key.is_some() {
-            systems::ai_random_mov::move_all(self, ctx);
+        self.run_state = systems::player::try_player_turn(self, ctx);
+        if self.run_state == RunState::Running {
+            // systems::ai::ai_random_mov::move_all(self, ctx);
+            systems::ai_main(self, ctx);
             systems::move_all(self, ctx);
+            systems::update_view(self, true);
+            systems::update_view_memory(self, ctx);
         }
-        ctx.cls();
 
-        systems::update_view(self, ctx);
-        systems::update_view_memory(self, ctx);
+        ctx.cls();
         graphics::draw_map_with_fov(self, ctx);
         // graphics::draw_map_without_fov(self.current_map(), ctx);
         graphics::draw_entities(self, ctx);
