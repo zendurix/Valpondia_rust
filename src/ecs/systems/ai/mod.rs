@@ -38,16 +38,16 @@ pub fn ai_main(gs: &mut State, _ctx: &mut Rltk) {
     let mut movables = gs.ecs.write_storage::<components::Movable>();
     let names = gs.ecs.read_storage::<components::Name>();
     let ais = gs.ecs.read_storage::<components::AI>();
-    let views = gs.ecs.read_storage::<components::View>();
+    let mut views = gs.ecs.write_storage::<components::View>();
     let mut blocks = gs.ecs.write_storage::<components::BlocksTile>();
     let entities = gs.ecs.entities();
 
     let player_pos = gs.ecs.read_resource::<rltk::Point>();
     let mut map = gs.ecs.fetch_mut::<Map>();
 
-    for (ent, view, pos, _ai, name, mut movable) in (
+    for (ent, mut view, pos, _ai, name, mut movable) in (
         &entities,
-        &views,
+        &mut views,
         &mut positions,
         &ais,
         &names,
@@ -75,6 +75,8 @@ pub fn ai_main(gs: &mut State, _ctx: &mut Rltk) {
                 pos.x = x;
                 pos.y = y;
 
+                view.should_update = true;
+
                 if let Some(block) = blocks.get_mut(ent) {
                     map.blocked[block.prev_blocked_tile_index] = false;
                     let curret_index = map.xy_to_index(x, y);
@@ -87,6 +89,7 @@ pub fn ai_main(gs: &mut State, _ctx: &mut Rltk) {
             } else {
                 console::log(format!("{} NOT follows", name.name));
             }
+
         }
     }
 }

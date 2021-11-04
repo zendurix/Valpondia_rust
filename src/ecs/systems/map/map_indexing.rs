@@ -30,7 +30,6 @@ impl<'a> System<'a> for MapIndexingSystem {
             if let Some(_block) = blockers.get(ent) {
                 map.blocked[idx] = true;
             }
-
             map.tile_content[idx].push(ent);
         }
     }

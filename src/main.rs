@@ -22,14 +22,14 @@ use specs::prelude::*;
 use rltk::RGB;
 
 fn main() {
-    let context = graphics::create_window(100, 100);
+    let context = graphics::create_window(50, 50);
     // caves of qud effect
     // context.with_post_scanlines(true);
 
     let mut gs = State::new();
     gs.register_all_components();
 
-    let test = gs.create_new_level(LevelType::BasicDungeon, 100, 100);
+    let test = gs.create_new_level(LevelType::BasicDungeon, 50,50 );
 
     match test {
         Ok(_) => (),

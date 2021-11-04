@@ -1,6 +1,9 @@
-use crate::{ecs::{components, State}, maps::{Map, TileType}};
+use crate::{
+    ecs::{components, State},
+    maps::{Map, TileType},
+};
 
-use rltk::{Rltk, console};
+use rltk::{console, Rltk};
 use specs::prelude::*;
 
 use crate::base::Dir;
@@ -17,7 +20,7 @@ pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
     let combat_stats = gs.ecs.read_storage::<components::CombatBaseStats>();
     let map = gs.ecs.fetch::<Map>();
 
-    for (entity, _p, mov, pos) in (&entities,  &players, &movables, &mut positions).join() {
+    for (entity, _p, mov, pos) in (&entities, &players, &movables, &mut positions).join() {
         let mut try_x = pos.x;
         let mut try_y = pos.y;
 
@@ -55,10 +58,8 @@ pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
             }
         }
 
-
         try_x = try_x.min(map.width_max());
         try_y = try_y.min(map.height_max());
-
 
         let destination_idx = map.xy_to_index(try_x, try_y);
 
@@ -67,14 +68,12 @@ pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
             return;
         }
         for potential_target in map.tile_content[destination_idx].iter() {
-            if let Some(target ) = combat_stats.get(*potential_target)
-            {
+            if let Some(target) = combat_stats.get(*potential_target) {
                 // Attack it
                 console::log(&format!("JEB JEB JEBUDU"));
                 return; // So we don't move after attacking
             }
         }
-
 
         if !map.tile_at_xy(try_x, try_y).blocks_movement() {
             pos.x = try_x;

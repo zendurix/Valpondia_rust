@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use lazy_static::__Deref;
 use rltk::{field_of_view_set, Rltk};
 use specs::{Join, WorldExt};
 
@@ -12,7 +13,7 @@ use crate::{
 pub fn update_view(gs: &mut State, use_rltk_fov: bool) {
     let positions = gs.ecs.read_storage::<components::Position>();
     let mut views = gs.ecs.write_storage::<components::View>();
-    let map = gs.current_map();
+    let mut map = gs.ecs.fetch_mut::<Map>();
 
     for (pos, view) in (&positions, &mut views)
         .join()
@@ -20,9 +21,9 @@ pub fn update_view(gs: &mut State, use_rltk_fov: bool) {
     {
         view.visible_tiles.clear();
         view.visible_tiles = if use_rltk_fov {
-            field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map)
+            field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map.deref())
         } else {
-            calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map)
+            calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map.deref())
         };
         view.visible_tiles
             .retain(|p| p.x >= 0 && p.x < map.width as i32 && p.y >= 0 && p.y < map.height as i32);
@@ -78,7 +79,7 @@ fn tracer(
     if angle == 0.0 || angle == 180.0 {
         while step_counter < view_range {
             if let Some(tile) = map.try_get_tile_at_xy(tracer.x as usize, tracer.y as usize) {
-                visible_points.insert(tracer.clone());
+                visible_points.insert(tracer);
                 if tile.blocks_visibility() {
                     break;
                 }
@@ -91,7 +92,7 @@ fn tracer(
     } else {
         while step_counter < view_range {
             if let Some(tile) = map.try_get_tile_at_xy(tracer.x as usize, tracer.y as usize) {
-                visible_points.insert(tracer.clone());
+                visible_points.insert(tracer);
                 if tile.blocks_visibility() {
                     break;
                 }
@@ -121,6 +122,7 @@ fn tracer(
     visible_points
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum Quarter {
     I,

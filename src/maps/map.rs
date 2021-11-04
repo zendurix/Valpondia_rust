@@ -54,7 +54,7 @@ impl Map {
     }
 
     pub fn update_blocked_with_blocking_tiles(&mut self) {
-        for (i, tile) in self.tiles.iter_mut().enumerate() {
+        for (i, tile) in self.tiles.iter().enumerate() {
             self.blocked[i] = tile.blocks_movement();
         }
     }
@@ -116,14 +116,14 @@ impl Map {
     }
 
     pub fn xy_to_index(&self, x: usize, y: usize) -> usize {
-        x + y * self.width
+        x +( y * self.width)
     }
 
     fn is_exit_valid(&self, x: usize, y: usize) -> bool {
         if x < 1 || x > self.width_max() || y < 1 || y > self.height_max() {
             return false;
         }
-        !self.tile_at_xy(x, y).blocks_movement() && !self.blocked[self.xy_to_index(x, y)]
+        !self.blocked[self.xy_to_index(x, y)]
     }
 
     pub fn clear_tiles_contents(&mut self) {
@@ -138,12 +138,13 @@ impl BaseMap for Map {
         self.tiles[idx].blocks_visibility()
     }
 
-    fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {
+    fn get_pathing_distance(&self, index1: usize, index2: usize) -> f32 {
         let w = self.width;
-        let p1 = rltk::Point::new(idx1 % w, idx1 / w);
-        let p2 = rltk::Point::new(idx2 % w, idx2 / w);
+        let p1 = rltk::Point::new(index1 % w, index1 / w);
+        let p2 = rltk::Point::new(index2 % w, index2 / w);
         rltk::DistanceAlg::Pythagoras.distance2d(p1, p2)
     }
+
     fn get_available_exits(&self, index: usize) -> rltk::SmallVec<[(usize, f32); 10]> {
         let mut exits = rltk::SmallVec::new();
         let x = index % self.width;
@@ -163,18 +164,17 @@ impl BaseMap for Map {
             exits.push((index + w, 1.0));
         }
 
-        /// 1.0 ?
         if self.is_exit_valid(x - 1, y - 1) {
-            exits.push((index - 1 - w, 1.45));
+            exits.push(((index - 1) - w, 1.45));
         }
         if self.is_exit_valid(x + 1, y - 1) {
-            exits.push((index + 1 - w, 1.45));
+            exits.push(((index + 1) - w, 1.45));
         }
         if self.is_exit_valid(x - 1, y + 1) {
-            exits.push((index + w - 1, 1.45));
+            exits.push(((index + w) - 1, 1.45));
         }
         if self.is_exit_valid(x + 1, y + 1) {
-            exits.push((index + w + 1, 1.45));
+            exits.push(((index + w) + 1, 1.45));
         }
 
         exits
