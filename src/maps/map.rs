@@ -116,7 +116,7 @@ impl Map {
     }
 
     pub fn xy_to_index(&self, x: usize, y: usize) -> usize {
-        x +( y * self.width)
+        x + (y * self.width)
     }
 
     fn is_exit_valid(&self, x: usize, y: usize) -> bool {

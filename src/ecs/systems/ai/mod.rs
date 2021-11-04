@@ -89,7 +89,6 @@ pub fn ai_main(gs: &mut State, _ctx: &mut Rltk) {
             } else {
                 console::log(format!("{} NOT follows", name.name));
             }
-
         }
     }
 }

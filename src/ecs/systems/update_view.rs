@@ -21,7 +21,11 @@ pub fn update_view(gs: &mut State, use_rltk_fov: bool) {
     {
         view.visible_tiles.clear();
         view.visible_tiles = if use_rltk_fov {
-            field_of_view_set(rltk::Point::new(pos.x, pos.y), view.range as i32, map.deref())
+            field_of_view_set(
+                rltk::Point::new(pos.x, pos.y),
+                view.range as i32,
+                map.deref(),
+            )
         } else {
             calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map.deref())
         };

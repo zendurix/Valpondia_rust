@@ -55,6 +55,8 @@ impl State {
         self.ecs.register::<components::BlocksTile>();
         self.ecs.register::<components::Hp>();
         self.ecs.register::<components::CombatBaseStats>();
+        self.ecs.register::<components::WantsToMeleeAtack>();
+        self.ecs.register::<components::SufferDamage>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -100,12 +102,16 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         self.run_state = systems::player::try_player_turn(self, ctx);
         if self.run_state == RunState::Running {
+            systems::combat::melee::MeleeCombatSystem {}.run_now(&mut self.ecs);
+            systems::combat::damage::DamageSystem {}.run_now(&mut self.ecs);
+            systems::combat::damage::delete_the_dead(&mut self.ecs);
+
             // systems::ai::ai_random_mov::move_all(self, ctx);
             systems::ai::ai_main(self, ctx);
             systems::update_view::update_view(self, true);
             systems::update_view::update_view_memory(self, ctx);
 
-            systems::map::MapIndexingSystem {}.run_now(&self.ecs);
+            systems::map::MapIndexingSystem {}.run_now(&mut self.ecs);
         }
         self.ecs.maintain();
 

@@ -29,7 +29,7 @@ fn main() {
     let mut gs = State::new();
     gs.register_all_components();
 
-    let test = gs.create_new_level(LevelType::BasicDungeon, 50,50 );
+    let test = gs.create_new_level(LevelType::BasicDungeon, 50, 50);
 
     match test {
         Ok(_) => (),
@@ -65,6 +65,9 @@ fn main() {
             x: p_x,
             y: p_y,
             level: 0,
+        })
+        .with(components::Name {
+            name: "hlop".to_string(),
         })
         .with(components::Renderable {
             ascii: rltk::to_cp437('@'),

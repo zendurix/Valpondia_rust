@@ -18,6 +18,8 @@ pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
     let entities = gs.ecs.entities();
     let players = gs.ecs.read_storage::<components::Player>();
     let combat_stats = gs.ecs.read_storage::<components::CombatBaseStats>();
+    let hps = gs.ecs.read_storage::<components::Hp>();
+    let mut wants_to_melee = gs.ecs.write_storage::<components::WantsToMeleeAtack>();
     let map = gs.ecs.fetch::<Map>();
 
     for (entity, _p, mov, pos) in (&entities, &players, &movables, &mut positions).join() {
@@ -68,10 +70,17 @@ pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
             return;
         }
         for potential_target in map.tile_content[destination_idx].iter() {
-            if let Some(target) = combat_stats.get(*potential_target) {
-                // Attack it
-                console::log(&format!("JEB JEB JEBUDU"));
-                return; // So we don't move after attacking
+            let target = hps.get(*potential_target);
+            if let Some(_target) = target {
+                wants_to_melee
+                    .insert(
+                        entity,
+                        components::WantsToMeleeAtack {
+                            target: *potential_target,
+                        },
+                    )
+                    .expect("Add target failed");
+                return;
             }
         }
 
