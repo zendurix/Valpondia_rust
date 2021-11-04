@@ -1,39 +1,65 @@
-use std::collections::HashSet;
-
 use lazy_static::__Deref;
-use rltk::{field_of_view_set, Rltk};
-use specs::{Join, WorldExt};
+use rltk::field_of_view_set;
+use specs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
 
-use crate::{
-    ecs::{components, State},
-    maps::Map,
-};
+use crate::{ecs::components, maps::Map};
 
-/// rltk implementation
-pub fn update_view(gs: &mut State, use_rltk_fov: bool) {
-    let positions = gs.ecs.read_storage::<components::Position>();
-    let mut views = gs.ecs.write_storage::<components::View>();
-    let mut map = gs.ecs.fetch_mut::<Map>();
+pub struct ViewSystem {}
 
-    for (pos, view) in (&positions, &mut views)
-        .join()
-        .filter(|(_pos, view)| view.should_update)
-    {
-        view.visible_tiles.clear();
-        view.visible_tiles = if use_rltk_fov {
-            field_of_view_set(
+impl<'a> System<'a> for ViewSystem {
+    type SystemData = (
+        ReadStorage<'a, components::Position>,
+        WriteStorage<'a, components::View>,
+        ReadExpect<'a, Map>,
+    );
+
+    fn run(&mut self, data: Self::SystemData) {
+        #[rustfmt::skip]
+        let (
+            positions ,
+            mut views,
+            current_map
+        ) = data;
+
+        for (pos, view) in (&positions, &mut views)
+            .join()
+            .filter(|(_pos, view)| view.should_update)
+        {
+            view.visible_tiles.clear();
+            view.visible_tiles = field_of_view_set(
                 rltk::Point::new(pos.x, pos.y),
                 view.range as i32,
-                map.deref(),
-            )
-        } else {
-            calculate_field_of_view(rltk::Point::new(pos.x, pos.y), view.range, map.deref())
-        };
-        view.visible_tiles
-            .retain(|p| p.x >= 0 && p.x < map.width as i32 && p.y >= 0 && p.y < map.height as i32);
-        view.should_update = false;
+                current_map.deref(),
+            );
+            view.visible_tiles.retain(|p| {
+                p.x >= 0
+                    && p.x < current_map.width as i32
+                    && p.y >= 0
+                    && p.y < current_map.height as i32
+            });
+            view.should_update = false;
+        }
     }
 }
+
+pub struct ViewMemorySystem {}
+impl<'a> System<'a> for ViewMemorySystem {
+    type SystemData = (
+        ReadStorage<'a, components::View>,
+        WriteStorage<'a, components::ViewMemory>,
+    );
+
+    fn run(&mut self, data: Self::SystemData) {
+        let (views, mut views_memories) = data;
+        for (view, view_memory) in (&views, &mut views_memories).join() {
+            view_memory.seen_tiles.extend(view.visible_tiles.clone());
+        }
+    }
+}
+
+/*
+* My old implementation from C++.
+
 fn calculate_field_of_view(start: rltk::Point, range: usize, map: &Map) -> HashSet<rltk::Point> {
     let mut visible_tiles = HashSet::<rltk::Point>::new();
 
@@ -49,15 +75,6 @@ fn calculate_field_of_view(start: rltk::Point, range: usize, map: &Map) -> HashS
     }
 
     visible_tiles
-}
-
-pub fn update_view_memory(gs: &mut State, _ctx: &mut Rltk) {
-    let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
-    let views = gs.ecs.read_storage::<components::View>();
-
-    for (view, view_memory) in (&views, &mut views_memories).join() {
-        view_memory.seen_tiles.extend(view.visible_tiles.clone());
-    }
 }
 
 fn tracer(
@@ -212,3 +229,5 @@ fn step_tracer(tracer: &mut rltk::Point, quarter: Quarter, dir: TracerStepDir) {
         },
     }
 }
+
+*/

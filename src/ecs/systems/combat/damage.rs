@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use crate::components;
 use rltk::console;
 use specs::prelude::*;
@@ -47,6 +45,5 @@ pub fn delete_the_dead(ecs: &mut World) {
 
     for victim in dead {
         ecs.delete_entity(victim).expect("Unable to delete");
-
     }
 }

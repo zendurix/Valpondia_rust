@@ -52,7 +52,7 @@ pub fn get_input(gs: &mut State, ctx: &mut Rltk) {
     }
 }
 
-pub fn handle_input(gs: &mut State, _ctx: &mut Rltk) {
+pub fn handle_input(gs: &mut State) {
     let players = gs.ecs.read_storage::<components::Player>();
     let mut movables = gs.ecs.write_storage::<components::Movable>();
     for (player, mov) in (&players, &mut movables).join() {

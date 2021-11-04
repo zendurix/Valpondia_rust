@@ -6,11 +6,9 @@ use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::graphics;
-use crate::levels::level::{self, Level, LevelType};
+use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
-
-use super::systems::ai::AISystem;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RunState {
@@ -96,28 +94,50 @@ impl State {
                 .insert(self.level_manager.levels[level_index].map.clone());
         }
     }
+
+    fn run_player_systems(&mut self, ctx: &mut Rltk) {
+        self.run_state = systems::player::try_player_turn(self, ctx);
+    }
+
+    fn run_combat_systems(&mut self) {
+        systems::combat::melee::MeleeCombatSystem {}.run_now(&self.ecs);
+        systems::combat::damage::DamageSystem {}.run_now(&self.ecs);
+        systems::combat::damage::delete_the_dead(&mut self.ecs);
+    }
+
+    fn run_ai_systems(&mut self) {
+        systems::ai::AISystem {}.run_now(&self.ecs);
+    }
+
+    fn run_view_systems(&mut self) {
+        systems::view_system::ViewSystem {}.run_now(&self.ecs);
+        systems::view_system::ViewMemorySystem {}.run_now(&self.ecs);
+    }
+
+    fn run_map_systems(&mut self) {
+        systems::map::MapIndexingSystem {}.run_now(&self.ecs);
+    }
+
+    fn draw_graphics(&self, ctx: &mut Rltk) {
+        graphics::draw_map_with_fov(self, ctx);
+        // graphics::draw_map_without_fov(self.current_map(), ctx);
+        graphics::draw_entities(self, ctx);
+    }
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
-        self.run_state = systems::player::try_player_turn(self, ctx);
+        self.run_player_systems(ctx);
         if self.run_state == RunState::Running {
-            systems::combat::melee::MeleeCombatSystem {}.run_now(&mut self.ecs);
-            systems::combat::damage::DamageSystem {}.run_now(&mut self.ecs);
-            systems::combat::damage::delete_the_dead(&mut self.ecs);
+            self.run_combat_systems();
+            self.run_ai_systems();
+            self.run_view_systems();
 
-            // systems::ai::ai_random_mov::move_all(self, ctx);
-            systems::ai::ai_main(self, ctx);
-            systems::update_view::update_view(self, true);
-            systems::update_view::update_view_memory(self, ctx);
-
-            systems::map::MapIndexingSystem {}.run_now(&mut self.ecs);
+            self.run_map_systems();
         }
         self.ecs.maintain();
 
         ctx.cls();
-        graphics::draw_map_with_fov(self, ctx);
-        // graphics::draw_map_without_fov(self.current_map(), ctx);
-        graphics::draw_entities(self, ctx);
+        self.draw_graphics(ctx);
     }
 }

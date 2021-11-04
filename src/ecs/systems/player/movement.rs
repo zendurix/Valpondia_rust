@@ -1,14 +1,13 @@
 use crate::{
     ecs::{components, State},
-    maps::{Map, TileType},
+    maps::Map,
 };
 
-use rltk::{console, Rltk};
 use specs::prelude::*;
 
 use crate::base::Dir;
 
-pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
+pub fn move_player(gs: &mut State) {
     let mut positions = gs.ecs.write_storage::<components::Position>();
     let movables = gs.ecs.read_storage::<components::Movable>();
 
@@ -17,7 +16,7 @@ pub fn move_player(gs: &mut State, _ctx: &mut Rltk) {
     let mut player_pos = gs.ecs.write_resource::<rltk::Point>();
     let entities = gs.ecs.entities();
     let players = gs.ecs.read_storage::<components::Player>();
-    let combat_stats = gs.ecs.read_storage::<components::CombatBaseStats>();
+    let _combat_stats = gs.ecs.read_storage::<components::CombatBaseStats>();
     let hps = gs.ecs.read_storage::<components::Hp>();
     let mut wants_to_melee = gs.ecs.write_storage::<components::WantsToMeleeAtack>();
     let map = gs.ecs.fetch::<Map>();

@@ -10,7 +10,7 @@ pub fn draw_map_with_fov(gs: &State, ctx: &mut Rltk) {
     let views = gs.ecs.read_storage::<components::View>();
     let views_memories = gs.ecs.read_storage::<components::ViewMemory>();
     let players = gs.ecs.read_storage::<components::Player>();
-    let mut map = gs.ecs.fetch_mut::<Map>();
+    let map = gs.ecs.fetch_mut::<Map>();
 
     for (view, view_memory, _player) in (&views, &views_memories, &players).join() {
         for pos in view.visible_tiles.iter() {

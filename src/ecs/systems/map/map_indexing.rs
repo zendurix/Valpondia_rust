@@ -1,14 +1,6 @@
-use crate::{
-    ecs::{components, State},
-    levels::level_manager::LevelManager,
-    maps::Map,
-    rng,
-};
+use crate::{ecs::components, maps::Map};
 
-use rltk::Rltk;
 use specs::prelude::*;
-
-use crate::base::Dir;
 
 pub struct MapIndexingSystem {}
 impl<'a> System<'a> for MapIndexingSystem {

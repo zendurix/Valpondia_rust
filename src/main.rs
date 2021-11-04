@@ -115,7 +115,6 @@ fn main() {
                 should_update: true,
             })
             .with(components::AI {})
-            .with(components::Movable { move_dir: None })
             .with(components::BlocksTile {
                 prev_blocked_tile_index: 0,
             })
