@@ -14,7 +14,7 @@ use super::systems::player::InputType;
 pub struct Position {
     pub x: usize,
     pub y: usize,
-    pub level: i16,
+    pub level: usize,
 }
 
 #[derive(Component)]
@@ -59,4 +59,18 @@ pub struct Name {
     pub name: String,
 }
 #[derive(Component, Debug)]
-pub struct OccupiesTile {}
+pub struct BlocksTile {
+    pub prev_blocked_tile_index: usize,
+}
+
+#[derive(Component, Debug)]
+pub struct Hp {
+    pub max_hp: i32,
+    pub hp: i32,
+}
+
+#[derive(Component, Debug)]
+pub struct CombatBaseStats {
+    pub attack: i32,
+    pub defense: i32,
+}

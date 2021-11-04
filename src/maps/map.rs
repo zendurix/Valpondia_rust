@@ -1,4 +1,5 @@
 use rltk::{Algorithm2D, BaseMap};
+use specs::Entity;
 
 use super::rect::Rect;
 
@@ -25,7 +26,9 @@ pub struct Map {
     pub height: usize,
     pub rooms: Vec<Rect>,
     /// by index
-    pub blocked : Vec<bool>
+    pub blocked: Vec<bool>,
+
+    pub tile_content: Vec<Vec<Entity>>,
 }
 
 impl Map {
@@ -38,7 +41,8 @@ impl Map {
             height,
             tiles,
             rooms: vec![],
-            blocked : vec![false; width*height]
+            blocked: vec![false; width * height],
+            tile_content: vec![vec![]; width * height],
         }
     }
 
@@ -121,6 +125,12 @@ impl Map {
         }
         !self.tile_at_xy(x, y).blocks_movement() && !self.blocked[self.xy_to_index(x, y)]
     }
+
+    pub fn clear_tiles_contents(&mut self) {
+        for content in self.tile_content.iter_mut() {
+            content.clear();
+        }
+    }
 }
 
 impl BaseMap for Map {
@@ -161,7 +171,7 @@ impl BaseMap for Map {
             exits.push((index + 1 - w, 1.45));
         }
         if self.is_exit_valid(x - 1, y + 1) {
-            exits.push((index - w - 1, 1.45));
+            exits.push((index + w - 1, 1.45));
         }
         if self.is_exit_valid(x + 1, y + 1) {
             exits.push((index + w + 1, 1.45));

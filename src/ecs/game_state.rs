@@ -1,3 +1,4 @@
+use lazy_static::__Deref;
 use rltk::{GameState, Rltk};
 use specs::prelude::*;
 
@@ -5,7 +6,7 @@ use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::graphics;
-use crate::levels::level::{Level, LevelType};
+use crate::levels::level::{self, Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
 
@@ -24,7 +25,7 @@ pub struct State {
     pub player_pos: components::Position,
 
     pub level_manager: LevelManager,
-    pub current_level: i16,
+    pub current_level: usize,
 }
 
 impl State {
@@ -51,15 +52,23 @@ impl State {
         self.ecs.register::<components::View>();
         self.ecs.register::<components::ViewMemory>();
         self.ecs.register::<components::Name>();
-        self.ecs.register::<components::OccupiesTile>();
+        self.ecs.register::<components::BlocksTile>();
+        self.ecs.register::<components::Hp>();
+        self.ecs.register::<components::CombatBaseStats>();
     }
 
     pub fn current_map(&self) -> &Map {
         &self.level_manager.current_level().map
     }
+    pub fn current_map_mut(&mut self) -> &mut Map {
+        &mut self.level_manager.current_level_mut().map
+    }
 
     pub fn current_level(&self) -> &Level {
         self.level_manager.current_level()
+    }
+    pub fn current_level_mut(&mut self) -> &mut Level {
+        self.level_manager.current_level_mut()
     }
 
     pub fn create_new_level(
@@ -72,6 +81,19 @@ impl State {
             .crete_new_level(level_type, width, height)?;
         Ok(())
     }
+
+    pub fn set_level_as_curent(&mut self, level_index: usize) {
+        if self.level_manager.levels.len() > level_index {
+            if let Some(current_map) = self.ecs.try_fetch::<Map>() {
+                let map = current_map.deref().clone();
+                self.level_manager.levels[self.current_level].map = map;
+            }
+
+            self.current_level = level_index;
+            self.ecs
+                .insert(self.level_manager.levels[level_index].map.clone());
+        }
+    }
 }
 
 impl GameState for State {
@@ -79,11 +101,13 @@ impl GameState for State {
         self.run_state = systems::player::try_player_turn(self, ctx);
         if self.run_state == RunState::Running {
             // systems::ai::ai_random_mov::move_all(self, ctx);
-            systems::ai_main(self, ctx);
-            systems::move_all(self, ctx);
-            systems::update_view(self, true);
-            systems::update_view_memory(self, ctx);
+            systems::ai::ai_main(self, ctx);
+            systems::update_view::update_view(self, true);
+            systems::update_view::update_view_memory(self, ctx);
+
+            systems::map::MapIndexingSystem {}.run_now(&self.ecs);
         }
+        self.ecs.maintain();
 
         ctx.cls();
         graphics::draw_map_with_fov(self, ctx);

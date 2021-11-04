@@ -38,6 +38,7 @@ fn main() {
             std::process::exit(1);
         }
     }
+    gs.set_level_as_curent(0);
 
     let mut p_x = 0;
     let mut p_y = 0;
@@ -71,7 +72,14 @@ fn main() {
             fg: RGB::named(rltk::YELLOW),
             bg: RGB::named(rltk::BLACK),
         })
-        .with(components::OccupiesTile{})
+        .with(components::Hp {
+            max_hp: 100,
+            hp: 100,
+        })
+        .with(components::CombatBaseStats {
+            attack: 10,
+            defense: 3,
+        })
         .build();
 
     let rooms = gs.current_map().rooms.clone();
@@ -105,7 +113,25 @@ fn main() {
             })
             .with(components::AI {})
             .with(components::Movable { move_dir: None })
-            .with(components::OccupiesTile{})
+            .with(components::BlocksTile {
+                prev_blocked_tile_index: 0,
+            })
+            .with(if rand {
+                components::Hp { max_hp: 8, hp: 8 }
+            } else {
+                components::Hp { max_hp: 35, hp: 35 }
+            })
+            .with(if rand {
+                components::CombatBaseStats {
+                    attack: 5,
+                    defense: 0,
+                }
+            } else {
+                components::CombatBaseStats {
+                    attack: 14,
+                    defense: 2,
+                }
+            })
             .build();
     }
 

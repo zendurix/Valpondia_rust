@@ -15,7 +15,7 @@ use crate::levels::errors::Result;
 #[derive(Debug)]
 pub struct LevelManager {
     pub current_level_index: usize,
-    levels: Vec<Level>,
+    pub levels: Vec<Level>,
 }
 
 impl LevelManager {
