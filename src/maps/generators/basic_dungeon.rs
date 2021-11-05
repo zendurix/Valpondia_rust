@@ -20,10 +20,10 @@ pub struct BasicDungeonMapConfig {
 impl Default for BasicDungeonMapConfig {
     fn default() -> BasicDungeonMapConfig {
         BasicDungeonMapConfig {
-            rooms_min: 2,
-            rooms_max: 5,
-            room_size_min: 13,
-            room_size_max: 20,
+            rooms_min: 6,
+            rooms_max: 9,
+            room_size_min: 8,
+            room_size_max: 15,
         }
     }
 }

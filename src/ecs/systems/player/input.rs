@@ -70,7 +70,7 @@ pub fn handle_input(gs: &mut State) {
                 _ => None,
             },
             None => None,
-        };        
+        };
         player.input = None;
     }
 }

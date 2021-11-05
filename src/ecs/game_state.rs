@@ -24,20 +24,26 @@ pub enum RunState {
 /// Entity - player entity (id)
 /// Map - current map
 /// RunState - run state
+/// GameLog - messages log
 
 pub struct State {
     pub ecs: World,
 
     pub level_manager: LevelManager,
     pub current_level: usize,
+
+    pub window_width: usize,
+    pub window_height: usize,
 }
 
 impl State {
-    pub fn new() -> State {
+    pub fn new(window_width: usize, window_height: usize) -> State {
         State {
             current_level: 0,
             ecs: World::new(),
             level_manager: LevelManager::new(),
+            window_width,
+            window_height,
         }
     }
 
@@ -130,6 +136,7 @@ impl State {
         graphics::draw_map_with_fov(self, ctx);
         // graphics::draw_map_without_fov(self.current_map(), ctx);
         graphics::draw_entities(self, ctx);
+        graphics::draw_ui(&self.ecs, ctx, self.window_width, self.window_height);
     }
 }
 

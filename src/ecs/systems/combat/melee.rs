@@ -1,4 +1,4 @@
-use crate::components;
+use crate::{components, gamelog::GameLog};
 use rltk::console;
 use specs::prelude::*;
 
@@ -13,6 +13,7 @@ impl<'a> System<'a> for MeleeCombatSystem {
         ReadStorage<'a, components::Hp>,
         ReadStorage<'a, components::CombatBaseStats>,
         WriteStorage<'a, components::SufferDamage>,
+        WriteExpect<'a, GameLog>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -24,6 +25,7 @@ impl<'a> System<'a> for MeleeCombatSystem {
             hps,
             combat_stats,
             mut inflict_damage,
+            mut gamelog,
         ) = data;
 
         for (_entity, wants_melee, name, hp, stats) in
@@ -38,12 +40,12 @@ impl<'a> System<'a> for MeleeCombatSystem {
                     let damage = i32::max(0, stats.attack - target_stats.defense);
 
                     if damage == 0 {
-                        console::log(&format!(
+                        gamelog.entries.push(format!(
                             "{} Attacks doesnt affect  {} (0 dmg)",
                             &name.name, &target_name.name
                         ));
                     } else {
-                        console::log(&format!(
+                        gamelog.entries.push(format!(
                             "{} hits {}, for {} hp.",
                             &name.name, &target_name.name, damage
                         ));

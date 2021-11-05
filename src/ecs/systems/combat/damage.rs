@@ -1,4 +1,4 @@
-use crate::components;
+use crate::{components, gamelog::GameLog};
 use rltk::console;
 use specs::prelude::*;
 
@@ -28,13 +28,16 @@ pub fn delete_the_dead(ecs: &mut World) {
         let hps = ecs.read_storage::<components::Hp>();
         let entities = ecs.entities();
         let players = ecs.read_storage::<components::Player>();
+        let mut gamelog = ecs.write_resource::<GameLog>();
 
         for (entity, hp) in (&entities, &hps).join() {
             if hp.hp < 1 {
                 let player = players.get(entity);
                 match player {
                     None => dead.push(entity),
-                    Some(_) => console::log("You are dead"),
+                    Some(_) => {
+                        gamelog.entries.push("You are dead".to_string());
+                    }
                 }
             }
         }
@@ -42,9 +45,13 @@ pub fn delete_the_dead(ecs: &mut World) {
 
     {
         let names = ecs.read_storage::<components::Name>();
+        let mut gamelog = ecs.write_resource::<GameLog>();
+
         for victim in dead.iter() {
             if let Some(name) = names.get(*victim) {
-                console::log(format!("{} dies in agony :( ", name.name));
+                gamelog
+                    .entries
+                    .push(format!("{} dies in agony :( ", name.name));
             }
         }
     }

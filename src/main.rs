@@ -6,6 +6,7 @@ extern crate lazy_static;
 pub mod base;
 pub mod ecs;
 pub mod errors;
+pub mod gamelog;
 pub mod graphics;
 pub mod levels;
 pub mod maps;
@@ -21,17 +22,25 @@ use specs::prelude::*;
 
 use rltk::RGB;
 
+const WINDOW_WIDTH: usize = 100;
+const WINDOW_HEIGHT: usize = 80;
+
 fn main() {
-    let context = graphics::create_window(50, 50);
+    let context = graphics::create_window(WINDOW_WIDTH, WINDOW_HEIGHT);
     // caves of qud effect
     // context.with_post_scanlines(true);
 
-    let mut gs = State::new();
+    let mut gs = State::new(WINDOW_WIDTH, WINDOW_HEIGHT);
     gs.register_all_components();
 
     gs.ecs.insert(RunState::PreRun);
+    gs.ecs.insert(gamelog::GameLog {
+        entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
+    });
 
-    let test = gs.create_new_level(LevelType::BasicDungeon, 50, 50);
+    let map_height = WINDOW_HEIGHT - graphics::CONSOLE_BOX_HEIGHT;
+
+    let test = gs.create_new_level(LevelType::BasicDungeon, WINDOW_WIDTH, map_height);
 
     match test {
         Ok(_) => (),
