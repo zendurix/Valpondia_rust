@@ -5,7 +5,7 @@ use specs::prelude::*;
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
-use crate::graphics;
+use crate::graphics::{self, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
@@ -29,6 +29,8 @@ pub enum RunState {
 pub struct State {
     pub ecs: World,
 
+    pub gui_drawer: GuiDrawer,
+
     pub level_manager: LevelManager,
     pub current_level: usize,
 
@@ -37,13 +39,14 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(window_width: usize, window_height: usize) -> State {
+    pub fn new(window_width: usize, window_height: usize, gui_drawer: GuiDrawer) -> State {
         State {
             current_level: 0,
             ecs: World::new(),
             level_manager: LevelManager::new(),
             window_width,
             window_height,
+            gui_drawer,
         }
     }
 
@@ -136,7 +139,7 @@ impl State {
         graphics::draw_map_with_fov(self, ctx);
         // graphics::draw_map_without_fov(self.current_map(), ctx);
         graphics::draw_entities(self, ctx);
-        graphics::draw_ui(&self.ecs, ctx, self.window_width, self.window_height);
+        self.gui_drawer.draw_ui(&self.ecs, ctx);
     }
 }
 

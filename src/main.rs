@@ -23,15 +23,24 @@ use specs::prelude::*;
 
 use rltk::RGB;
 
+use crate::graphics::GuiDrawer;
+
 const WINDOW_WIDTH: usize = 100;
 const WINDOW_HEIGHT: usize = 80;
+pub const CONSOLE_BOX_HEIGHT: usize = 8;
 
 fn main() {
     let context = graphics::create_window(WINDOW_WIDTH, WINDOW_HEIGHT);
     // caves of qud effect
     // context.with_post_scanlines(true);
 
-    let mut gs = State::new(WINDOW_WIDTH, WINDOW_HEIGHT);
+    let gui_drawer = GuiDrawer {
+        window_width: WINDOW_WIDTH,
+        window_height: WINDOW_HEIGHT,
+        console_box_height: CONSOLE_BOX_HEIGHT,
+    };
+
+    let mut gs = State::new(WINDOW_WIDTH, WINDOW_HEIGHT, gui_drawer);
     gs.register_all_components();
 
     gs.ecs.insert(RunState::PreRun);
@@ -39,7 +48,7 @@ fn main() {
         entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
     });
 
-    let map_height = WINDOW_HEIGHT - graphics::CONSOLE_BOX_HEIGHT;
+    let map_height = WINDOW_HEIGHT - CONSOLE_BOX_HEIGHT;
 
     let test = gs.create_new_level(LevelType::BasicDungeon, WINDOW_WIDTH, map_height);
 
