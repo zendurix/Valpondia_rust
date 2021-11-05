@@ -16,7 +16,15 @@ impl<'a> System<'a> for MeleeCombatSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, mut wants_melee, names, hps, combat_stats, mut inflict_damage) = data;
+        #[rustfmt::skip]
+        let (
+            entities,
+            mut wants_melee,
+            names,
+            hps,
+            combat_stats,
+            mut inflict_damage,
+        ) = data;
 
         for (_entity, wants_melee, name, hp, stats) in
             (&entities, &wants_melee, &names, &hps, &combat_stats).join()
@@ -31,7 +39,7 @@ impl<'a> System<'a> for MeleeCombatSystem {
 
                     if damage == 0 {
                         console::log(&format!(
-                            "{} is unable to hurt {}",
+                            "{} Attacks doesnt affect  {} (0 dmg)",
                             &name.name, &target_name.name
                         ));
                     } else {

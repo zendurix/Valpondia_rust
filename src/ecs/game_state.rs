@@ -1,5 +1,5 @@
 use lazy_static::__Deref;
-use rltk::{GameState, Rltk};
+use rltk::{console, GameState, Rltk};
 use specs::prelude::*;
 
 use crate::ecs::components;
@@ -15,6 +15,11 @@ pub enum RunState {
     Running,
     Paused,
 }
+
+/// State global resources (stored in rltk)
+/// rltk::Point - player position
+/// Entity - player entity (id)
+/// Map - current map
 
 pub struct State {
     pub ecs: World,
@@ -134,6 +139,8 @@ impl GameState for State {
             self.run_view_systems();
 
             self.run_map_systems();
+
+            console::log("END TURN ----------------------------------------".to_string());
         }
         self.ecs.maintain();
 

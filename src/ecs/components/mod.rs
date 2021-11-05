@@ -59,9 +59,7 @@ pub struct Name {
     pub name: String,
 }
 #[derive(Component, Debug)]
-pub struct BlocksTile {
-    pub prev_blocked_tile_index: usize,
-}
+pub struct BlocksTile {}
 
 #[derive(Component, Debug)]
 pub struct Hp {

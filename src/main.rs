@@ -48,7 +48,8 @@ fn main() {
     }
 
     gs.ecs.insert(rltk::Point::new(p_x, p_y));
-    gs.ecs
+    let player = gs
+        .ecs
         .create_entity()
         .with(components::Player { input: None })
         .with(components::Movable { move_dir: None })
@@ -85,6 +86,8 @@ fn main() {
         })
         .build();
 
+    gs.ecs.insert(player);
+
     let rooms = gs.current_map().rooms.clone();
     for room in rooms.iter() {
         let (x, y) = room.center();
@@ -111,13 +114,11 @@ fn main() {
             })
             .with(components::View {
                 visible_tiles: HashSet::<rltk::Point>::new(),
-                range: 8,
+                range: 10,
                 should_update: true,
             })
             .with(components::AI {})
-            .with(components::BlocksTile {
-                prev_blocked_tile_index: 0,
-            })
+            .with(components::BlocksTile {})
             .with(if rand {
                 components::Hp { max_hp: 8, hp: 8 }
             } else {

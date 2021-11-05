@@ -27,9 +27,15 @@ pub fn delete_the_dead(ecs: &mut World) {
     {
         let hps = ecs.read_storage::<components::Hp>();
         let entities = ecs.entities();
+        let players = ecs.read_storage::<components::Player>();
+
         for (entity, hp) in (&entities, &hps).join() {
             if hp.hp < 1 {
-                dead.push(entity);
+                let player = players.get(entity);
+                match player {
+                    None => dead.push(entity),
+                    Some(_) => console::log("You are dead"),
+                }
             }
         }
     }
