@@ -11,6 +11,7 @@ pub mod graphics;
 pub mod levels;
 pub mod maps;
 pub mod rng;
+pub mod spawner;
 
 use std::collections::HashSet;
 
