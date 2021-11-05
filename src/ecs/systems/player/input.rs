@@ -53,9 +53,9 @@ pub fn get_input(gs: &mut State, ctx: &mut Rltk) {
 }
 
 pub fn handle_input(gs: &mut State) {
-    let players = gs.ecs.read_storage::<components::Player>();
+    let mut players = gs.ecs.write_storage::<components::Player>();
     let mut movables = gs.ecs.write_storage::<components::Movable>();
-    for (player, mov) in (&players, &mut movables).join() {
+    for (player, mov) in (&mut players, &mut movables).join() {
         mov.move_dir = match player.input {
             Some(key) => match key {
                 InputType::DownLeft => Some(Dir::DownLeft),
@@ -70,7 +70,8 @@ pub fn handle_input(gs: &mut State) {
                 _ => None,
             },
             None => None,
-        }
+        };        
+        player.input = None;
     }
 }
 

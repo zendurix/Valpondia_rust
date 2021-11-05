@@ -13,7 +13,7 @@ pub mod rng;
 
 use std::collections::HashSet;
 
-use ecs::{components, State};
+use ecs::{components, game_state::RunState, State};
 use levels::level::LevelType;
 
 use maps::MapGenerator;
@@ -28,6 +28,8 @@ fn main() {
 
     let mut gs = State::new();
     gs.register_all_components();
+
+    gs.ecs.insert(RunState::PreRun);
 
     let test = gs.create_new_level(LevelType::BasicDungeon, 50, 50);
 

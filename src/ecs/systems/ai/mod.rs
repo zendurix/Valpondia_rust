@@ -1,10 +1,12 @@
 pub mod ai_random_mov;
 
 use lazy_static::__Deref;
-use rltk::console;
 use specs::{Entities, Entity, Join, ReadExpect, ReadStorage, System, WriteExpect, WriteStorage};
 
-use crate::{ecs::components, maps::Map};
+use crate::{
+    ecs::{components, game_state::RunState},
+    maps::Map,
+};
 
 pub struct AISystem {}
 
@@ -21,6 +23,7 @@ impl<'a> System<'a> for AISystem {
         WriteExpect<'a, Map>,
         ReadExpect<'a, Entity>,
         WriteStorage<'a, components::WantsToMeleeAtack>,
+        ReadExpect<'a, RunState>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -35,9 +38,14 @@ impl<'a> System<'a> for AISystem {
             mut current_map,
             player,
             mut wants_to_melee,
+            runstate,
         ) = data;
 
-        for (entity, mut view, mut pos, _ai, name) in
+        if *runstate != RunState::MonsterTurn {
+            return;
+        }
+
+        for (entity, mut view, mut pos, _ai, _name) in
             (&entities, &mut views, &mut positions, &ais, &names).join()
         {
             if view.visible_tiles.contains(&player_position) {

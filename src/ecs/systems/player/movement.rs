@@ -9,7 +9,7 @@ use crate::base::Dir;
 
 pub fn move_player(gs: &mut State) {
     let mut positions = gs.ecs.write_storage::<components::Position>();
-    let movables = gs.ecs.read_storage::<components::Movable>();
+    let mut movables = gs.ecs.write_storage::<components::Movable>();
 
     let mut views = gs.ecs.write_storage::<components::View>();
     let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
@@ -21,7 +21,7 @@ pub fn move_player(gs: &mut State) {
     let mut wants_to_melee = gs.ecs.write_storage::<components::WantsToMeleeAtack>();
     let map = gs.ecs.fetch::<Map>();
 
-    for (entity, _p, mov, pos) in (&entities, &players, &movables, &mut positions).join() {
+    for (entity, _p, mut mov, pos) in (&entities, &players, &mut movables, &mut positions).join() {
         let mut try_x = pos.x;
         let mut try_y = pos.y;
 
@@ -58,6 +58,7 @@ pub fn move_player(gs: &mut State) {
                 Dir::Center => (),
             }
         }
+        mov.move_dir = None;
 
         try_x = try_x.min(map.width_max());
         try_y = try_y.min(map.height_max());
@@ -95,11 +96,6 @@ pub fn move_player(gs: &mut State) {
             view_memory.should_update = true;
         }
         if let Some(_player) = players.get(entity) {
-            gs.player_pos = components::Position {
-                x: pos.x,
-                y: pos.y,
-                level: pos.level,
-            };
             *player_pos = rltk::Point::new(pos.x, pos.y);
         }
     }

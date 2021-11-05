@@ -1,5 +1,5 @@
 use lazy_static::__Deref;
-use rltk::{console, GameState, Rltk};
+use rltk::{GameState, Rltk};
 use specs::prelude::*;
 
 use crate::ecs::components;
@@ -11,21 +11,22 @@ use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum RunState {
-    Running,
-    Paused,
+    AwaitingInput,
+    PreRun,
+    PlayerTurn,
+    MonsterTurn,
 }
 
 /// State global resources (stored in rltk)
 /// rltk::Point - player position
 /// Entity - player entity (id)
 /// Map - current map
+/// RunState - run state
 
 pub struct State {
     pub ecs: World,
-    pub run_state: RunState,
-
-    pub player_pos: components::Position,
 
     pub level_manager: LevelManager,
     pub current_level: usize,
@@ -34,15 +35,9 @@ pub struct State {
 impl State {
     pub fn new() -> State {
         State {
-            run_state: RunState::Paused,
             current_level: 0,
             ecs: World::new(),
             level_manager: LevelManager::new(),
-            player_pos: components::Position {
-                x: 0,
-                y: 0,
-                level: 0,
-            },
         }
     }
 
@@ -100,8 +95,8 @@ impl State {
         }
     }
 
-    fn run_player_systems(&mut self, ctx: &mut Rltk) {
-        self.run_state = systems::player::try_player_turn(self, ctx);
+    fn run_player_systems(&mut self) {
+        systems::player::player_turn(self);
     }
 
     fn run_combat_systems(&mut self) {
@@ -123,6 +118,14 @@ impl State {
         systems::map::MapIndexingSystem {}.run_now(&self.ecs);
     }
 
+    fn run_all_gameplay_systems(&mut self) {
+        self.run_player_systems();
+        self.run_ai_systems();
+        self.run_combat_systems();
+        self.run_view_systems();
+        self.run_map_systems();
+    }
+
     fn draw_graphics(&self, ctx: &mut Rltk) {
         graphics::draw_map_with_fov(self, ctx);
         // graphics::draw_map_without_fov(self.current_map(), ctx);
@@ -132,19 +135,31 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
-        self.run_player_systems(ctx);
-        if self.run_state == RunState::Running {
-            self.run_combat_systems();
-            self.run_ai_systems();
-            self.run_view_systems();
+        ctx.cls();
 
-            self.run_map_systems();
+        let mut run_state = *self.ecs.fetch::<RunState>();
 
-            console::log("END TURN ----------------------------------------".to_string());
+        match run_state {
+            RunState::PreRun => {
+                self.run_all_gameplay_systems();
+                run_state = RunState::AwaitingInput;
+            }
+            RunState::AwaitingInput => {
+                run_state = systems::player::try_get_player_input(self, ctx);
+            }
+            RunState::PlayerTurn => {
+                self.run_all_gameplay_systems();
+                run_state = RunState::MonsterTurn;
+            }
+            RunState::MonsterTurn => {
+                self.run_all_gameplay_systems();
+                run_state = RunState::AwaitingInput;
+            }
         }
+        *self.ecs.write_resource::<RunState>() = run_state;
+
         self.ecs.maintain();
 
-        ctx.cls();
         self.draw_graphics(ctx);
     }
 }
