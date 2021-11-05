@@ -23,7 +23,12 @@ use specs::prelude::*;
 
 use rltk::RGB;
 
-use crate::graphics::GuiDrawer;
+use crate::{
+    graphics::GuiDrawer,
+    spawner::{
+        monsters::spawn_random_monster, player::spawn_player, spawn_random_monsters_for_room,
+    },
+};
 
 const WINDOW_WIDTH: usize = 100;
 const WINDOW_HEIGHT: usize = 80;
@@ -69,94 +74,13 @@ fn main() {
     }
 
     gs.ecs.insert(rltk::Point::new(p_x, p_y));
-    let player = gs
-        .ecs
-        .create_entity()
-        .with(components::Player { input: None })
-        .with(components::Movable { move_dir: None })
-        .with(components::View {
-            range: 40,
-            visible_tiles: HashSet::<rltk::Point>::new(),
-            should_update: true,
-        })
-        .with(components::ViewMemory {
-            seen_tiles: HashSet::<rltk::Point>::new(),
-            should_update: true,
-        })
-        .with(components::Position {
-            x: p_x,
-            y: p_y,
-            level: 0,
-        })
-        .with(components::Name {
-            name: "hlop".to_string(),
-        })
-        .with(components::Renderable {
-            ascii: rltk::to_cp437('@'),
-            texture: None,
-            fg: RGB::named(rltk::YELLOW),
-            bg: RGB::named(rltk::BLACK),
-        })
-        .with(components::Hp {
-            max_hp: 100,
-            hp: 100,
-        })
-        .with(components::CombatBaseStats {
-            attack: 10,
-            defense: 3,
-        })
-        .build();
+    let player = spawn_player(&mut gs.ecs, p_x, p_y);
 
     gs.ecs.insert(player);
 
     let rooms = gs.current_map().rooms.clone();
     for room in rooms.iter() {
-        let (x, y) = room.center();
-        let rand = rng::rand_bool();
-        gs.ecs
-            .create_entity()
-            .with(components::Position { x, y, level: 0 })
-            .with(components::Renderable {
-                ascii: if rand {
-                    rltk::to_cp437('g')
-                } else {
-                    rltk::to_cp437('o')
-                },
-                texture: None,
-                fg: RGB::named(rltk::RED),
-                bg: RGB::named(rltk::BLACK),
-            })
-            .with(components::Name {
-                name: if rand {
-                    "goblin".to_string()
-                } else {
-                    "orc".to_string()
-                },
-            })
-            .with(components::View {
-                visible_tiles: HashSet::<rltk::Point>::new(),
-                range: 10,
-                should_update: true,
-            })
-            .with(components::AI {})
-            .with(components::BlocksTile {})
-            .with(if rand {
-                components::Hp { max_hp: 8, hp: 8 }
-            } else {
-                components::Hp { max_hp: 35, hp: 35 }
-            })
-            .with(if rand {
-                components::CombatBaseStats {
-                    attack: 5,
-                    defense: 0,
-                }
-            } else {
-                components::CombatBaseStats {
-                    attack: 14,
-                    defense: 2,
-                }
-            })
-            .build();
+        spawn_random_monsters_for_room(&mut gs.ecs, room, 0);
     }
 
     let result = rltk::main_loop(context, gs);

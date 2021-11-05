@@ -13,8 +13,9 @@ pub fn roll_dice(n: i32, die_type: i32) -> i32 {
     RNG.lock().unwrap().roll_dice(n, die_type)
 }
 
+/// <min, max> INCLUSIVE on both sides
 pub fn range(min: i32, max: i32) -> i32 {
-    RNG.lock().unwrap().range(min, max)
+    RNG.lock().unwrap().range(min, max + 1)
 }
 
 pub fn rand_bool() -> bool {

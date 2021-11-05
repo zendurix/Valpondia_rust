@@ -26,6 +26,14 @@ impl Rect {
     pub fn center(&self) -> (usize, usize) {
         ((self.x1 + self.x2) / 2, (self.y1 + self.y2) / 2)
     }
+
+    pub fn width(&self) -> usize {
+        self.x2 - self.x1
+    }
+
+    pub fn height(&self) -> usize {
+        self.y2 - self.y1
+    }
 }
 
 pub fn apply_room_to_map(room: &Rect, map: &mut Map) {
