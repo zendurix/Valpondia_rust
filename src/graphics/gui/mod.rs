@@ -15,7 +15,7 @@ impl GuiDrawer {
         let mouse_pos = ctx.mouse_pos();
         ctx.set_bg(mouse_pos.0, mouse_pos.1, RGB::named(rltk::MAGENTA));
 
-        self.draw_console_box(ecs, ctx);
+        self.draw_console_box(ctx);
 
         self.draw_player_health(ecs, ctx);
 
@@ -24,7 +24,7 @@ impl GuiDrawer {
         self.draw_cursor_tooltips(ecs, ctx);
     }
 
-    fn draw_console_box(&self, ecs: &World, ctx: &mut Rltk) {
+    fn draw_console_box(&self, ctx: &mut Rltk) {
         ctx.draw_box(
             0,
             self.window_height - (self.console_box_height + 1),

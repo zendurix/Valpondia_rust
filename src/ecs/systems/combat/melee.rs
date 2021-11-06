@@ -1,5 +1,4 @@
 use crate::{components, gamelog::GameLog};
-use rltk::console;
 use specs::prelude::*;
 
 pub struct MeleeCombatSystem {}

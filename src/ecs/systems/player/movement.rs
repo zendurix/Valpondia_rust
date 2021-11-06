@@ -1,5 +1,6 @@
 use crate::{
     ecs::{components, State},
+    gamelog::GameLog,
     maps::Map,
 };
 
@@ -7,96 +8,96 @@ use specs::prelude::*;
 
 use crate::base::Dir;
 
-pub fn move_player(gs: &mut State) {
+/// true, if player moved, and player turn should end
+pub fn try_move_player(gs: &mut State, move_dir: Dir) -> bool {
     let mut positions = gs.ecs.write_storage::<components::Position>();
-    let mut movables = gs.ecs.write_storage::<components::Movable>();
-
     let mut views = gs.ecs.write_storage::<components::View>();
     let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
-    let mut player_pos = gs.ecs.write_resource::<rltk::Point>();
-    let entities = gs.ecs.entities();
-    let players = gs.ecs.read_storage::<components::Player>();
     let _combat_stats = gs.ecs.read_storage::<components::CombatBaseStats>();
     let hps = gs.ecs.read_storage::<components::Hp>();
     let mut wants_to_melee = gs.ecs.write_storage::<components::WantsToMeleeAtack>();
+
+    let player = *gs.ecs.fetch_mut::<Entity>();
+    let mut gamelog = gs.ecs.fetch_mut::<GameLog>();
     let map = gs.ecs.fetch::<Map>();
 
-    for (entity, _p, mut mov, pos) in (&entities, &players, &mut movables, &mut positions).join() {
-        let mut try_x = pos.x;
-        let mut try_y = pos.y;
+    let mut player_pos_res = gs.ecs.write_resource::<rltk::Point>();
+    let mut pos = positions.get_mut(player).unwrap();
+    let mut view = views.get_mut(player).unwrap();
+    let mut view_mem = views_memories.get_mut(player).unwrap();
 
-        if let Some(dir) = mov.move_dir {
-            match dir {
-                Dir::Up => {
-                    try_y -= 1;
-                }
-                Dir::Down => {
-                    try_y += 1;
-                }
-                Dir::Left => {
-                    try_x -= 1;
-                }
-                Dir::Right => {
-                    try_x += 1;
-                }
-                Dir::UpLeft => {
-                    try_y -= 1;
-                    try_x -= 1;
-                }
-                Dir::UpRight => {
-                    try_y -= 1;
-                    try_x += 1;
-                }
-                Dir::DownLeft => {
-                    try_y += 1;
-                    try_x -= 1;
-                }
-                Dir::DownRight => {
-                    try_y += 1;
-                    try_x += 1;
-                }
-                Dir::Center => (),
-            }
-        }
-        mov.move_dir = None;
+    let mut try_x = pos.x;
+    let mut try_y = pos.y;
 
-        try_x = try_x.min(map.width_max());
-        try_y = try_y.min(map.height_max());
+    match move_dir {
+        Dir::Up => {
+            try_y -= 1;
+        }
+        Dir::Down => {
+            try_y += 1;
+        }
+        Dir::Left => {
+            try_x -= 1;
+        }
+        Dir::Right => {
+            try_x += 1;
+        }
+        Dir::UpLeft => {
+            try_y -= 1;
+            try_x -= 1;
+        }
+        Dir::UpRight => {
+            try_y -= 1;
+            try_x += 1;
+        }
+        Dir::DownLeft => {
+            try_y += 1;
+            try_x -= 1;
+        }
+        Dir::DownRight => {
+            try_y += 1;
+            try_x += 1;
+        }
+        Dir::Center => (),
+    }
 
-        let destination_idx = map.xy_to_index(try_x, try_y);
+    try_x = try_x.min(map.width_max());
+    try_y = try_y.min(map.height_max());
 
-        if try_x == pos.x && try_y == pos.y {
-            // not move (move to same pos)
-            return;
-        }
-        for potential_target in map.tile_content[destination_idx].iter() {
-            let target = hps.get(*potential_target);
-            if let Some(_target) = target {
-                wants_to_melee
-                    .insert(
-                        entity,
-                        components::WantsToMeleeAtack {
-                            target: *potential_target,
-                        },
-                    )
-                    .expect("Add target failed");
-                return;
-            }
-        }
+    let destination_idx = map.xy_to_index(try_x, try_y);
 
-        if !map.tile_at_xy(try_x, try_y).blocks_movement() {
-            pos.x = try_x;
-            pos.y = try_y;
-        }
-
-        if let Some(view) = views.get_mut(entity) {
-            view.should_update = true;
-        }
-        if let Some(view_memory) = views_memories.get_mut(entity) {
-            view_memory.should_update = true;
-        }
-        if let Some(_player) = players.get(entity) {
-            *player_pos = rltk::Point::new(pos.x, pos.y);
+    if try_x == pos.x && try_y == pos.y {
+        // not move (move to same pos)
+        gamelog
+            .entries
+            .push("Player tried to move to same position".to_string());
+        return false;
+    }
+    for potential_target in map.tile_content[destination_idx].iter() {
+        let target = hps.get(*potential_target);
+        if let Some(_target) = target {
+            wants_to_melee
+                .insert(
+                    player,
+                    components::WantsToMeleeAtack {
+                        target: *potential_target,
+                    },
+                )
+                .expect("Add target failed");
+            return true;
         }
     }
+
+    if map.tile_at_xy(try_x, try_y).blocks_movement() {
+        gamelog
+            .entries
+            .push("Something blocks your movement".to_string());
+        return false;
+    }
+    pos.x = try_x;
+    pos.y = try_y;
+    view.should_update = true;
+    view_mem.should_update = true;
+    *player_pos_res = rltk::Point::new(pos.x, pos.y);
+    true
 }

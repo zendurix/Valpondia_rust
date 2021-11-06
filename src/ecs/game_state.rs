@@ -64,6 +64,10 @@ impl State {
         self.ecs.register::<components::CombatBaseStats>();
         self.ecs.register::<components::WantsToMeleeAtack>();
         self.ecs.register::<components::SufferDamage>();
+        self.ecs.register::<components::Item>();
+        self.ecs.register::<components::HealPotion>();
+        self.ecs.register::<components::InInventory>();
+        self.ecs.register::<components::WantsToPickupItem>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -104,10 +108,6 @@ impl State {
         }
     }
 
-    fn run_player_systems(&mut self) {
-        systems::player::player_turn(self);
-    }
-
     fn run_combat_systems(&mut self) {
         systems::combat::melee::MeleeCombatSystem {}.run_now(&self.ecs);
         systems::combat::damage::DamageSystem {}.run_now(&self.ecs);
@@ -127,10 +127,14 @@ impl State {
         systems::map::MapIndexingSystem {}.run_now(&self.ecs);
     }
 
+    fn run_inventory_systems(&mut self) {
+        systems::inventory::ItemCollectionSystem {}.run_now(&self.ecs);
+    }
+
     fn run_all_gameplay_systems(&mut self) {
-        self.run_player_systems();
         self.run_ai_systems();
         self.run_combat_systems();
+        self.run_inventory_systems();
         self.run_view_systems();
         self.run_map_systems();
     }
@@ -155,7 +159,7 @@ impl GameState for State {
                 run_state = RunState::AwaitingInput;
             }
             RunState::AwaitingInput => {
-                run_state = systems::player::try_get_player_input(self, ctx);
+                run_state = systems::player::try_player_turn(self, ctx);
             }
             RunState::PlayerTurn => {
                 self.run_all_gameplay_systems();

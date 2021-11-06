@@ -30,6 +30,7 @@ pub fn spawn_knight(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
     spawn_monster(ecs, x, y, level, rltk::to_cp437('k'), "knight", 35, 8, 7)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn spawn_monster<S: ToString>(
     ecs: &mut World,
     x: usize,

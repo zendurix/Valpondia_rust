@@ -95,3 +95,22 @@ impl SufferDamage {
         }
     }
 }
+
+#[derive(Component, Debug)]
+pub struct Item {}
+
+#[derive(Component, Debug)]
+pub struct HealPotion {
+    pub heal_power: i32,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct InInventory {
+    pub owner: Entity,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct WantsToPickupItem {
+    pub who: Entity,
+    pub item: Entity,
+}

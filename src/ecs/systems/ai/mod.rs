@@ -76,11 +76,7 @@ impl<'a> System<'a> for AISystem {
                     pos.y = y;
 
                     view.should_update = true;
-                } else {
-                    ()
                 }
-            } else {
-                ()
             }
         }
     }

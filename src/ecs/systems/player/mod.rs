@@ -7,15 +7,15 @@ mod movement;
 
 pub use input::InputType;
 
-pub fn player_turn(gs: &mut State) {
-    input::handle_input(gs);
-    movement::move_player(gs);
-}
-
-pub fn try_get_player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
+pub fn try_player_turn(gs: &mut State, ctx: &mut Rltk) -> RunState {
     input::get_input(gs, ctx);
+
     if ctx.key.is_some() {
-        RunState::PlayerTurn
+        if input::try_handle_input(gs) {
+            RunState::PlayerTurn
+        } else {
+            RunState::AwaitingInput
+        }
     } else {
         RunState::AwaitingInput
     }

@@ -18,11 +18,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             seen_tiles: HashSet::<rltk::Point>::new(),
             should_update: true,
         })
-        .with(components::Position {
-            x: x,
-            y: y,
-            level: 0,
-        })
+        .with(components::Position { x, y, level: 0 })
         .with(components::Name {
             name: "hlop".to_string(),
         })

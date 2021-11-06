@@ -13,21 +13,14 @@ pub mod maps;
 pub mod rng;
 pub mod spawner;
 
-use std::collections::HashSet;
-
 use ecs::{components, game_state::RunState, State};
 use levels::level::LevelType;
 
 use maps::MapGenerator;
-use specs::prelude::*;
-
-use rltk::RGB;
 
 use crate::{
     graphics::GuiDrawer,
-    spawner::{
-        monsters::spawn_random_monster, player::spawn_player, spawn_random_monsters_for_room,
-    },
+    spawner::{player::spawn_player, spawn_random_monsters_and_items_for_room},
 };
 
 const WINDOW_WIDTH: usize = 100;
@@ -80,7 +73,7 @@ fn main() {
 
     let rooms = gs.current_map().rooms.clone();
     for room in rooms.iter() {
-        spawn_random_monsters_for_room(&mut gs.ecs, room, 0);
+        spawn_random_monsters_and_items_for_room(&mut gs.ecs, room, 0);
     }
 
     let result = rltk::main_loop(context, gs);
