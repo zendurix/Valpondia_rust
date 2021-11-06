@@ -1,10 +1,10 @@
 use rltk::RGB;
-use specs::{Builder, Component, Entity, World, WorldExt};
+use specs::{Builder, Entity, EntityBuilder, World, WorldExt};
 
 use crate::ecs::components;
 
 pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_item(
+    create_base_item_components(
         ecs,
         x,
         y,
@@ -12,12 +12,14 @@ pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -
         rltk::to_cp437('i'),
         RGB::named(rltk::PINK),
         "Health potion",
-        vec![components::Heal { heal_power: 20 }],
     )
+    .with(components::Heal { heal_power: 20 })
+    .with(components::Usable {})
+    .build()
 }
 
 #[allow(clippy::too_many_arguments)]
-fn spawn_item<S: ToString, C: Component + Send + Sync>(
+fn create_base_item_components<S: ToString>(
     ecs: &mut World,
     x: usize,
     y: usize,
@@ -25,10 +27,8 @@ fn spawn_item<S: ToString, C: Component + Send + Sync>(
     glyph: rltk::FontCharType,
     color: rltk::RGB,
     name: S,
-    components: Vec<C>,
-) -> Entity {
-    let mut item = ecs
-        .create_entity()
+) -> EntityBuilder {
+    ecs.create_entity()
         .with(components::Item {})
         .with(components::Position { x, y, level })
         .with(components::Renderable {
@@ -39,9 +39,5 @@ fn spawn_item<S: ToString, C: Component + Send + Sync>(
         })
         .with(components::Name {
             name: name.to_string(),
-        });
-    for comp in components {
-        item = item.with(comp);
-    }
-    item.build()
+        })
 }

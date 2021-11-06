@@ -25,6 +25,8 @@ pub enum InputType {
     ShowInventory,
     Escape,
     Enter,
+    D,
+    U,
 
     UnhandledInput, // NoInput
     NoInput,        // shouldnt bbe use (input should be Option<InputYpe)
@@ -45,6 +47,8 @@ pub fn get_input(ctx: &mut Rltk) -> Option<InputType> {
 
             VirtualKeyCode::G => Some(InputType::PickUpItem),
             VirtualKeyCode::I => Some(InputType::ShowInventory),
+            VirtualKeyCode::U => Some(InputType::U),
+            VirtualKeyCode::D => Some(InputType::D),
 
             VirtualKeyCode::Escape => Some(InputType::Escape),
             // Return == normal Enter

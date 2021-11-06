@@ -2,7 +2,6 @@ use std::collections::HashSet;
 
 use specs::prelude::*;
 
-use specs::storage::NullStorage;
 use specs_derive::Component;
 
 use crate::base::Dir;
@@ -10,14 +9,14 @@ pub use rltk::{VirtualKeyCode, RGB};
 
 use super::systems::player::InputType;
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct Position {
     pub x: usize,
     pub y: usize,
     pub level: usize,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct Renderable {
     pub ascii: u16,
     pub texture: Option<()>, // add textures here
@@ -25,49 +24,47 @@ pub struct Renderable {
     pub bg: RGB,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct Player {
     pub input: Option<InputType>,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct Movable {
     pub move_dir: Option<Dir>,
 }
 
-#[derive(Default)]
-pub struct AI;
-impl Component for AI {
-    type Storage = NullStorage<AI>;
-}
+#[derive(Component, Debug, Clone)]
+pub struct AI {}
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct View {
     pub range: usize,
     pub visible_tiles: HashSet<rltk::Point>,
     pub should_update: bool,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct ViewMemory {
     pub seen_tiles: HashSet<rltk::Point>,
     pub should_update: bool,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct Name {
     pub name: String,
 }
-#[derive(Component, Debug)]
+
+#[derive(Component, Debug, Clone)]
 pub struct BlocksTile {}
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct Hp {
     pub max_hp: i32,
     pub hp: i32,
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct CombatBaseStats {
     pub attack: i32,
     pub defense: i32,
@@ -78,7 +75,7 @@ pub struct WantsToMeleeAtack {
     pub target: Entity,
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct SufferDamage {
     pub amount: Vec<i32>,
 }
@@ -96,10 +93,10 @@ impl SufferDamage {
     }
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct Item {}
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct Heal {
     pub heal_power: i32,
 }
@@ -115,7 +112,15 @@ pub struct WantsToPickupItem {
     pub item: Entity,
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct WantsToUseItem {
     pub item: Entity,
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct WantsToDropItem {
+    pub item: Entity,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Usable {}

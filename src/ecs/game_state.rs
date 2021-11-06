@@ -5,7 +5,9 @@ use specs::prelude::*;
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
-use crate::graphics::gui::inventory::{show_inventory, InventoryMenuAction};
+use crate::graphics::gui::inventory::{
+    show_inventory, show_item_actions, InventoryMenuAction, ItemMenuAction,
+};
 use crate::graphics::{self, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
@@ -19,6 +21,7 @@ pub enum RunState {
     PlayerTurn,
     MonsterTurn,
     ShowInventory,
+    ShowItemActions(Entity),
 }
 
 /// State global resources (stored in rltk)
@@ -71,6 +74,8 @@ impl State {
         self.ecs.register::<components::InInventory>();
         self.ecs.register::<components::WantsToPickupItem>();
         self.ecs.register::<components::WantsToUseItem>();
+        self.ecs.register::<components::WantsToDropItem>();
+        self.ecs.register::<components::Usable>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -132,6 +137,7 @@ impl State {
 
     fn run_inventory_systems(&mut self) {
         systems::inventory::ItemCollectionSystem {}.run_now(&self.ecs);
+        systems::inventory::ItemDropSystem {}.run_now(&self.ecs);
         systems::inventory::ItemHealSystem {}.run_now(&self.ecs);
     }
 
@@ -149,11 +155,28 @@ impl State {
         graphics::draw_entities(self, ctx);
         self.gui_drawer.draw_ui(&self.ecs, ctx);
     }
+
+    fn use_item(&mut self, item: Entity) {
+        let mut items_uses = self.ecs.write_storage::<components::WantsToUseItem>();
+        let player = *self.ecs.fetch::<Entity>();
+        items_uses
+            .insert(player, components::WantsToUseItem { item })
+            .expect("Unable to insert intent to use item");
+    }
+
+    fn drop_item(&mut self, item: Entity) {
+        let mut items_drops = self.ecs.write_storage::<components::WantsToDropItem>();
+        let player = *self.ecs.fetch::<Entity>();
+        items_drops
+            .insert(player, components::WantsToDropItem { item })
+            .expect("Unable to insert intent to drop item");
+    }
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         ctx.cls();
+        self.draw_graphics(ctx);
 
         let mut run_state = *self.ecs.fetch::<RunState>();
 
@@ -171,11 +194,21 @@ impl GameState for State {
                     InventoryMenuAction::NoResponse => (),
                     InventoryMenuAction::Cancel => run_state = RunState::AwaitingInput,
                     InventoryMenuAction::SelectedItem(item) => {
-                        let mut items_uses = self.ecs.write_storage::<components::WantsToUseItem>();
-                        let player = *self.ecs.fetch::<Entity>();
-                        items_uses
-                            .insert(player, components::WantsToUseItem { item })
-                            .expect("Unable to insert intent to sue item");
+                        run_state = RunState::ShowItemActions(item)
+                    }
+                }
+            }
+            RunState::ShowItemActions(item) => {
+                let item_action = show_item_actions(self, ctx, item);
+                match item_action {
+                    ItemMenuAction::Cancel => run_state = RunState::ShowInventory,
+                    ItemMenuAction::NoResponse => (),
+                    ItemMenuAction::Use(item) => {
+                        self.use_item(item);
+                        run_state = RunState::PlayerTurn;
+                    }
+                    ItemMenuAction::Drop(item) => {
+                        self.drop_item(item);
                         run_state = RunState::PlayerTurn;
                     }
                 }
@@ -192,7 +225,5 @@ impl GameState for State {
         *self.ecs.write_resource::<RunState>() = run_state;
 
         self.ecs.maintain();
-
-        self.draw_graphics(ctx);
     }
 }
