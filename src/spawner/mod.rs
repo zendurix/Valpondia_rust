@@ -9,7 +9,10 @@ use crate::{
     },
 };
 
-use self::monsters::{spawn_knight, spawn_orc};
+use self::{
+    items::spawn_magic_missile_scroll,
+    monsters::{spawn_knight, spawn_orc},
+};
 
 pub mod items;
 pub mod monsters;
@@ -85,7 +88,8 @@ fn spawn_knight_room(ecs: &mut World, room: &Rect, level: usize) {
 
     let num = rng::range(1, 3) as usize;
     let item_spawn_points = random_spawn_points(num, &spawn_points, room);
-    for (x, y) in item_spawn_points {
-        spawn_healing_potion(ecs, x, y, level);
+    spawn_magic_missile_scroll(ecs, item_spawn_points[0].0, item_spawn_points[0].1, level);
+    for (x, y) in item_spawn_points.iter().skip(1) {
+        spawn_healing_potion(ecs, *x, *y, level);
     }
 }

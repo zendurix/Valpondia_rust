@@ -17,8 +17,8 @@ impl<'a> System<'a> for ItemHealSystem {
         Entities<'a>,
         ReadStorage<'a, components::Name>,
         ReadStorage<'a, components::Heal>,
-        WriteStorage<'a, components::WantsToUseItem>,
-        WriteStorage<'a, components::Hp>,
+        ReadStorage<'a, components::WantsToUseItem>,
+        WriteStorage<'a, components::HealEffect>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -29,27 +29,28 @@ impl<'a> System<'a> for ItemHealSystem {
             entities,
             names,
             heals,
-            mut wants_to_use,
-            mut hps,
+            wants_to_use,
+            mut heals_effects,
         ) = data;
 
-        for (entity, uses, hp) in (&entities, &wants_to_use, &mut hps).join() {
+        for (entity, uses) in (&entities, &wants_to_use).join() {
             let heal = heals.get(uses.item);
             if let Some(h) = heal {
-                hp.hp = (hp.hp + h.heal_power).min(hp.max_hp);
-
+                heals_effects
+                    .insert(
+                        entity,
+                        components::HealEffect {
+                            heal_power: h.heal_power,
+                        },
+                    )
+                    .expect("Unable to add heal effect");
                 if entity == *player {
                     gamelog.entries.push(format!(
-                        "You drink the {}, healing {} hp.",
+                        "You drink the {}",
                         names.get(uses.item).unwrap().name,
-                        h.heal_power
                     ));
                 }
-
-                entities.delete(uses.item).expect("Item Delete failed");
             }
         }
-
-        wants_to_use.clear();
     }
 }

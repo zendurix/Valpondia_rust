@@ -14,7 +14,27 @@ pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -
         "Health potion",
     )
     .with(components::Heal { heal_power: 20 })
-    .with(components::Usable {})
+    .with(components::Usable {
+        destoyed_on_use: true,
+    })
+    .build()
+}
+
+pub fn spawn_magic_missile_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    create_base_item_components(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437(')'),
+        RGB::named(rltk::WHITE),
+        "Magic missile scroll",
+    )
+    .with(components::Usable {
+        destoyed_on_use: true,
+    })
+    .with(components::Ranged { range: 8 })
+    .with(components::InflictsDamage { damage: 15 })
     .build()
 }
 

@@ -1,17 +1,22 @@
 use lazy_static::__Deref;
-use rltk::{GameState, Rltk};
+use rltk::{GameState, Point, Rltk};
 use specs::prelude::*;
 
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
-use crate::graphics::gui::inventory::{
-    show_inventory, show_item_actions, InventoryMenuAction, ItemMenuAction,
-};
-use crate::graphics::{self, GuiDrawer};
+use crate::graphics::gui::{InventoryMenuAction, ItemMenuAction, TargetingMenuAction};
+use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
+use crate::spawner::player;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TargetingAction {
+    TargetingFromItem(Entity, usize),
+    Looking,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 
@@ -22,6 +27,7 @@ pub enum RunState {
     MonsterTurn,
     ShowInventory,
     ShowItemActions(Entity),
+    Targeting(TargetingAction),
 }
 
 /// State global resources (stored in rltk)
@@ -41,6 +47,8 @@ pub struct State {
 
     pub window_width: usize,
     pub window_height: usize,
+
+    pub targeting_pos: Point,
 }
 
 impl State {
@@ -52,6 +60,7 @@ impl State {
             window_width,
             window_height,
             gui_drawer,
+            targeting_pos: Point::new(0, 0),
         }
     }
 
@@ -76,6 +85,9 @@ impl State {
         self.ecs.register::<components::WantsToUseItem>();
         self.ecs.register::<components::WantsToDropItem>();
         self.ecs.register::<components::Usable>();
+        self.ecs.register::<components::HealEffect>();
+        self.ecs.register::<components::Ranged>();
+        self.ecs.register::<components::InflictsDamage>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -139,12 +151,19 @@ impl State {
         systems::inventory::ItemCollectionSystem {}.run_now(&self.ecs);
         systems::inventory::ItemDropSystem {}.run_now(&self.ecs);
         systems::inventory::ItemHealSystem {}.run_now(&self.ecs);
+        systems::inventory::ItemTargetedDamageSystem {}.run_now(&self.ecs);
+        systems::inventory::DestroyUsedItems {}.run_now(&self.ecs);
+    }
+
+    fn run_effects_systems(&mut self) {
+        systems::effects::HealSystem {}.run_now(&self.ecs);
     }
 
     fn run_all_gameplay_systems(&mut self) {
         self.run_ai_systems();
         self.run_combat_systems();
         self.run_inventory_systems();
+        self.run_effects_systems();
         self.run_view_systems();
         self.run_map_systems();
     }
@@ -156,11 +175,17 @@ impl State {
         self.gui_drawer.draw_ui(&self.ecs, ctx);
     }
 
-    fn use_item(&mut self, item: Entity) {
+    fn use_item(&mut self, item: Entity, targeted: bool) {
         let mut items_uses = self.ecs.write_storage::<components::WantsToUseItem>();
         let player = *self.ecs.fetch::<Entity>();
         items_uses
-            .insert(player, components::WantsToUseItem { item })
+            .insert(
+                player,
+                components::WantsToUseItem {
+                    item,
+                    target: targeted.then(|| self.targeting_pos),
+                },
+            )
             .expect("Unable to insert intent to use item");
     }
 
@@ -189,7 +214,7 @@ impl GameState for State {
                 run_state = systems::player::try_player_turn(self, ctx);
             }
             RunState::ShowInventory => {
-                let inv_action = show_inventory(self, ctx);
+                let inv_action = gui::show_inventory(self, ctx);
                 match inv_action {
                     InventoryMenuAction::NoResponse => (),
                     InventoryMenuAction::Cancel => run_state = RunState::AwaitingInput,
@@ -199,18 +224,50 @@ impl GameState for State {
                 }
             }
             RunState::ShowItemActions(item) => {
-                let item_action = show_item_actions(self, ctx, item);
+                let item_action = gui::show_item_actions(self, ctx, item);
                 match item_action {
                     ItemMenuAction::Cancel => run_state = RunState::ShowInventory,
                     ItemMenuAction::NoResponse => (),
                     ItemMenuAction::Use(item) => {
-                        self.use_item(item);
-                        run_state = RunState::PlayerTurn;
+                        let mut range = 0;
+                        let mut is_ranged = false;
+                        {
+                            let ranged = self.ecs.read_storage::<components::Ranged>();
+                            if let Some(r) = ranged.get(item) {
+                                is_ranged = true;
+                                range = r.range;
+                            }
+                        }
+                        if is_ranged {
+                            let player_pos = self.ecs.fetch::<rltk::Point>();
+                            self.targeting_pos = *player_pos;
+                            run_state = RunState::Targeting(TargetingAction::TargetingFromItem(
+                                item,
+                                range as usize,
+                            ));
+                        } else {
+                            self.use_item(item, false);
+                            run_state = RunState::PlayerTurn;
+                        }
                     }
                     ItemMenuAction::Drop(item) => {
                         self.drop_item(item);
                         run_state = RunState::PlayerTurn;
                     }
+                }
+            }
+            RunState::Targeting(action) => {
+                let target_menu_action = gui::show_targeting(self, ctx, action);
+                match target_menu_action {
+                    TargetingMenuAction::Cancel => run_state = RunState::AwaitingInput,
+                    TargetingMenuAction::NoResponse => (),
+                    TargetingMenuAction::Selected => match action {
+                        TargetingAction::TargetingFromItem(item, _range) => {
+                            self.use_item(item, true);
+                            run_state = RunState::PlayerTurn;
+                        }
+                        TargetingAction::Looking => (),
+                    },
                 }
             }
             RunState::PlayerTurn => {

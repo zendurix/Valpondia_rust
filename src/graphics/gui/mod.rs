@@ -1,9 +1,13 @@
-pub mod inventory;
+mod inventory;
+mod targeting;
 
 use rltk::{Rltk, RGB};
 use specs::prelude::*;
 
 use crate::{ecs::components, gamelog::GameLog, maps::Map};
+
+pub use inventory::{show_inventory, show_item_actions, InventoryMenuAction, ItemMenuAction};
+pub use targeting::{show_targeting, TargetingMenuAction};
 
 pub struct GuiDrawer {
     pub window_width: usize,

@@ -118,6 +118,7 @@ pub struct WantsToPickupItem {
 #[derive(Component, Debug, Clone)]
 pub struct WantsToUseItem {
     pub item: Entity,
+    pub target: Option<rltk::Point>,
 }
 
 #[derive(Component, Debug, Clone)]
@@ -126,4 +127,21 @@ pub struct WantsToDropItem {
 }
 
 #[derive(Component, Debug, Clone)]
-pub struct Usable {}
+pub struct Usable {
+    pub destoyed_on_use: bool,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct HealEffect {
+    pub heal_power: i32,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Ranged {
+    pub range: i32,
+}
+
+#[derive(Component, Debug)]
+pub struct InflictsDamage {
+    pub damage: i32,
+}

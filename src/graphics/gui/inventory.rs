@@ -14,6 +14,7 @@ pub enum InventoryMenuAction {
     SelectedItem(Entity),
 }
 
+#[derive(PartialEq, Copy, Clone)]
 pub enum ItemMenuAction {
     Cancel,
     NoResponse,
