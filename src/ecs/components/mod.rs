@@ -141,7 +141,13 @@ pub struct Ranged {
     pub range: i32,
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct InflictsDamage {
     pub damage: i32,
+}
+
+/// AOE effect (circle area for now only)
+#[derive(Component, Debug, Clone)]
+pub struct AreaOfEffect {
+    pub radius: i32,
 }

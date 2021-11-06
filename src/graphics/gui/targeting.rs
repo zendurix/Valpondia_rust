@@ -34,7 +34,7 @@ pub fn show_targeting(
                     0,
                     RGB::named(rltk::YELLOW),
                     RGB::named(rltk::BLACK),
-                    "Select Target for".to_string() + name.name.as_str(),
+                    "Select Target for ".to_string() + name.name.as_str(),
                 );
             }
 

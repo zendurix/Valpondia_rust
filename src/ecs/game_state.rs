@@ -88,6 +88,7 @@ impl State {
         self.ecs.register::<components::HealEffect>();
         self.ecs.register::<components::Ranged>();
         self.ecs.register::<components::InflictsDamage>();
+        self.ecs.register::<components::AreaOfEffect>();
     }
 
     pub fn current_map(&self) -> &Map {
