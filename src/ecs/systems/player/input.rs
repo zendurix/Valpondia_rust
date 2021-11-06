@@ -1,5 +1,5 @@
 use crate::{
-    ecs::{components, State},
+    ecs::{components, game_state::RunState, State},
     gamelog::GameLog,
 };
 
@@ -22,38 +22,41 @@ pub enum InputType {
     DownRight,
     Center,
     PickUpItem,
+    ShowInventory,
+    Escape,
+    Enter,
 
     UnhandledInput, // NoInput
     NoInput,        // shouldnt bbe use (input should be Option<InputYpe)
 }
 
-pub fn get_input(gs: &mut State, ctx: &mut Rltk) {
-    let mut players = gs.ecs.write_storage::<components::Player>();
-    let movables = gs.ecs.read_storage::<components::Movable>();
-    for (player, _) in (&mut players, &movables).join() {
-        player.input = match ctx.key {
-            Some(key) => match key {
-                VirtualKeyCode::Numpad1 => Some(InputType::DownLeft),
-                VirtualKeyCode::Numpad2 | VirtualKeyCode::Down => Some(InputType::Down),
-                VirtualKeyCode::Numpad3 => Some(InputType::DownRight),
-                VirtualKeyCode::Numpad4 | VirtualKeyCode::Left => Some(InputType::Left),
-                VirtualKeyCode::Numpad5 => Some(InputType::Center),
-                VirtualKeyCode::Numpad6 | VirtualKeyCode::Right => Some(InputType::Right),
-                VirtualKeyCode::Numpad7 => Some(InputType::UpLeft),
-                VirtualKeyCode::Numpad8 | VirtualKeyCode::Up => Some(InputType::Up),
-                VirtualKeyCode::Numpad9 => Some(InputType::UpRight),
+pub fn get_input(ctx: &mut Rltk) -> Option<InputType> {
+    match ctx.key {
+        Some(key) => match key {
+            VirtualKeyCode::Numpad1 => Some(InputType::DownLeft),
+            VirtualKeyCode::Numpad2 | VirtualKeyCode::Down => Some(InputType::Down),
+            VirtualKeyCode::Numpad3 => Some(InputType::DownRight),
+            VirtualKeyCode::Numpad4 | VirtualKeyCode::Left => Some(InputType::Left),
+            VirtualKeyCode::Numpad5 => Some(InputType::Center),
+            VirtualKeyCode::Numpad6 | VirtualKeyCode::Right => Some(InputType::Right),
+            VirtualKeyCode::Numpad7 => Some(InputType::UpLeft),
+            VirtualKeyCode::Numpad8 | VirtualKeyCode::Up => Some(InputType::Up),
+            VirtualKeyCode::Numpad9 => Some(InputType::UpRight),
 
-                VirtualKeyCode::G => Some(InputType::PickUpItem),
+            VirtualKeyCode::G => Some(InputType::PickUpItem),
+            VirtualKeyCode::I => Some(InputType::ShowInventory),
 
-                _ => None, // UnhandledInput
-            },
-            None => None,
-        }
+            VirtualKeyCode::Escape => Some(InputType::Escape),
+            // Return == normal Enter
+            VirtualKeyCode::NumpadEnter | VirtualKeyCode::Return => Some(InputType::Enter),
+
+            _ => Some(InputType::UnhandledInput), // UnhandledInput
+        },
+        None => None,
     }
 }
 
-/// true, if input was handled, and player turn should end
-pub fn try_handle_input(gs: &mut State) -> bool {
+pub fn try_handle_input(gs: &mut State) -> RunState {
     let player = *gs.ecs.fetch::<Entity>();
     let player_inp_is_some = gs
         .ecs
@@ -81,17 +84,19 @@ pub fn try_handle_input(gs: &mut State) -> bool {
             InputType::Left => try_move_player(gs, Dir::Left),
             InputType::Right => try_move_player(gs, Dir::Right),
             // wait one turn
-            InputType::Center => true,
+            InputType::Center => RunState::PlayerTurn,
+
             InputType::PickUpItem => try_pick_up_item(&mut gs.ecs),
-            _ => false,
+            InputType::ShowInventory => RunState::ShowInventory,
+            _ => RunState::AwaitingInput,
         }
     } else {
-        false
+        RunState::AwaitingInput
     }
 }
 
 /// true if item was picked up
-fn try_pick_up_item(ecs: &mut World) -> bool {
+fn try_pick_up_item(ecs: &mut World) -> RunState {
     let player_pos = ecs.fetch::<rltk::Point>();
     let player = ecs.fetch::<Entity>();
     let entities = ecs.entities();
@@ -112,7 +117,7 @@ fn try_pick_up_item(ecs: &mut World) -> bool {
             gamelog
                 .entries
                 .push("There is nothing here to pick up.".to_string());
-            false
+            RunState::AwaitingInput
         }
         Some(item) => {
             let mut pickup = ecs.write_storage::<components::WantsToPickupItem>();
@@ -122,7 +127,7 @@ fn try_pick_up_item(ecs: &mut World) -> bool {
                     components::WantsToPickupItem { who: *player, item },
                 )
                 .expect("Unable to insert want to pickup");
-            true
+            RunState::PlayerTurn
         }
     }
 }

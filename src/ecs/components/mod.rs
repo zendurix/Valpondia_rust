@@ -100,7 +100,7 @@ impl SufferDamage {
 pub struct Item {}
 
 #[derive(Component, Debug)]
-pub struct HealPotion {
+pub struct Heal {
     pub heal_power: i32,
 }
 
@@ -112,5 +112,10 @@ pub struct InInventory {
 #[derive(Component, Debug, Clone)]
 pub struct WantsToPickupItem {
     pub who: Entity,
+    pub item: Entity,
+}
+
+#[derive(Component, Debug)]
+pub struct WantsToUseItem {
     pub item: Entity,
 }

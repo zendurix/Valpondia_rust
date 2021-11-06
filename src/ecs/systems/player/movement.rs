@@ -1,5 +1,5 @@
 use crate::{
-    ecs::{components, State},
+    ecs::{components, game_state::RunState, State},
     gamelog::GameLog,
     maps::Map,
 };
@@ -8,8 +8,7 @@ use specs::prelude::*;
 
 use crate::base::Dir;
 
-/// true, if player moved, and player turn should end
-pub fn try_move_player(gs: &mut State, move_dir: Dir) -> bool {
+pub fn try_move_player(gs: &mut State, move_dir: Dir) -> RunState {
     let mut positions = gs.ecs.write_storage::<components::Position>();
     let mut views = gs.ecs.write_storage::<components::View>();
     let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
@@ -71,8 +70,9 @@ pub fn try_move_player(gs: &mut State, move_dir: Dir) -> bool {
         gamelog
             .entries
             .push("Player tried to move to same position".to_string());
-        return false;
+        return RunState::AwaitingInput;
     }
+
     for potential_target in map.tile_content[destination_idx].iter() {
         let target = hps.get(*potential_target);
         if let Some(_target) = target {
@@ -84,7 +84,7 @@ pub fn try_move_player(gs: &mut State, move_dir: Dir) -> bool {
                     },
                 )
                 .expect("Add target failed");
-            return true;
+            return RunState::PlayerTurn;
         }
     }
 
@@ -92,12 +92,14 @@ pub fn try_move_player(gs: &mut State, move_dir: Dir) -> bool {
         gamelog
             .entries
             .push("Something blocks your movement".to_string());
-        return false;
+        return RunState::AwaitingInput;
     }
+
     pos.x = try_x;
     pos.y = try_y;
     view.should_update = true;
     view_mem.should_update = true;
     *player_pos_res = rltk::Point::new(pos.x, pos.y);
-    true
+
+    RunState::PlayerTurn
 }

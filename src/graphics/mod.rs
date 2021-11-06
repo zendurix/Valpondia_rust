@@ -1,5 +1,5 @@
 mod entities;
-mod gui;
+pub mod gui;
 mod map;
 mod window;
 

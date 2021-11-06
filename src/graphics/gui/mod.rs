@@ -1,3 +1,5 @@
+pub mod inventory;
+
 use rltk::{Rltk, RGB};
 use specs::prelude::*;
 

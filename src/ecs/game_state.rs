@@ -5,6 +5,7 @@ use specs::prelude::*;
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
+use crate::graphics::gui::inventory::{show_inventory, InventoryMenuAction};
 use crate::graphics::{self, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
@@ -17,6 +18,7 @@ pub enum RunState {
     PreRun,
     PlayerTurn,
     MonsterTurn,
+    ShowInventory,
 }
 
 /// State global resources (stored in rltk)
@@ -65,9 +67,10 @@ impl State {
         self.ecs.register::<components::WantsToMeleeAtack>();
         self.ecs.register::<components::SufferDamage>();
         self.ecs.register::<components::Item>();
-        self.ecs.register::<components::HealPotion>();
+        self.ecs.register::<components::Heal>();
         self.ecs.register::<components::InInventory>();
         self.ecs.register::<components::WantsToPickupItem>();
+        self.ecs.register::<components::WantsToUseItem>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -129,6 +132,7 @@ impl State {
 
     fn run_inventory_systems(&mut self) {
         systems::inventory::ItemCollectionSystem {}.run_now(&self.ecs);
+        systems::inventory::ItemHealSystem {}.run_now(&self.ecs);
     }
 
     fn run_all_gameplay_systems(&mut self) {
@@ -160,6 +164,21 @@ impl GameState for State {
             }
             RunState::AwaitingInput => {
                 run_state = systems::player::try_player_turn(self, ctx);
+            }
+            RunState::ShowInventory => {
+                let inv_action = show_inventory(self, ctx);
+                match inv_action {
+                    InventoryMenuAction::NoResponse => (),
+                    InventoryMenuAction::Cancel => run_state = RunState::AwaitingInput,
+                    InventoryMenuAction::SelectedItem(item) => {
+                        let mut items_uses = self.ecs.write_storage::<components::WantsToUseItem>();
+                        let player = *self.ecs.fetch::<Entity>();
+                        items_uses
+                            .insert(player, components::WantsToUseItem { item })
+                            .expect("Unable to insert intent to sue item");
+                        run_state = RunState::PlayerTurn;
+                    }
+                }
             }
             RunState::PlayerTurn => {
                 self.run_all_gameplay_systems();

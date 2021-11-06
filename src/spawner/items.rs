@@ -12,7 +12,7 @@ pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -
         rltk::to_cp437('i'),
         RGB::named(rltk::PINK),
         "Health potion",
-        vec![components::HealPotion { heal_power: 20 }],
+        vec![components::Heal { heal_power: 20 }],
     )
 }
 
