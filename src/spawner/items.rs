@@ -36,6 +36,7 @@ fn create_base_item_components<S: ToString>(
             texture: None,
             fg: color,
             bg: RGB::named(rltk::BLACK),
+            render_order: 2,
         })
         .with(components::Name {
             name: name.to_string(),

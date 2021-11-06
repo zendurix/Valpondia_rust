@@ -22,6 +22,9 @@ pub struct Renderable {
     pub texture: Option<()>, // add textures here
     pub fg: RGB,
     pub bg: RGB,
+    /// If more then one entities are on same pos ent with lowest order is drawn.
+    /// 0 - player, 1 - monster, 2 - items
+    pub render_order: i32,
 }
 
 #[derive(Component, Debug, Clone)]

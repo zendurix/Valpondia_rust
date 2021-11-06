@@ -49,6 +49,7 @@ fn spawn_monster<S: ToString>(
             texture: None,
             fg: RGB::named(rltk::RED),
             bg: RGB::named(rltk::BLACK),
+            render_order: 1,
         })
         .with(components::Name {
             name: name.to_string(),

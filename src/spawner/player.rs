@@ -27,6 +27,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             texture: None,
             fg: RGB::named(rltk::YELLOW),
             bg: RGB::named(rltk::BLACK),
+            render_order: 0,
         })
         .with(components::Hp {
             max_hp: 100,
