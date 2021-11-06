@@ -26,6 +26,8 @@ pub fn show_targeting(
     let names = gs.ecs.read_storage::<components::Name>();
     let view = views.get(player).unwrap();
 
+    // TODO remove allow if there is more actions
+    #[allow(clippy::single_match)]
     match action {
         TargetingAction::TargetingFromItem(item, range) => {
             if let Some(name) = names.get(item) {
@@ -68,6 +70,8 @@ pub fn show_targeting(
 
     let input = get_input(ctx);
 
+    // TODO remove allow if there is more actions
+    #[allow(clippy::collapsible_match)]
     match input {
         None => TargetingMenuAction::NoResponse,
         Some(key) => match key {

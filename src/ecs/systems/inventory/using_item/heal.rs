@@ -1,56 +1,22 @@
-use specs::{Entities, Entity, Join, ReadExpect, ReadStorage, System, WriteExpect, WriteStorage};
+use specs::{Entity, WriteStorage};
 
-use crate::{
-    ecs::components::{self},
-    gamelog::GameLog,
-};
+use crate::ecs::components::{self};
 
-/// used for heal potions.
-
-pub struct ItemHealSystem {}
-
-impl<'a> System<'a> for ItemHealSystem {
-    #[allow(clippy::type_complexity)]
-    type SystemData = (
-        ReadExpect<'a, Entity>,
-        WriteExpect<'a, GameLog>,
-        Entities<'a>,
-        ReadStorage<'a, components::Name>,
-        ReadStorage<'a, components::Heal>,
-        ReadStorage<'a, components::WantsToUseItem>,
-        WriteStorage<'a, components::HealEffect>,
-    );
-
-    fn run(&mut self, data: Self::SystemData) {
-        #[rustfmt::skip]
-        let (
-            player,
-            mut gamelog,
-            entities,
-            names,
-            heals,
-            wants_to_use,
-            mut heals_effects,
-        ) = data;
-
-        for (entity, uses) in (&entities, &wants_to_use).join() {
-            let heal = heals.get(uses.item);
-            if let Some(h) = heal {
-                heals_effects
-                    .insert(
-                        entity,
-                        components::HealEffect {
-                            heal_power: h.heal_power,
-                        },
-                    )
-                    .expect("Unable to add heal effect");
-                if entity == *player {
-                    gamelog.entries.push(format!(
-                        "You drink the {}",
-                        names.get(uses.item).unwrap().name,
-                    ));
-                }
-            }
-        }
+pub fn use_heal_item<'a>(
+    _player: Entity,
+    _user: Entity,
+    heal: &components::Heal,
+    targets: Vec<Entity>,
+    heals_effects: &mut WriteStorage<'a, components::HealEffect>,
+) {
+    for target in targets {
+        heals_effects
+            .insert(
+                target,
+                components::HealEffect {
+                    heal_power: heal.heal_power,
+                },
+            )
+            .expect("Unable to add heal effect");
     }
 }

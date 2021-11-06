@@ -10,7 +10,6 @@ use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::Map;
-use crate::spawner::player;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetingAction {
@@ -85,10 +84,12 @@ impl State {
         self.ecs.register::<components::WantsToUseItem>();
         self.ecs.register::<components::WantsToDropItem>();
         self.ecs.register::<components::Usable>();
-        self.ecs.register::<components::HealEffect>();
         self.ecs.register::<components::Ranged>();
         self.ecs.register::<components::InflictsDamage>();
         self.ecs.register::<components::AreaOfEffect>();
+        self.ecs.register::<components::SleepingEffect>();
+        self.ecs.register::<components::Sleeping>();
+        self.ecs.register::<components::HealEffect>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -151,8 +152,7 @@ impl State {
     fn run_inventory_systems(&mut self) {
         systems::inventory::ItemCollectionSystem {}.run_now(&self.ecs);
         systems::inventory::ItemDropSystem {}.run_now(&self.ecs);
-        systems::inventory::ItemHealSystem {}.run_now(&self.ecs);
-        systems::inventory::ItemTargetedDamageSystem {}.run_now(&self.ecs);
+        systems::inventory::UseItemSystem {}.run_now(&self.ecs);
         systems::inventory::DestroyUsedItems {}.run_now(&self.ecs);
     }
 
@@ -162,8 +162,8 @@ impl State {
 
     fn run_all_gameplay_systems(&mut self) {
         self.run_ai_systems();
-        self.run_combat_systems();
         self.run_inventory_systems();
+        self.run_combat_systems();
         self.run_effects_systems();
         self.run_view_systems();
         self.run_map_systems();

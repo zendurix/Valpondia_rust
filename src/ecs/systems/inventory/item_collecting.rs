@@ -8,6 +8,7 @@ impl<'a> System<'a> for ItemCollectionSystem {
     #[allow(clippy::type_complexity)]
     type SystemData = (
         ReadExpect<'a, Entity>,
+        Entities<'a>,
         WriteExpect<'a, GameLog>,
         WriteStorage<'a, components::WantsToPickupItem>,
         WriteStorage<'a, components::Position>,
@@ -19,6 +20,7 @@ impl<'a> System<'a> for ItemCollectionSystem {
         #[rustfmt::skip]
         let (
             player,
+            entities,
             mut gamelog,
             mut wants_pickup,
             mut positions,
@@ -26,13 +28,13 @@ impl<'a> System<'a> for ItemCollectionSystem {
             mut in_inventories,
         ) = data;
 
-        for pickup in wants_pickup.join() {
+        for (ent, pickup) in (&entities, &wants_pickup).join() {
             positions.remove(pickup.item);
             in_inventories
-                .insert(pickup.item, components::InInventory { owner: pickup.who })
+                .insert(pickup.item, components::InInventory { owner: ent })
                 .expect("Unable to insert backpack entry");
 
-            if pickup.who == *player {
+            if ent == *player {
                 gamelog.entries.push(format!(
                     "You pick up the {}.",
                     names.get(pickup.item).unwrap().name

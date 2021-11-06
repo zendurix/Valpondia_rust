@@ -105,16 +105,21 @@ pub struct Heal {
 }
 
 #[derive(Component, Debug, Clone)]
+pub struct HealEffect {
+    pub heal_power: i32,
+}
+
+#[derive(Component, Debug, Clone)]
 pub struct InInventory {
     pub owner: Entity,
 }
 
 #[derive(Component, Debug, Clone)]
 pub struct WantsToPickupItem {
-    pub who: Entity,
     pub item: Entity,
 }
 
+/// if target is None, then target is user
 #[derive(Component, Debug, Clone)]
 pub struct WantsToUseItem {
     pub item: Entity,
@@ -132,11 +137,6 @@ pub struct Usable {
 }
 
 #[derive(Component, Debug, Clone)]
-pub struct HealEffect {
-    pub heal_power: i32,
-}
-
-#[derive(Component, Debug, Clone)]
 pub struct Ranged {
     pub range: i32,
 }
@@ -150,4 +150,14 @@ pub struct InflictsDamage {
 #[derive(Component, Debug, Clone)]
 pub struct AreaOfEffect {
     pub radius: i32,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Sleeping {
+    pub duration: usize,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct SleepingEffect {
+    pub duration: usize,
 }

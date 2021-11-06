@@ -5,5 +5,4 @@ mod using_item;
 pub use item_collecting::ItemCollectionSystem;
 pub use item_dropping::ItemDropSystem;
 pub use using_item::destroy_used_items::DestroyUsedItems;
-pub use using_item::heal::ItemHealSystem;
-pub use using_item::target_damage::ItemTargetedDamageSystem;
+pub use using_item::UseItemSystem;

@@ -121,7 +121,7 @@ pub fn show_item_actions(gs: &mut State, ctx: &mut Rltk, item: Entity) -> ItemMe
         15,
         10,
         31,
-        (5) as i32,
+        5,
         RGB::named(rltk::WHITE),
         RGB::named(rltk::BLACK),
     );

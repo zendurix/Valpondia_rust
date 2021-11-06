@@ -126,10 +126,7 @@ fn try_pick_up_item(ecs: &mut World) -> RunState {
         Some(item) => {
             let mut pickup = ecs.write_storage::<components::WantsToPickupItem>();
             pickup
-                .insert(
-                    *player,
-                    components::WantsToPickupItem { who: *player, item },
-                )
+                .insert(*player, components::WantsToPickupItem { item })
                 .expect("Unable to insert want to pickup");
             RunState::PlayerTurn
         }
