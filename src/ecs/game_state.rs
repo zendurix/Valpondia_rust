@@ -5,7 +5,10 @@ use specs::prelude::*;
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
-use crate::graphics::gui::{InventoryMenuAction, ItemMenuAction, TargetingMenuAction};
+use crate::graphics::gui::menus::main_menu::MainMenu;
+use crate::graphics::gui::{
+    InventoryMenuAction, ItemMenuAction, MainMenuSelection, TargetingMenuAction,
+};
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
@@ -18,8 +21,8 @@ pub enum TargetingAction {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-
 pub enum RunState {
+    MainMenu,
     AwaitingInput,
     PreRun,
     PlayerTurn,
@@ -40,6 +43,7 @@ pub struct State {
     pub ecs: World,
 
     pub gui_drawer: GuiDrawer,
+    pub main_menu: MainMenu,
 
     pub level_manager: LevelManager,
     pub current_level: usize,
@@ -59,6 +63,7 @@ impl State {
             window_width,
             window_height,
             gui_drawer,
+            main_menu: MainMenu::new(),
             targeting_pos: Point::new(0, 0),
         }
     }
@@ -169,7 +174,7 @@ impl State {
         self.run_map_systems();
     }
 
-    fn draw_graphics(&self, ctx: &mut Rltk) {
+    fn draw_game_graphics(&self, ctx: &mut Rltk) {
         graphics::draw_map_with_fov(self, ctx);
         // graphics::draw_map_without_fov(self.current_map(), ctx);
         graphics::draw_entities(self, ctx);
@@ -201,10 +206,13 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
-        ctx.cls();
-        self.draw_graphics(ctx);
-
         let mut run_state = *self.ecs.fetch::<RunState>();
+        ctx.cls();
+
+        match run_state {
+            RunState::MainMenu => {}
+            _ => self.draw_game_graphics(ctx),
+        }
 
         match run_state {
             RunState::PreRun => {
@@ -278,6 +286,25 @@ impl GameState for State {
             RunState::MonsterTurn => {
                 self.run_all_gameplay_systems();
                 run_state = RunState::AwaitingInput;
+            }
+
+            RunState::MainMenu => {
+                let main_menu_action = self.main_menu.draw(ctx);
+                match main_menu_action {
+                    gui::MainMenuAction::NotSelected => {
+                        run_state = RunState::MainMenu;
+                    }
+                    gui::MainMenuAction::Selected(selected) => match selected {
+                        gui::MainMenuSelection::NewGame => run_state = RunState::PreRun,
+                        gui::MainMenuSelection::LoadGame => run_state = RunState::PreRun,
+
+                        // not implemented
+                        gui::MainMenuSelection::Credits => run_state = RunState::PreRun,
+                        gui::MainMenuSelection::Quit => {
+                            std::process::exit(0);
+                        }
+                    },
+                }
             }
         }
         *self.ecs.write_resource::<RunState>() = run_state;

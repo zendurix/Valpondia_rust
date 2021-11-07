@@ -41,7 +41,7 @@ fn main() {
     let mut gs = State::new(WINDOW_WIDTH, WINDOW_HEIGHT, gui_drawer);
     gs.register_all_components();
 
-    gs.ecs.insert(RunState::PreRun);
+    gs.ecs.insert(RunState::MainMenu);
     gs.ecs.insert(gamelog::GameLog {
         entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
     });

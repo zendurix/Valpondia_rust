@@ -1,4 +1,5 @@
 mod inventory;
+pub mod menus;
 mod targeting;
 
 use rltk::{Rltk, RGB};
@@ -8,6 +9,21 @@ use crate::{ecs::components, gamelog::GameLog, maps::Map};
 
 pub use inventory::{show_inventory, show_item_actions, InventoryMenuAction, ItemMenuAction};
 pub use targeting::{show_targeting, TargetingMenuAction};
+
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MainMenuSelection {
+    NewGame,
+    LoadGame,
+    Credits,
+    Quit,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MainMenuAction {
+    NotSelected,
+    Selected(MainMenuSelection),
+}
 
 pub struct GuiDrawer {
     pub window_width: usize,
