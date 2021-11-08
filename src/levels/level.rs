@@ -12,4 +12,7 @@ pub struct Level {
     pub map: Map,
     pub level_index: usize,
     pub depth: usize,
+
+    // used for spawn tables
+    pub level_weight: usize,
 }

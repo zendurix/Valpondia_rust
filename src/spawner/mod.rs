@@ -1,25 +1,48 @@
 use specs::World;
 
-use crate::{
-    maps::rect::Rect,
-    rng,
-    spawner::{
+use crate::{levels::level::Level, maps::rect::Rect, rng, spawner::{
         items::spawn_healing_potion,
         monsters::{spawn_goblin, spawn_random_monster},
-    },
-};
+    }};
 
-use self::{
-    items::{
+use self::{items::{
         spawn_fireball_scroll, spawn_magic_missile_scroll, spawn_sleep_scroll,
         spawn_teleport_scroll,
-    },
-    monsters::{spawn_knight, spawn_orc},
-};
+    }, monsters::{spawn_knight, spawn_orc}, spawn_tables::SpawnTable};
 
 pub mod items;
 pub mod monsters;
 pub mod player;
+pub mod spawn_tables;
+
+
+
+
+
+
+pub fn spawn_from_spawn_table(ecs: &mut World, level: &Level, spawn_table: SpawnTable) {
+
+
+
+
+    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 pub fn spawn_random_monsters_and_items_for_room(ecs: &mut World, room: &Rect, level: usize) {
     let rand = rng::roll_dice(1, 10);

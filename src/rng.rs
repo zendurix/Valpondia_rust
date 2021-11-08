@@ -21,3 +21,12 @@ pub fn range(min: i32, max: i32) -> i32 {
 pub fn rand_bool() -> bool {
     roll_dice(1, 2) == 1
 }
+
+pub fn random_perc() -> i32 {
+    range(0, 100)
+}
+
+pub fn test_perc(chance: usize) -> bool {
+    let rand = random_perc() as usize;
+    rand <= chance
+}

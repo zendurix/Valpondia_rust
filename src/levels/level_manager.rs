@@ -57,6 +57,7 @@ impl LevelManager {
             map: new_map,
             depth,
             level_index: self.levels.len(),
+            level_weight: 1,
         };
         self.levels.push(new_level);
         Ok(self.levels.len() - 1)

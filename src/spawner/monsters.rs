@@ -18,16 +18,16 @@ pub fn spawn_random_monster(ecs: &mut World, x: usize, y: usize, level: usize) -
 }
 
 pub fn spawn_goblin(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('g'), "goblin", 10, 4, 1)
+    spawn_monster(ecs, x, y, level, rltk::to_cp437('g'), "Goblin", 10, 4, 1)
 }
 pub fn spawn_orc(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('o'), "orc", 32, 12, 3)
+    spawn_monster(ecs, x, y, level, rltk::to_cp437('o'), "Orc", 32, 12, 3)
 }
 pub fn spawn_human(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('h'), "human", 20, 15, 2)
+    spawn_monster(ecs, x, y, level, rltk::to_cp437('h'), "Human", 20, 15, 2)
 }
 pub fn spawn_knight(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('k'), "knight", 35, 8, 7)
+    spawn_monster(ecs, x, y, level, rltk::to_cp437('k'), "Knight", 35, 8, 7)
 }
 
 #[allow(clippy::too_many_arguments)]
