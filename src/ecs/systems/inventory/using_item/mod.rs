@@ -2,12 +2,16 @@ pub mod destroy_used_items;
 mod heal;
 mod sleep;
 mod target_damage;
+mod teleport;
 
 use lazy_static::__Deref;
 use specs::{Entities, Entity, Join, ReadExpect, ReadStorage, System, WriteExpect, WriteStorage};
 
 use crate::{
-    ecs::components::{self},
+    ecs::{
+        components::{self},
+        systems::inventory::using_item::teleport::use_teleporting_item,
+    },
     gamelog::GameLog,
     maps::Map,
 };
@@ -32,6 +36,8 @@ impl<'a> System<'a> for UseItemSystem {
         WriteStorage<'a, components::SufferDamage>,
         ReadStorage<'a, components::Sleeping>,
         WriteStorage<'a, components::SleepingEffect>,
+        ReadStorage<'a, components::Teleporting>,
+        WriteStorage<'a, components::TeleportingEffect>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -50,6 +56,8 @@ impl<'a> System<'a> for UseItemSystem {
             mut suffers_damages,
             sleeps,
             mut sleeps_effects,
+            teleports,
+            mut teleports_effects,
         ) = data;
 
         for (user, uses, user_name) in (&entities, &wants_to_use, &names).join() {
@@ -81,8 +89,8 @@ impl<'a> System<'a> for UseItemSystem {
             ));
 
             let mut targets: Vec<Entity> = Vec::new();
+            let mut area_tiles = vec![];
             if let Some(target) = uses.target {
-                let mut area_tiles = vec![];
                 match aoes.get(uses.item) {
                     // Single target
                     None => {
@@ -127,6 +135,16 @@ impl<'a> System<'a> for UseItemSystem {
             if is_aplying_sleep {
                 let sleep = sleeps.get(item).unwrap().clone();
                 use_sleep_item(*player, user, &sleep, targets.clone(), &mut sleeps_effects);
+            }
+
+            let is_teleporting = teleports.get(item).is_some();
+            if is_teleporting {
+                use_teleporting_item(
+                    *player,
+                    user,
+                    *area_tiles.first().unwrap(),
+                    &mut teleports_effects,
+                );
             }
         }
     }

@@ -161,3 +161,11 @@ pub struct Sleeping {
 pub struct SleepingEffect {
     pub duration: usize,
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct Teleporting {}
+
+#[derive(Component, Debug, Clone)]
+pub struct TeleportingEffect {
+    pub target_pos: (usize, usize),
+}

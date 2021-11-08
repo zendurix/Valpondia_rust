@@ -28,7 +28,7 @@ pub struct Map {
     pub rooms: Vec<Rect>,
     /// by index
     pub blocked: Vec<bool>,
-    
+
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     pub tile_content: Vec<Vec<Entity>>,
