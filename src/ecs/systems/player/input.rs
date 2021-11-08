@@ -92,6 +92,7 @@ pub fn try_handle_input(gs: &mut State) -> RunState {
 
             InputType::PickUpItem => try_pick_up_item(&mut gs.ecs),
             InputType::ShowInventory => RunState::ShowInventory,
+            InputType::Escape => RunState::SaveGame,
             _ => RunState::AwaitingInput,
         }
     } else {

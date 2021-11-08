@@ -23,6 +23,7 @@ pub enum TargetingAction {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RunState {
     MainMenu,
+    SaveGame,
     AwaitingInput,
     PreRun,
     PlayerTurn,
@@ -305,6 +306,11 @@ impl GameState for State {
                         }
                     },
                 }
+            }
+            RunState::SaveGame => {
+                let data = serde_json::to_string(&*self.ecs.fetch::<Map>()).unwrap();
+                println!("{}", data);
+                run_state = RunState::MainMenu;
             }
         }
         *self.ecs.write_resource::<RunState>() = run_state;

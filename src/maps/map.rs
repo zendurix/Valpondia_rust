@@ -1,9 +1,10 @@
 use rltk::{Algorithm2D, BaseMap};
+use serde::{Deserialize, Serialize};
 use specs::Entity;
 
 use super::rect::Rect;
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum TileType {
     Floor,
     Wall,
@@ -19,7 +20,7 @@ impl TileType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Map {
     pub tiles: Vec<TileType>,
     pub width: usize,
@@ -27,7 +28,9 @@ pub struct Map {
     pub rooms: Vec<Rect>,
     /// by index
     pub blocked: Vec<bool>,
-
+    
+    #[serde(skip_serializing)]
+    #[serde(skip_deserializing)]
     pub tile_content: Vec<Vec<Entity>>,
 }
 

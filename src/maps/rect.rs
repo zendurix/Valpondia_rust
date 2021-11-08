@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use super::{Map, TileType};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Rect {
     pub x1: usize,
     pub x2: usize,
