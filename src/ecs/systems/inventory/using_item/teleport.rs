@@ -2,11 +2,11 @@ use specs::{Entity, WriteStorage};
 
 use crate::ecs::components::{self};
 
-pub fn use_teleporting_item<'a>(
+pub fn use_teleporting_item(
     _player: Entity,
     user: Entity,
     target_pos: rltk::Point,
-    teleportings_effects: &mut WriteStorage<'a, components::TeleportingEffect>,
+    teleportings_effects: &mut WriteStorage<'_, components::TeleportingEffect>,
 ) {
     teleportings_effects
         .insert(

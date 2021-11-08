@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use rltk::RGB;
 use specs::{Builder, Entity, World, WorldExt};
@@ -15,7 +15,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             should_update: true,
         })
         .with(components::ViewMemory {
-            seen_tiles: HashSet::<rltk::Point>::new(),
+            seen_tiles: HashMap::default(),
             should_update: true,
         })
         .with(components::Position { x, y, level: 0 })
@@ -34,7 +34,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             hp: 150,
         })
         .with(components::CombatBaseStats {
-            attack: 10,
+            attack: 100,
             defense: 3,
         })
         .build()

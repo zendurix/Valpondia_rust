@@ -1,7 +1,8 @@
 use crate::{
     ecs::{components, game_state::RunState, State},
     gamelog::GameLog,
-    maps::Map,
+    levels::level::Level,
+    maps::TileType,
 };
 
 use specs::prelude::*;
@@ -18,7 +19,7 @@ pub fn try_move_player(gs: &mut State, move_dir: Dir) -> RunState {
 
     let player = *gs.ecs.fetch_mut::<Entity>();
     let mut gamelog = gs.ecs.fetch_mut::<GameLog>();
-    let map = gs.ecs.fetch::<Map>();
+    let map = &gs.ecs.fetch::<Level>().map;
 
     let mut player_pos_res = gs.ecs.write_resource::<rltk::Point>();
     let mut pos = positions.get_mut(player).unwrap();
@@ -102,4 +103,66 @@ pub fn try_move_player(gs: &mut State, move_dir: Dir) -> RunState {
     *player_pos_res = rltk::Point::new(pos.x, pos.y);
 
     RunState::PlayerTurn
+}
+
+pub fn try_move_player_down_level(gs: &mut State) -> RunState {
+    let mut positions = gs.ecs.write_storage::<components::Position>();
+    let mut views = gs.ecs.write_storage::<components::View>();
+    let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
+
+    let player = *gs.ecs.fetch_mut::<Entity>();
+    let mut gamelog = gs.ecs.fetch_mut::<GameLog>();
+    let level = &gs.ecs.fetch::<Level>();
+
+    //let mut player_pos_res = gs.ecs.write_resource::<rltk::Point>();
+    let mut pos = positions.get_mut(player).unwrap();
+    let mut view = views.get_mut(player).unwrap();
+    let mut view_mem = views_memories.get_mut(player).unwrap();
+
+    let index = level.map.xy_to_index(pos.x, pos.y);
+    if level.map.tiles[index] == TileType::StairsDown {
+        gamelog
+            .entries
+            .push("You are going down stairs".to_string());
+
+        pos.level = level.level_index + 1;
+
+        view.should_update = true;
+        view_mem.should_update = true;
+
+        RunState::MoveLevel(level.level_index + 1)
+    } else {
+        gamelog.entries.push("There is no stairs down".to_string());
+        RunState::AwaitingInput
+    }
+}
+
+pub fn try_move_player_up_level(gs: &mut State) -> RunState {
+    let mut positions = gs.ecs.write_storage::<components::Position>();
+    let mut views = gs.ecs.write_storage::<components::View>();
+    let mut views_memories = gs.ecs.write_storage::<components::ViewMemory>();
+
+    let player = *gs.ecs.fetch_mut::<Entity>();
+    let mut gamelog = gs.ecs.fetch_mut::<GameLog>();
+    let level = &gs.ecs.fetch::<Level>();
+
+    // let mut player_pos_res = gs.ecs.write_resource::<rltk::Point>();
+    let mut pos = positions.get_mut(player).unwrap();
+    let mut view = views.get_mut(player).unwrap();
+    let mut view_mem = views_memories.get_mut(player).unwrap();
+
+    let index = level.map.xy_to_index(pos.x, pos.y);
+    if level.map.tiles[index] == TileType::StairsUp {
+        gamelog.entries.push("You are going up stairs".to_string());
+
+        pos.level = level.level_index - 1;
+
+        view.should_update = true;
+        view_mem.should_update = true;
+
+        RunState::MoveLevel(level.level_index - 1)
+    } else {
+        gamelog.entries.push("There is no stairs up".to_string());
+        RunState::AwaitingInput
+    }
 }

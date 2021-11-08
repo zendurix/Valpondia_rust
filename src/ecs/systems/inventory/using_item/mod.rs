@@ -4,7 +4,6 @@ mod sleep;
 mod target_damage;
 mod teleport;
 
-use lazy_static::__Deref;
 use specs::{Entities, Entity, Join, ReadExpect, ReadStorage, System, WriteExpect, WriteStorage};
 
 use crate::{
@@ -13,7 +12,7 @@ use crate::{
         systems::inventory::using_item::teleport::use_teleporting_item,
     },
     gamelog::GameLog,
-    maps::Map,
+    levels::level::Level,
 };
 
 use self::{heal::use_heal_item, sleep::use_sleep_item, target_damage::use_damage_item};
@@ -24,7 +23,7 @@ impl<'a> System<'a> for UseItemSystem {
     #[allow(clippy::type_complexity)]
     type SystemData = (
         ReadExpect<'a, Entity>,
-        ReadExpect<'a, Map>,
+        ReadExpect<'a, Level>,
         WriteExpect<'a, GameLog>,
         Entities<'a>,
         ReadStorage<'a, components::Name>,
@@ -44,7 +43,7 @@ impl<'a> System<'a> for UseItemSystem {
         #[rustfmt::skip]
         let (
             player,
-            map,
+            current_level,
             mut gamelog,
             entities,
             names,
@@ -71,10 +70,10 @@ impl<'a> System<'a> for UseItemSystem {
             };
 
             let target_name = if let Some(t) = uses.target {
-                let idx = map.xy_to_index(t.x as usize, t.y as usize);
+                let idx = current_level.map.xy_to_index(t.x as usize, t.y as usize);
                 // TODO for now just use first one. Maybe use render_order in future
-                if !map.tile_content[idx].is_empty() {
-                    let e = map.tile_content[idx][0];
+                if !current_level.map.tile_content[idx].is_empty() {
+                    let e = current_level.map.tile_content[idx][0];
                     names.get(e).unwrap().name.clone()
                 } else {
                     "nothing".to_string()
@@ -98,20 +97,22 @@ impl<'a> System<'a> for UseItemSystem {
                     }
                     Some(aoe) => {
                         area_tiles.extend(
-                            rltk::field_of_view(target, aoe.radius, map.deref())
+                            rltk::field_of_view(target, aoe.radius, &current_level.map)
                                 .iter()
                                 .filter(|p| {
                                     p.x > 0
-                                        && p.x < map.width_max() as i32
+                                        && p.x < current_level.map.width_max() as i32
                                         && p.y > 0
-                                        && p.y < map.height_max() as i32
+                                        && p.y < current_level.map.height_max() as i32
                                 }),
                         );
                     }
                 }
                 for tile_idx in area_tiles.iter() {
-                    let idx = map.xy_to_index(tile_idx.x as usize, tile_idx.y as usize);
-                    for ent in map.tile_content[idx].iter() {
+                    let idx = current_level
+                        .map
+                        .xy_to_index(tile_idx.x as usize, tile_idx.y as usize);
+                    for ent in current_level.map.tile_content[idx].iter() {
                         targets.push(*ent);
                     }
                 }

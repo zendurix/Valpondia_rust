@@ -6,13 +6,12 @@ use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::graphics::gui::menus::main_menu::MainMenu;
-use crate::graphics::gui::{
-    InventoryMenuAction, ItemMenuAction, MainMenuSelection, TargetingMenuAction,
-};
+use crate::graphics::gui::{InventoryMenuAction, ItemMenuAction, TargetingMenuAction};
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
-use crate::maps::Map;
+use crate::maps::{Map, TileType};
+use crate::spawner::spawn_random_monsters_and_items_for_room;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetingAction {
@@ -31,12 +30,13 @@ pub enum RunState {
     ShowInventory,
     ShowItemActions(Entity),
     Targeting(TargetingAction),
+    MoveLevel(usize),
 }
 
 /// State global resources (stored in rltk)
 /// rltk::Point - player position
 /// Entity - player entity (id)
-/// Map - current map
+/// Level - current level
 /// RunState - run state
 /// GameLog - messages log
 
@@ -52,17 +52,28 @@ pub struct State {
     pub window_width: usize,
     pub window_height: usize,
 
+    pub map_width: usize,
+    pub map_height: usize,
+
     pub targeting_pos: Point,
 }
 
 impl State {
-    pub fn new(window_width: usize, window_height: usize, gui_drawer: GuiDrawer) -> State {
+    pub fn new(
+        window_width: usize,
+        window_height: usize,
+        map_width: usize,
+        map_height: usize,
+        gui_drawer: GuiDrawer,
+    ) -> State {
         State {
             current_level: 0,
             ecs: World::new(),
             level_manager: LevelManager::new(),
             window_width,
             window_height,
+            map_width,
+            map_height,
             gui_drawer,
             main_menu: MainMenu::new(),
             targeting_pos: Point::new(0, 0),
@@ -119,22 +130,67 @@ impl State {
         level_type: LevelType,
         width: usize,
         height: usize,
-    ) -> Result<()> {
-        self.level_manager
-            .crete_new_level(level_type, width, height)?;
-        Ok(())
+        depth: usize,
+        prev_down_stairs_pos: Option<(usize, usize)>,
+    ) -> Result<usize> {
+        let index = self.level_manager.crete_new_level(
+            level_type,
+            width,
+            height,
+            depth,
+            prev_down_stairs_pos.map(|pos| Point::new(pos.0, pos.1)),
+        )?;
+        Ok(index)
     }
 
     pub fn set_level_as_curent(&mut self, level_index: usize) {
-        if self.level_manager.levels.len() > level_index {
-            if let Some(current_map) = self.ecs.try_fetch::<Map>() {
-                let map = current_map.deref().clone();
-                self.level_manager.levels[self.current_level].map = map;
+        // TODO level_index to high error
+
+        if let Some(current_level) = self.ecs.try_fetch::<Level>() {
+            let level = current_level.deref().clone();
+            self.level_manager.levels[self.current_level] = level;
+        }
+
+        self.current_level = level_index;
+        self.ecs
+            .insert(self.level_manager.levels[level_index].clone());
+    }
+
+    pub fn player_move_level(&mut self, next_level: usize) {
+        if next_level < self.level_manager.levels.len() {
+            self.set_level_as_curent(next_level);
+        } else {
+            let mut current_depth = None;
+            let mut prev_down_stairs_pos = None;
+            if let Some(current_level) = self.ecs.try_fetch::<Level>() {
+                current_depth = Some(current_level.depth);
+                prev_down_stairs_pos = current_level
+                    .map
+                    .tiles
+                    .iter()
+                    .enumerate()
+                    .find_map(|(i, t)| (*t == TileType::StairsDown).then(|| i))
+                    .map(|i| current_level.map.index_to_xy(i));
             }
 
-            self.current_level = level_index;
-            self.ecs
-                .insert(self.level_manager.levels[level_index].map.clone());
+            let new_level_index = self
+                .create_new_level(
+                    LevelType::BasicDungeon,
+                    self.map_width,
+                    self.map_height,
+                    current_depth.map(|d| d + 1).unwrap_or(0),
+                    prev_down_stairs_pos,
+                )
+                .unwrap();
+
+            let new_level = &self.level_manager.levels[new_level_index];
+
+            let rooms = new_level.map.rooms.clone();
+            for room in rooms.iter() {
+                spawn_random_monsters_and_items_for_room(&mut self.ecs, room, new_level_index);
+            }
+
+            self.set_level_as_curent(new_level_index);
         }
     }
 
@@ -311,9 +367,13 @@ impl GameState for State {
                 }
             }
             RunState::SaveGame => {
-                let data = serde_json::to_string(&*self.ecs.fetch::<Map>()).unwrap();
-                println!("{}", data);
+                //  let data = serde_json::to_string(&self.ecs.fetch::<Level>().map).unwrap();
+                //  println!("{}", data);
                 run_state = RunState::MainMenu;
+            }
+            RunState::MoveLevel(next_level) => {
+                self.player_move_level(next_level);
+                run_state = RunState::PreRun;
             }
         }
         *self.ecs.write_resource::<RunState>() = run_state;

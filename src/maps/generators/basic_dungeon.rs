@@ -1,11 +1,12 @@
 use itertools::Itertools;
+use rltk::Point;
 
 use crate::{
     maps::{
         corridor::{apply_horizontal_tunnel, apply_vertical_tunnel},
         errors::Result,
         rect::{apply_room_to_map, Rect},
-        Map, MapGenerator,
+        Map, MapGenerator, TileType,
     },
     rng,
 };
@@ -43,11 +44,37 @@ impl BasicDungeonMap {
         }
     }
 
-    pub fn create_basic_dungeon_map(&mut self) -> Map {
+    pub fn create_basic_dungeon_map(&mut self, prev_down_stairs_pos: Option<Point>) -> Map {
         let mut map = Map::new(self.width, self.height).with_all_solid();
         self.add_rooms(&mut map);
+
+        if let Some(prev_stairs) = prev_down_stairs_pos {
+            let index = map.xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+            while map.tiles[index] != TileType::Floor {
+                map = Map::new(self.width, self.height).with_all_solid();
+                self.add_rooms(&mut map);
+            }
+        }
+
         self.add_corridors(&mut map);
+        Self::add_up_and_down_stairs(&mut map, prev_down_stairs_pos);
         map
+    }
+
+    fn add_up_and_down_stairs(map: &mut Map, prev_down_stairs_pos: Option<Point>) {
+        // TODO add result with errors
+        let random_room = rng::range(0, map.rooms.len() as i32 - 1) as usize;
+        let center = map.rooms[random_room].center();
+        let index = map.xy_to_index(center.0, center.1);
+        map.tiles[index] = TileType::StairsDown;
+
+        if let Some(prev_stairs) = prev_down_stairs_pos {
+            let index = map.xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+
+            if !map.tiles[index].blocks_movement() {
+                map.tiles[index] = TileType::StairsUp;
+            }
+        }
     }
 
     fn add_rooms(&mut self, map: &mut Map) {
@@ -91,7 +118,7 @@ impl BasicDungeonMap {
 }
 
 impl MapGenerator for BasicDungeonMap {
-    fn generate(mut self) -> Result<Map> {
-        Ok(self.create_basic_dungeon_map())
+    fn generate(mut self, prev_down_stairs_pos: Option<Point>) -> Result<Map> {
+        Ok(self.create_basic_dungeon_map(prev_down_stairs_pos))
     }
 }

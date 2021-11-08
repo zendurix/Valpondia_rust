@@ -7,9 +7,10 @@ pub mod rect;
 pub use errors::Error;
 
 use errors::Result;
+use rltk::Point;
 
 pub use self::map::{Map, TileType};
 
 pub trait MapGenerator {
-    fn generate(self) -> Result<Map>;
+    fn generate(self, prev_down_stairs_pos: Option<Point>) -> Result<Map>;
 }

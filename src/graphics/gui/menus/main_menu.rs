@@ -1,11 +1,7 @@
-use rltk::{Rltk, VirtualKeyCode, RGB};
+use rltk::{Rltk, RGB};
 
 use crate::{
-    ecs::{
-        game_state::RunState,
-        systems::player::{input::get_input, InputType},
-        State,
-    },
+    ecs::systems::player::{input::get_input, InputType},
     graphics::gui::{MainMenuAction, MainMenuSelection},
 };
 

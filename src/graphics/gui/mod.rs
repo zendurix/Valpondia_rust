@@ -5,7 +5,7 @@ mod targeting;
 use rltk::{Rltk, RGB};
 use specs::prelude::*;
 
-use crate::{ecs::components, gamelog::GameLog, maps::Map};
+use crate::{ecs::components, gamelog::GameLog, levels::level::Level};
 
 pub use inventory::{show_inventory, show_item_actions, InventoryMenuAction, ItemMenuAction};
 pub use targeting::{show_targeting, TargetingMenuAction};
@@ -61,9 +61,19 @@ impl GuiDrawer {
         let hps = ecs.read_storage::<components::Hp>();
         let players = ecs.read_storage::<components::Player>();
         for (_player, hp) in (&players, &hps).join() {
+            let level = ecs.fetch::<Level>();
+            let depth = format!("Depth: {}", level.depth);
+            ctx.print_color(
+                2,
+                self.window_height - (self.console_box_height + 1),
+                RGB::named(rltk::YELLOW),
+                RGB::named(rltk::BLACK),
+                &depth,
+            );
+
             let health = format!(" HP: {} / {} ", hp.hp, hp.max_hp);
             ctx.print_color(
-                10,
+                20,
                 self.window_height - (self.console_box_height + 1),
                 RGB::named(rltk::YELLOW),
                 RGB::named(rltk::BLACK),
@@ -95,7 +105,7 @@ impl GuiDrawer {
     }
 
     fn draw_cursor_tooltips(&self, ecs: &World, ctx: &mut Rltk) {
-        let map = ecs.fetch::<Map>();
+        let map = &ecs.fetch::<Level>().map;
         let names = ecs.read_storage::<components::Name>();
         let positions = ecs.read_storage::<components::Position>();
 

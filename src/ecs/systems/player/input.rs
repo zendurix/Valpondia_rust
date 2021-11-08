@@ -8,7 +8,7 @@ use specs::prelude::*;
 
 use crate::base::Dir;
 
-use super::movement::try_move_player;
+use super::movement::{try_move_player, try_move_player_down_level, try_move_player_up_level};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputType {
@@ -25,6 +25,8 @@ pub enum InputType {
     ShowInventory,
     Escape,
     Enter,
+    DownLevel,
+    UpLevel,
     D,
     U,
 
@@ -49,6 +51,9 @@ pub fn get_input(ctx: &mut Rltk) -> Option<InputType> {
             VirtualKeyCode::I => Some(InputType::ShowInventory),
             VirtualKeyCode::U => Some(InputType::U),
             VirtualKeyCode::D => Some(InputType::D),
+
+            VirtualKeyCode::Period | VirtualKeyCode::Add => Some(InputType::DownLevel),
+            VirtualKeyCode::Comma | VirtualKeyCode::Minus => Some(InputType::UpLevel),
 
             VirtualKeyCode::Escape => Some(InputType::Escape),
             // Return == normal Enter
@@ -87,6 +92,10 @@ pub fn try_handle_input(gs: &mut State) -> RunState {
             InputType::UpRight => try_move_player(gs, Dir::UpRight),
             InputType::Left => try_move_player(gs, Dir::Left),
             InputType::Right => try_move_player(gs, Dir::Right),
+
+            InputType::DownLevel => try_move_player_down_level(gs),
+            InputType::UpLevel => try_move_player_up_level(gs),
+
             // wait one turn
             InputType::Center => RunState::PlayerTurn,
 

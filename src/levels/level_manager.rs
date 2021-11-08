@@ -1,3 +1,5 @@
+use rltk::Point;
+
 use crate::maps::{
     generators::{
         basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig},
@@ -40,34 +42,23 @@ impl LevelManager {
         level_type: LevelType,
         width: usize,
         height: usize,
+        depth: usize,
+        prev_down_stairs_pos: Option<Point>,
     ) -> Result<usize> {
-        match level_type {
-            LevelType::TestLevel => {
-                let new_map = TestMap::new(width, height).generate()?;
-                let new_level = Level {
-                    map: new_map,
-                    level_index: self.levels.len(),
-                };
-                self.levels.push(new_level);
-            }
-            LevelType::Cave => {
-                let new_map = CAMapGen::new(width, height)?.generate()?;
-                let new_level = Level {
-                    map: new_map,
-                    level_index: self.levels.len(),
-                };
-                self.levels.push(new_level);
-            }
+        let new_map = match level_type {
+            LevelType::TestLevel => TestMap::new(width, height).generate(prev_down_stairs_pos)?,
+            LevelType::Cave => CAMapGen::new(width, height)?.generate(prev_down_stairs_pos)?,
             LevelType::BasicDungeon => {
-                let new_map = BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default())
-                    .generate()?;
-                let new_level = Level {
-                    map: new_map,
-                    level_index: self.levels.len(),
-                };
-                self.levels.push(new_level);
+                BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default())
+                    .generate(prev_down_stairs_pos)?
             }
-        }
+        };
+        let new_level = Level {
+            map: new_map,
+            depth,
+            level_index: self.levels.len(),
+        };
+        self.levels.push(new_level);
         Ok(self.levels.len() - 1)
     }
 }

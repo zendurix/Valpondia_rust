@@ -1,8 +1,9 @@
-use lazy_static::__Deref;
+use std::collections::HashSet;
+
 use rltk::field_of_view_set;
 use specs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
 
-use crate::{ecs::components, maps::Map};
+use crate::{ecs::components, levels::level::Level};
 
 pub struct ViewSystem {}
 
@@ -10,7 +11,7 @@ impl<'a> System<'a> for ViewSystem {
     type SystemData = (
         ReadStorage<'a, components::Position>,
         WriteStorage<'a, components::View>,
-        ReadExpect<'a, Map>,
+        ReadExpect<'a, Level>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -18,7 +19,7 @@ impl<'a> System<'a> for ViewSystem {
         let (
             positions ,
             mut views,
-            current_map
+            current_level
         ) = data;
 
         for (pos, view) in (&positions, &mut views)
@@ -29,13 +30,13 @@ impl<'a> System<'a> for ViewSystem {
             view.visible_tiles = field_of_view_set(
                 rltk::Point::new(pos.x, pos.y),
                 view.range as i32,
-                current_map.deref(),
+                &current_level.map,
             );
             view.visible_tiles.retain(|p| {
                 p.x >= 0
-                    && p.x < current_map.width as i32
+                    && p.x < current_level.map.width as i32
                     && p.y >= 0
-                    && p.y < current_map.height as i32
+                    && p.y < current_level.map.height as i32
             });
             view.should_update = false;
         }
@@ -47,12 +48,27 @@ impl<'a> System<'a> for ViewMemorySystem {
     type SystemData = (
         ReadStorage<'a, components::View>,
         WriteStorage<'a, components::ViewMemory>,
+        ReadStorage<'a, components::Position>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (views, mut views_memories) = data;
-        for (view, view_memory) in (&views, &mut views_memories).join() {
-            view_memory.seen_tiles.extend(view.visible_tiles.clone());
+        #[rustfmt::skip]
+        let (
+            views,
+            mut views_memories,
+            positions
+        ) = data;
+        for (view, view_memory, pos) in (&views, &mut views_memories, &positions).join() {
+            let level = pos.level;
+            view_memory
+                .seen_tiles
+                .entry(level)
+                .or_insert_with(HashSet::default);
+            view_memory
+                .seen_tiles
+                .get_mut(&level)
+                .unwrap()
+                .extend(view.visible_tiles.clone());
         }
     }
 }

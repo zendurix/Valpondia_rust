@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use specs::prelude::*;
 
@@ -49,7 +49,8 @@ pub struct View {
 
 #[derive(Component, Debug, Clone)]
 pub struct ViewMemory {
-    pub seen_tiles: HashSet<rltk::Point>,
+    /// indexed by level
+    pub seen_tiles: HashMap<usize, HashSet<rltk::Point>>,
     pub should_update: bool,
 }
 

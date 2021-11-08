@@ -1,11 +1,10 @@
 pub mod ai_random_mov;
 
-use lazy_static::__Deref;
 use specs::{Entities, Entity, Join, ReadExpect, ReadStorage, System, WriteExpect, WriteStorage};
 
 use crate::{
     ecs::{components, game_state::RunState},
-    maps::Map,
+    levels::level::Level,
 };
 
 pub struct AISystem {}
@@ -20,7 +19,7 @@ impl<'a> System<'a> for AISystem {
         ReadStorage<'a, components::Name>,
         ReadStorage<'a, components::BlocksTile>,
         ReadExpect<'a, rltk::Point>,
-        WriteExpect<'a, Map>,
+        WriteExpect<'a, Level>,
         ReadExpect<'a, Entity>,
         WriteStorage<'a, components::WantsToMeleeAtack>,
         WriteStorage<'a, components::SleepingEffect>,
@@ -36,7 +35,7 @@ impl<'a> System<'a> for AISystem {
             names,
             tiles_blocks,
             player_position,
-            mut current_map,
+            mut current_level,
             player,
             mut wants_to_melee,
             mut sleeping_effects,
@@ -51,6 +50,10 @@ impl<'a> System<'a> for AISystem {
             (&entities, &mut views, &mut positions, &ais, &names).join()
         {
             let mut can_act = true;
+            if pos.level != current_level.level_index {
+                continue;
+            }
+
             if let Some(sleep) = sleeping_effects.get_mut(entity) {
                 sleep.duration -= 1;
                 can_act = false;
@@ -65,10 +68,11 @@ impl<'a> System<'a> for AISystem {
                 if view.visible_tiles.contains(&player_position) {
                     // following player
                     let path = rltk::a_star_search(
-                        current_map.xy_to_index(pos.x, pos.y),
-                        current_map
+                        current_level.map.xy_to_index(pos.x, pos.y),
+                        current_level
+                            .map
                             .xy_to_index(player_position.x as usize, player_position.y as usize),
-                        current_map.deref(),
+                        &current_level.map,
                     );
 
                     let distance = rltk::DistanceAlg::Pythagoras
@@ -78,14 +82,14 @@ impl<'a> System<'a> for AISystem {
                             .insert(entity, components::WantsToMeleeAtack { target: *player })
                             .expect("Unable to insert attack on player!");
                     } else if path.success && path.steps.len() > 1 {
-                        let x = path.steps[1] % current_map.width;
-                        let y = path.steps[1] / current_map.width;
+                        let x = path.steps[1] % current_level.map.width;
+                        let y = path.steps[1] / current_level.map.width;
 
                         if let Some(_block) = tiles_blocks.get(entity) {
-                            let prev_index = current_map.xy_to_index(pos.x, pos.y);
-                            current_map.blocked[prev_index] = false;
-                            let curret_index = current_map.xy_to_index(x, y);
-                            current_map.blocked[curret_index] = true;
+                            let prev_index = current_level.map.xy_to_index(pos.x, pos.y);
+                            current_level.map.blocked[prev_index] = false;
+                            let curret_index = current_level.map.xy_to_index(x, y);
+                            current_level.map.blocked[curret_index] = true;
                         }
                         pos.x = x;
                         pos.y = y;

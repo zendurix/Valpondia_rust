@@ -34,7 +34,7 @@ impl<'a> System<'a> for TeleportSystem {
             pos.y = teleport.target_pos.1;
 
             if entity == *player {
-                gamelog.entries.push(format!("You are teleported."));
+                gamelog.entries.push("You are teleported.".to_string());
             }
         }
         teleports.clear();

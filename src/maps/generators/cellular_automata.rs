@@ -1,6 +1,6 @@
 use std::ops::Not;
 
-use rltk::RandomNumberGenerator;
+use rltk::{Point, RandomNumberGenerator};
 
 use crate::maps::errors::{Error, Result};
 use crate::maps::{Map, TileType};
@@ -348,7 +348,7 @@ impl CAMapGen {
 }
 
 impl MapGenerator for CAMapGen {
-    fn generate(mut self) -> Result<Map> {
+    fn generate(mut self, _prev_down_stairs_pos: Option<Point>) -> Result<Map> {
         self.make_cave_map()
     }
 }

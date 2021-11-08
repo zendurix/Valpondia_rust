@@ -38,7 +38,15 @@ fn main() {
         console_box_height: CONSOLE_BOX_HEIGHT,
     };
 
-    let mut gs = State::new(WINDOW_WIDTH, WINDOW_HEIGHT, gui_drawer);
+    let map_height = WINDOW_HEIGHT - CONSOLE_BOX_HEIGHT;
+
+    let mut gs = State::new(
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        WINDOW_WIDTH,
+        map_height,
+        gui_drawer,
+    );
     gs.register_all_components();
 
     gs.ecs.insert(RunState::MainMenu);
@@ -46,9 +54,7 @@ fn main() {
         entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
     });
 
-    let map_height = WINDOW_HEIGHT - CONSOLE_BOX_HEIGHT;
-
-    let test = gs.create_new_level(LevelType::BasicDungeon, WINDOW_WIDTH, map_height);
+    let test = gs.create_new_level(LevelType::BasicDungeon, WINDOW_WIDTH, map_height, 0, None);
 
     match test {
         Ok(_) => (),

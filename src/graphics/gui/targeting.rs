@@ -8,7 +8,7 @@ use crate::{
         systems::player::{input::get_input, InputType},
         State,
     },
-    maps::Map,
+    levels::level::Level,
 };
 
 #[derive(PartialEq, Copy, Clone)]
@@ -28,7 +28,7 @@ pub fn show_targeting(
     let views = gs.ecs.read_storage::<components::View>();
     let names = gs.ecs.read_storage::<components::Name>();
     let view = views.get(player).unwrap();
-    let map = gs.ecs.fetch::<Map>();
+    let map = &gs.ecs.fetch::<Level>().map;
 
     // TODO remove allow if there is more actions
     #[allow(clippy::single_match)]

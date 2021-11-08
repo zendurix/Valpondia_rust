@@ -1,4 +1,4 @@
-use rltk::{Algorithm2D, BaseMap};
+use rltk::{Algorithm2D, BaseMap, FontCharType, RGB};
 use serde::{Deserialize, Serialize};
 use specs::Entity;
 
@@ -8,6 +8,8 @@ use super::rect::Rect;
 pub enum TileType {
     Floor,
     Wall,
+    StairsDown,
+    StairsUp,
 }
 
 impl TileType {
@@ -17,6 +19,15 @@ impl TileType {
 
     pub fn blocks_movement(self) -> bool {
         self == TileType::Wall
+    }
+
+    pub fn draw(self) -> (FontCharType, RGB) {
+        match self {
+            TileType::Floor => (rltk::to_cp437('.'), RGB::named(rltk::GREEN)),
+            TileType::Wall => (rltk::to_cp437('#'), RGB::named(rltk::GREEN)),
+            TileType::StairsDown => (rltk::to_cp437('>'), RGB::named(rltk::PINK2)),
+            TileType::StairsUp => (rltk::to_cp437('<'), RGB::named(rltk::PINK2)),
+        }
     }
 }
 
@@ -120,6 +131,12 @@ impl Map {
 
     pub fn xy_to_index(&self, x: usize, y: usize) -> usize {
         x + (y * self.width)
+    }
+
+    pub fn index_to_xy(&self, index: usize) -> (usize, usize) {
+        let x = index % self.width;
+        let y = index / self.width;
+        (x, y)
     }
 
     fn is_exit_valid(&self, x: usize, y: usize) -> bool {
