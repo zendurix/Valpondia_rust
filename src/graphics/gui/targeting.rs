@@ -1,11 +1,14 @@
 use rltk::{Rltk, RGB};
 use specs::{Entity, WorldExt};
 
-use crate::ecs::{
-    components,
-    game_state::TargetingAction,
-    systems::player::{input::get_input, InputType},
-    State,
+use crate::{
+    ecs::{
+        components,
+        game_state::TargetingAction,
+        systems::player::{input::get_input, InputType},
+        State,
+    },
+    maps::Map,
 };
 
 #[derive(PartialEq, Copy, Clone)]
@@ -25,6 +28,7 @@ pub fn show_targeting(
     let views = gs.ecs.read_storage::<components::View>();
     let names = gs.ecs.read_storage::<components::Name>();
     let view = views.get(player).unwrap();
+    let map = gs.ecs.fetch::<Map>();
 
     // TODO remove allow if there is more actions
     #[allow(clippy::single_match)]
@@ -63,6 +67,20 @@ pub fn show_targeting(
                     return TargetingMenuAction::NoResponse;
                 }
             }
+
+            if available_points.contains(&gs.targeting_pos) {
+                ctx.set_bg(
+                    gs.targeting_pos.x,
+                    gs.targeting_pos.y,
+                    RGB::named(rltk::ORANGE),
+                );
+            } else {
+                ctx.set_bg(
+                    gs.targeting_pos.x,
+                    gs.targeting_pos.y,
+                    RGB::named(rltk::RED),
+                );
+            }
         }
         // unimplemented
         _ => (),
@@ -73,10 +91,45 @@ pub fn show_targeting(
     // TODO remove allow if there is more actions
     #[allow(clippy::collapsible_match)]
     match input {
-        None => TargetingMenuAction::NoResponse,
+        None => return TargetingMenuAction::NoResponse,
         Some(key) => match key {
-            InputType::Escape => TargetingMenuAction::Cancel,
-            _ => TargetingMenuAction::NoResponse,
+            InputType::Escape => return TargetingMenuAction::Cancel,
+            InputType::Down => {
+                gs.targeting_pos.y += 1;
+            }
+            InputType::DownRight => {
+                gs.targeting_pos.y += 1;
+                gs.targeting_pos.x += 1;
+            }
+            InputType::DownLeft => {
+                gs.targeting_pos.y += 1;
+                gs.targeting_pos.x -= 1;
+            }
+            InputType::Up => {
+                gs.targeting_pos.y -= 1;
+            }
+            InputType::UpLeft => {
+                gs.targeting_pos.y -= 1;
+                gs.targeting_pos.x -= 1;
+            }
+            InputType::UpRight => {
+                gs.targeting_pos.y -= 1;
+                gs.targeting_pos.x += 1;
+            }
+            InputType::Left => {
+                gs.targeting_pos.x -= 1;
+            }
+            InputType::Right => {
+                gs.targeting_pos.x += 1;
+            }
+            InputType::Enter => {
+                return TargetingMenuAction::Selected;
+            }
+            _ => return TargetingMenuAction::NoResponse,
         },
     }
+    gs.targeting_pos.y = gs.targeting_pos.y.max(0).min(map.height_max() as i32);
+    gs.targeting_pos.x = gs.targeting_pos.x.max(0).min(map.width_max() as i32);
+
+    TargetingMenuAction::NoResponse
 }

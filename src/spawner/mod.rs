@@ -9,7 +9,13 @@ use crate::{
     },
 };
 
-use self::{items::{spawn_fireball_scroll, spawn_magic_missile_scroll, spawn_sleep_scroll, spawn_teleport_scroll}, monsters::{spawn_knight, spawn_orc}};
+use self::{
+    items::{
+        spawn_fireball_scroll, spawn_magic_missile_scroll, spawn_sleep_scroll,
+        spawn_teleport_scroll,
+    },
+    monsters::{spawn_knight, spawn_orc},
+};
 
 pub mod items;
 pub mod monsters;
