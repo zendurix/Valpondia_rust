@@ -31,10 +31,22 @@ pub fn show_inventory(gs: &mut State, ctx: &mut Rltk) -> InventoryMenuAction {
     let inventories = gs.ecs.read_storage::<components::InInventory>();
     let entities = gs.ecs.entities();
 
-    let inv_count = (&inventories, &names)
+    let mut inv_entities = vec![];
+
+    let mut items_groupped = HashMap::<String, (usize, Entity)>::default();
+
+    for (ent, _in_inv, name) in (&entities, &inventories, &names)
         .join()
-        .filter(|item| item.0.owner == player)
-        .count();
+        .filter(|item| item.1.owner == player)
+    {
+        if items_groupped.contains_key(&name.name) {
+            items_groupped.get_mut(&name.name).unwrap().0 += 1;
+        } else {
+            items_groupped.insert(name.name.clone(), (1, ent));
+        }
+    }
+
+    let inv_count = items_groupped.len();
 
     let _drawer = &mut gs.gui_drawer;
 
@@ -61,21 +73,6 @@ pub fn show_inventory(gs: &mut State, ctx: &mut Rltk) -> InventoryMenuAction {
         RGB::named(rltk::BLACK),
         "press ESCAPE to exit",
     );
-
-    let mut inv_entities = vec![];
-
-    let mut items_groupped = HashMap::<String, (usize, Entity)>::default();
-
-    for (ent, _in_inv, name) in (&entities, &inventories, &names)
-        .join()
-        .filter(|item| item.1.owner == player)
-    {
-        if items_groupped.contains_key(&name.name) {
-            items_groupped.get_mut(&name.name).unwrap().0 += 1;
-        } else {
-            items_groupped.insert(name.name.clone(), (1, ent));
-        }
-    }
 
     for (i, (name, (count, first_entity))) in items_groupped
         .into_iter()
