@@ -141,10 +141,17 @@ impl State {
             depth,
             prev_down_stairs_pos.map(|pos| Point::new(pos.0, pos.1)),
         )?;
+
+        let spawn_table = match level_type {
+            LevelType::Cave => SpawnTable::caves(),
+            LevelType::BasicDungeon => SpawnTable::basic_dungeon(),
+            _ => SpawnTable::basic_dungeon(),
+        };
+
         spawn_from_spawn_table(
             &mut self.ecs,
             &self.level_manager.levels[index],
-            SpawnTable::first_level(),
+            spawn_table,
         );
         Ok(index)
     }
@@ -179,9 +186,15 @@ impl State {
                     .map(|i| current_level.map.index_to_xy(i));
             }
 
+            let new_level_type = if current_depth.is_some() && current_depth.unwrap() == 0 {
+                LevelType::Cave
+            } else {
+                LevelType::BasicDungeon
+            };
+
             let new_level_index = self
                 .create_new_level(
-                    LevelType::BasicDungeon,
+                    new_level_type,
                     self.map_width,
                     self.map_height,
                     current_depth.map(|d| d + 1).unwrap_or(0),

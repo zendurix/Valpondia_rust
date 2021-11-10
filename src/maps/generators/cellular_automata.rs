@@ -3,8 +3,8 @@ use std::ops::Not;
 use rltk::{Point, RandomNumberGenerator};
 
 use crate::maps::errors::{Error, Result};
-use crate::maps::{Map, TileType};
-use crate::MapGenerator;
+use crate::maps::{Map, SpawnAreas, TileType};
+use crate::{rng, MapGenerator};
 
 pub struct CAMapGenConfig {
     pub alive_on_start_chance_percent: usize,
@@ -108,6 +108,39 @@ impl CAMapGen {
 
         self.set_map();
         Ok(())
+    }
+
+    fn add_up_and_down_stairs(&mut self, prev_down_stairs_pos: Option<Point>) {
+        // TODO add result with errors
+        let mut random_point = 0;
+
+        while self.map.tiles[random_point].blocks_movement() {
+            random_point = rng::range(
+                self.width as i32 + 1,
+                (self.width * (self.height - 1)) as i32,
+            ) as usize;
+        }
+        self.map.tiles[random_point] = TileType::StairsDown;
+
+        if let Some(prev_stairs) = prev_down_stairs_pos {
+            let index = self
+                .map
+                .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+
+            if !self.map.tiles[index].blocks_movement() {
+                self.map.tiles[index] = TileType::StairsUp;
+            }
+        }
+    }
+
+    pub fn area(&self) -> Vec<(usize, usize)> {
+        self.map
+            .tiles
+            .iter()
+            .enumerate()
+            .filter(|(_i, tile)| !tile.blocks_movement())
+            .map(|(i, _tile)| self.map.index_to_xy(i))
+            .collect()
     }
 
     fn set_map(&mut self) {
@@ -350,11 +383,41 @@ impl CAMapGen {
 }
 
 impl MapGenerator for CAMapGen {
-    fn generate(&mut self, _prev_down_stairs_pos: Option<Point>) -> Result<()> {
+    fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()> {
         self.make_cave_map()?;
+        if let Some(prev_stairs) = prev_down_stairs_pos {
+            let index = self
+                .map
+                .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+            while self.map.tiles[index] != TileType::Floor {
+                self.make_cave_map()?;
+            }
+        }
+        self.add_up_and_down_stairs(prev_down_stairs_pos);
         Ok(())
     }
     fn map(self) -> Map {
         self.map
+    }
+}
+
+/// TODO make it smarter
+impl SpawnAreas for CAMapGen {
+    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
+        let area = self.area();
+        vec![
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area.clone(),
+            area,
+        ]
     }
 }

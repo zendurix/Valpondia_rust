@@ -15,7 +15,7 @@ pub struct SpawnEntry {
     /// chance percentage % for this entry to be spawned, default to 100
     /// Usage examples:
     ///     SpawnEntry::new("Goblin".to_string(), 2, 6) // always spawns 2-6 goblins
-    ///     SpawnEntry::new("Goblin".to_string(), 1, 1).with_chance(10) // 10% chance to spawn 1 goblin
+    ///     SpawnEntry::new("Goblin".to_string(), 1, 2).with_chance(10) // 10% chance to spawn 1-2 goblins
     pub chance_perc: usize,
 }
 
@@ -172,7 +172,7 @@ impl SpawnTable {
         }
     }
 
-    pub fn first_level() -> SpawnTable {
+    pub fn basic_dungeon() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
             weight: 0,
@@ -184,6 +184,17 @@ impl SpawnTable {
                 SpawnPack::humans_pack()
                     .with_max_spawns(1)
                     .with_chance_perc(30),
+            ],
+        }
+    }
+
+    pub fn caves() -> SpawnTable {
+        SpawnTable {
+            level_type: LevelType::Cave,
+            weight: 0,
+            spawn_packs: vec![
+                SpawnPack::goblins_pack().with_max_spawns(10),
+                SpawnPack::orcs_pack().with_max_spawns(2),
             ],
         }
     }

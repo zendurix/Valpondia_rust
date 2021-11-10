@@ -52,7 +52,7 @@ impl LevelManager {
             }
             LevelType::Cave => {
                 let gen = CAMapGen::new(width, height)?;
-                (gen.map(), vec![])
+                genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
             }
             LevelType::BasicDungeon => {
                 let gen = BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default());
