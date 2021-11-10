@@ -151,6 +151,44 @@ impl Map {
             content.clear();
         }
     }
+
+    /// TODO check if pos in map
+    pub fn closest_not_blocked_positions(
+        &self,
+        pos: (usize, usize),
+        num: usize,
+        excluded_positions: &[(usize, usize)],
+    ) -> Vec<(usize, usize)> {
+        let mut positions = vec![];
+
+        let mut dist = 1;
+
+        while positions.len() < num {
+            for y in pos.1 - dist..=pos.1 + dist {
+                if positions.len() >= num {
+                    break;
+                }
+                for x in pos.0 - dist..=pos.0 + dist {
+                    if positions.len() >= num {
+                        break;
+                    }
+                    let index = self.xy_to_index(x, y);
+                    if !self.blocked[index]
+                        && self.tile_content[index].is_empty()
+                        && !positions.contains(&(x, y))
+                        && !excluded_positions.contains(&(x, y))
+                    {
+                        positions.push((x, y));
+                    }
+
+
+                }
+                dist += 1;
+            }
+        }
+
+        positions
+    }
 }
 
 impl BaseMap for Map {

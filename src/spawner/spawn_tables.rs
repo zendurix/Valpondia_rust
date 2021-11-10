@@ -81,7 +81,7 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Goblin".to_string(), 2, 6),
                 SpawnEntry::new("Health potion".to_string(), 0, 1),
-                SpawnEntry::new("Sleep scrool".to_string(), 0, 1),
+                SpawnEntry::new("Sleep scroll".to_string(), 0, 1),
             ],
             ..SpawnPack::default()
         }
@@ -93,7 +93,7 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Orc".to_string(), 1, 3),
                 SpawnEntry::new("Health potion".to_string(), 1, 2),
-                SpawnEntry::new("Magic missile scrool".to_string(), 1, 1).with_chance(50),
+                SpawnEntry::new("Magic missile scroll".to_string(), 1, 1).with_chance(40),
             ],
             ..SpawnPack::default()
         }
@@ -107,8 +107,8 @@ impl SpawnPack {
                 SpawnEntry::new("Goblin".to_string(), 2, 4),
                 SpawnEntry::new("Health potion".to_string(), 1, 2),
                 SpawnEntry::new("Great health potion".to_string(), 0, 1).with_chance(20),
-                SpawnEntry::new("Magic missile scrool".to_string(), 1, 1).with_chance(70),
-                SpawnEntry::new("Sleep scrool".to_string(), 1, 1).with_chance(30),
+                SpawnEntry::new("Magic missile scroll".to_string(), 1, 1).with_chance(70),
+                SpawnEntry::new("Sleep scroll".to_string(), 1, 1).with_chance(30),
             ],
             ..SpawnPack::default()
         }
@@ -121,8 +121,8 @@ impl SpawnPack {
                 SpawnEntry::new("Knight".to_string(), 1, 1),
                 SpawnEntry::new("Health potion".to_string(), 2, 3),
                 SpawnEntry::new("Great health potion".to_string(), 0, 1).with_chance(80),
-                SpawnEntry::new("Fireball scrool".to_string(), 1, 1).with_chance(70),
-                SpawnEntry::new("Teleport scrool".to_string(), 1, 1).with_chance(45),
+                SpawnEntry::new("Fireball scroll".to_string(), 1, 1).with_chance(70),
+                SpawnEntry::new("Teleport scroll".to_string(), 1, 1).with_chance(45),
             ],
             ..SpawnPack::default()
         }
@@ -134,8 +134,21 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Human".to_string(), 2, 4),
                 SpawnEntry::new("Great health potion".to_string(), 2, 3).with_chance(90),
-                SpawnEntry::new("Fireball scrool".to_string(), 1, 2).with_chance(70),
-                SpawnEntry::new("Teleport scrool".to_string(), 1, 1).with_chance(70),
+                SpawnEntry::new("Fireball scroll".to_string(), 1, 2).with_chance(70),
+                SpawnEntry::new("Teleport scroll".to_string(), 1, 1).with_chance(70),
+            ],
+            ..SpawnPack::default()
+        }
+    }
+
+    pub fn blop_pack() -> SpawnPack {
+        SpawnPack {
+            min_area: 8,
+            entities: vec![
+                SpawnEntry::new("Blop".to_string(), 1, 1),
+                SpawnEntry::new("Blip".to_string(), 2, 6),
+                SpawnEntry::new("Area sleep scroll".to_string(), 1, 1),
+                SpawnEntry::new("Great health potion".to_string(), 0, 1),
             ],
             ..SpawnPack::default()
         }
@@ -183,6 +196,7 @@ impl SpawnTable {
                 SpawnPack::orcs_pack().with_max_spawns(2),
                 SpawnPack::goblins_with_orc_pack().with_max_spawns(1),
                 SpawnPack::knight_pack().with_max_spawns(1),
+                SpawnPack::blop_pack().with_max_spawns(1),
                 SpawnPack::humans_pack()
                     .with_max_spawns(1)
                     .with_chance_perc(30),

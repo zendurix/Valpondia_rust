@@ -110,6 +110,8 @@ impl State {
         self.ecs.register::<components::HealEffect>();
         self.ecs.register::<components::Teleporting>();
         self.ecs.register::<components::TeleportingEffect>();
+        self.ecs.register::<components::SpawnsAfterDeath>();
+        self.ecs.register::<components::Spawn>();
     }
 
     pub fn current_map(&self) -> &Map {
@@ -208,6 +210,11 @@ impl State {
     fn run_combat_systems(&mut self) {
         systems::combat::melee::MeleeCombatSystem {}.run_now(&self.ecs);
         systems::combat::damage::DamageSystem {}.run_now(&self.ecs);
+        systems::combat::spawn_after_death::SpawnsAfterDeathSystem {}.run_now(&self.ecs);
+        systems::spawn::spawn_system(self);
+
+        // temp here TODO this should be in effects_systems
+
         systems::combat::damage::delete_the_dead(&mut self.ecs);
     }
 

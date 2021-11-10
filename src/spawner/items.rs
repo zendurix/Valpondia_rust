@@ -93,6 +93,25 @@ pub fn spawn_sleep_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> 
     .build()
 }
 
+pub fn spawn_area_sleep_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    create_base_item_components(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437(')'),
+        RGB::named(rltk::PINK),
+        "Area sleep scroll",
+    )
+    .with(components::Usable {
+        destoyed_on_use: true,
+    })
+    .with(components::Ranged { range: 8 })
+    .with(components::AreaOfEffect { radius: 4 })
+    .with(components::Sleeping { duration: 5 })
+    .build()
+}
+
 pub fn spawn_teleport_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     create_base_item_components(
         ecs,

@@ -4,7 +4,7 @@ use specs::prelude::*;
 
 use specs_derive::Component;
 
-use crate::base::Dir;
+use crate::{base::Dir, spawner::spawn_tables::SpawnEntry};
 pub use rltk::{VirtualKeyCode, RGB};
 
 use super::systems::player::InputType;
@@ -169,4 +169,14 @@ pub struct Teleporting {}
 #[derive(Component, Debug, Clone)]
 pub struct TeleportingEffect {
     pub target_pos: (usize, usize),
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct SpawnsAfterDeath {
+    pub spawns: Vec<SpawnEntry>,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Spawn {
+    pub names_nums: Vec<(String, usize)>,
 }

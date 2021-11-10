@@ -103,7 +103,13 @@ impl CAMapGen {
         }
 
         if self.config.delete_small_caves {
-            self.delete_small_caves();
+            while !self.delete_small_caves() {
+                self.set_random_state();
+
+                for _ in 0..=self.config.step_limit {
+                    self.make_step();
+                }
+            }
         }
 
         self.set_map();
@@ -279,7 +285,7 @@ impl CAMapGen {
         x + y * width
     }
 
-    fn delete_small_caves(&mut self) {
+    fn delete_small_caves(&mut self) -> bool {
         let mut cave_surfaces = vec![];
 
         let places_len = self.ca_map.len();
@@ -291,6 +297,10 @@ impl CAMapGen {
 
                 cave_surfaces.push(self.count_cave_surface(place_x, place_y, cave_index));
             }
+        }
+        if cave_surfaces.is_empty() {
+            println!("Reload cace gen");
+            return false;
         }
 
         let max_surface = *cave_surfaces.iter().max().unwrap();
@@ -310,6 +320,7 @@ impl CAMapGen {
                 place.alive = false;
             }
         }
+        true
     }
 
     fn count_cave_surface(&mut self, place_x: usize, place_y: usize, cave_index: usize) -> usize {
