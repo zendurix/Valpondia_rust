@@ -14,6 +14,11 @@ pub mod rng;
 pub mod spawner;
 
 use ecs::{components, game_state::RunState, State};
+use kira::{
+    instance::InstanceSettings,
+    manager::{AudioManager, AudioManagerSettings},
+    sound::SoundSettings,
+};
 use levels::level::LevelType;
 
 use maps::MapGenerator;
@@ -25,6 +30,17 @@ const WINDOW_HEIGHT: usize = 80;
 pub const CONSOLE_BOX_HEIGHT: usize = 8;
 
 fn main() {
+    // music
+    let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
+
+    if let Ok(mut sound_handle) =
+        audio_manager.load_sound("resources/music/Cave.ogg", SoundSettings::default())
+    {
+        sound_handle.play(InstanceSettings::default()).unwrap();
+    } else {
+        println!("Music file not found!");
+    }
+
     let context = graphics::create_window(WINDOW_WIDTH, WINDOW_HEIGHT);
     // caves of qud effect
     // context.with_post_scanlines(true);
