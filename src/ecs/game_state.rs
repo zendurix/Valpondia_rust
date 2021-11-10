@@ -11,7 +11,8 @@ use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::{Map, TileType};
-use crate::spawner::spawn_random_monsters_and_items_for_room;
+use crate::spawner::spawn_from_spawn_table;
+use crate::spawner::spawn_tables::SpawnTable;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetingAction {
@@ -140,6 +141,11 @@ impl State {
             depth,
             prev_down_stairs_pos.map(|pos| Point::new(pos.0, pos.1)),
         )?;
+        spawn_from_spawn_table(
+            &mut self.ecs,
+            &self.level_manager.levels[index],
+            SpawnTable::first_level(),
+        );
         Ok(index)
     }
 
@@ -182,14 +188,6 @@ impl State {
                     prev_down_stairs_pos,
                 )
                 .unwrap();
-
-            let new_level = &self.level_manager.levels[new_level_index];
-
-            let rooms = new_level.map.rooms.clone();
-            for room in rooms.iter() {
-                spawn_random_monsters_and_items_for_room(&mut self.ecs, room, new_level_index);
-            }
-
             self.set_level_as_curent(new_level_index);
         }
     }

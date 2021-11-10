@@ -18,10 +18,7 @@ use levels::level::LevelType;
 
 use maps::MapGenerator;
 
-use crate::{
-    graphics::GuiDrawer,
-    spawner::{player::spawn_player, spawn_random_monsters_and_items_for_room},
-};
+use crate::{graphics::GuiDrawer, spawner::player::spawn_player};
 
 const WINDOW_WIDTH: usize = 100;
 const WINDOW_HEIGHT: usize = 80;
@@ -76,11 +73,6 @@ fn main() {
     let player = spawn_player(&mut gs.ecs, p_x, p_y);
 
     gs.ecs.insert(player);
-
-    let rooms = gs.current_map().rooms.clone();
-    for room in rooms.iter() {
-        spawn_random_monsters_and_items_for_room(&mut gs.ecs, room, 0);
-    }
 
     let result = rltk::main_loop(context, gs);
     match result {

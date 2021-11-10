@@ -15,4 +15,6 @@ pub struct Level {
 
     // used for spawn tables
     pub level_weight: usize,
+
+    pub spawn_areas: Vec<Vec<(usize, usize)>>,
 }

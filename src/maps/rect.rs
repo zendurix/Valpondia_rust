@@ -36,11 +36,21 @@ impl Rect {
     pub fn height(&self) -> usize {
         self.y2 - self.y1
     }
+
+    pub fn area_within(&self) -> Vec<(usize, usize)> {
+        let mut area = vec![];
+        for y in self.y1 + 1..self.y2 {
+            for x in self.x1 + 1..self.x2 {
+                area.push((x, y));
+            }
+        }
+        area
+    }
 }
 
 pub fn apply_room_to_map(room: &Rect, map: &mut Map) {
-    for y in room.y1 + 1..=room.y2 {
-        for x in room.x1 + 1..=room.x2 {
+    for y in room.y1 + 1..room.y2 {
+        for x in room.x1 + 1..room.x2 {
             let tile_index = map.xy_to_index(x, y);
             map.tiles[tile_index] = TileType::Floor;
         }

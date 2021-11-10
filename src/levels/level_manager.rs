@@ -6,7 +6,7 @@ use crate::maps::{
         cellular_automata::CAMapGen,
         test_map::TestMap,
     },
-    MapGenerator,
+    genrate_map_and_spawn_areas, MapGenerator,
 };
 
 use super::level::{Level, LevelType};
@@ -45,19 +45,26 @@ impl LevelManager {
         depth: usize,
         prev_down_stairs_pos: Option<Point>,
     ) -> Result<usize> {
-        let new_map = match level_type {
-            LevelType::TestLevel => TestMap::new(width, height).generate(prev_down_stairs_pos)?,
-            LevelType::Cave => CAMapGen::new(width, height)?.generate(prev_down_stairs_pos)?,
+        let (map, spawn_areas) = match level_type {
+            LevelType::TestLevel => {
+                let gen = TestMap::new(width, height);
+                (gen.map(), vec![])
+            }
+            LevelType::Cave => {
+                let gen = CAMapGen::new(width, height)?;
+                (gen.map(), vec![])
+            }
             LevelType::BasicDungeon => {
-                BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default())
-                    .generate(prev_down_stairs_pos)?
+                let gen = BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default());
+                genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
             }
         };
         let new_level = Level {
-            map: new_map,
+            map,
             depth,
             level_index: self.levels.len(),
             level_weight: 1,
+            spawn_areas,
         };
         self.levels.push(new_level);
         Ok(self.levels.len() - 1)

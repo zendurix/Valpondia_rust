@@ -58,6 +58,7 @@ pub struct CAMapGen {
     width: usize,
     height: usize,
     config: CAMapGenConfig,
+    map: Map,
 }
 
 impl CAMapGen {
@@ -85,6 +86,7 @@ impl CAMapGen {
             width,
             height,
             config: CAMapGenConfig::default(),
+            map: Map::new(width, height),
         })
     }
 
@@ -93,7 +95,7 @@ impl CAMapGen {
         self
     }
 
-    pub fn make_cave_map(&mut self) -> Result<Map> {
+    pub fn make_cave_map(&mut self) -> Result<()> {
         self.set_random_state();
 
         for _ in 0..=self.config.step_limit {
@@ -104,20 +106,20 @@ impl CAMapGen {
             self.delete_small_caves();
         }
 
-        let mut map = Map::new(self.width, self.height);
-        self.set_map(&mut map);
-        Ok(map.with_edges_solid())
+        self.set_map();
+        Ok(())
     }
 
-    fn set_map(&self, map: &mut Map) {
+    fn set_map(&mut self) {
         for (i, place) in self.ca_map.iter().enumerate() {
             let tile_type = if place.alive {
                 TileType::Floor
             } else {
                 TileType::Wall
             };
-            map.set_tile_at_index(i, tile_type);
+            self.map.set_tile_at_index(i, tile_type);
         }
+        self.map = self.map.clone().with_edges_solid();
     }
 
     fn set_random_state(&mut self) {
@@ -348,7 +350,11 @@ impl CAMapGen {
 }
 
 impl MapGenerator for CAMapGen {
-    fn generate(mut self, _prev_down_stairs_pos: Option<Point>) -> Result<Map> {
-        self.make_cave_map()
+    fn generate(&mut self, _prev_down_stairs_pos: Option<Point>) -> Result<()> {
+        self.make_cave_map()?;
+        Ok(())
+    }
+    fn map(self) -> Map {
+        self.map
     }
 }

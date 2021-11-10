@@ -6,7 +6,7 @@ use crate::{
         corridor::{apply_horizontal_tunnel, apply_vertical_tunnel},
         errors::Result,
         rect::{apply_room_to_map, Rect},
-        Map, MapGenerator, TileType,
+        Map, MapGenerator, SpawnAreas, TileType,
     },
     rng,
 };
@@ -33,6 +33,7 @@ pub struct BasicDungeonMap {
     width: usize,
     height: usize,
     config: BasicDungeonMapConfig,
+    map: Map,
 }
 
 impl BasicDungeonMap {
@@ -41,43 +42,46 @@ impl BasicDungeonMap {
             width,
             height,
             config,
+            map: Map::new(width, height).with_all_solid(),
         }
     }
 
-    pub fn create_basic_dungeon_map(&mut self, prev_down_stairs_pos: Option<Point>) -> Map {
-        let mut map = Map::new(self.width, self.height).with_all_solid();
-        self.add_rooms(&mut map);
+    pub fn create_basic_dungeon_map(&mut self, prev_down_stairs_pos: Option<Point>) {
+        self.add_rooms();
 
         if let Some(prev_stairs) = prev_down_stairs_pos {
-            let index = map.xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
-            while map.tiles[index] != TileType::Floor {
-                map = Map::new(self.width, self.height).with_all_solid();
-                self.add_rooms(&mut map);
+            let index = self
+                .map
+                .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+            while self.map.tiles[index] != TileType::Floor {
+                self.map = Map::new(self.width, self.height).with_all_solid();
+                self.add_rooms();
             }
         }
 
-        self.add_corridors(&mut map);
-        Self::add_up_and_down_stairs(&mut map, prev_down_stairs_pos);
-        map
+        self.add_corridors();
+        self.add_up_and_down_stairs(prev_down_stairs_pos);
     }
 
-    fn add_up_and_down_stairs(map: &mut Map, prev_down_stairs_pos: Option<Point>) {
+    fn add_up_and_down_stairs(&mut self, prev_down_stairs_pos: Option<Point>) {
         // TODO add result with errors
-        let random_room = rng::range(0, map.rooms.len() as i32 - 1) as usize;
-        let center = map.rooms[random_room].center();
-        let index = map.xy_to_index(center.0, center.1);
-        map.tiles[index] = TileType::StairsDown;
+        let random_room = rng::range(0, self.map.rooms.len() as i32 - 1) as usize;
+        let center = self.map.rooms[random_room].center();
+        let index = self.map.xy_to_index(center.0, center.1);
+        self.map.tiles[index] = TileType::StairsDown;
 
         if let Some(prev_stairs) = prev_down_stairs_pos {
-            let index = map.xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+            let index = self
+                .map
+                .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
 
-            if !map.tiles[index].blocks_movement() {
-                map.tiles[index] = TileType::StairsUp;
+            if !self.map.tiles[index].blocks_movement() {
+                self.map.tiles[index] = TileType::StairsUp;
             }
         }
     }
 
-    fn add_rooms(&mut self, map: &mut Map) {
+    fn add_rooms(&mut self) {
         let mut rooms = vec![];
         let rooms_num = rng::range(self.config.rooms_min as i32, self.config.rooms_max as i32);
         while rooms.len() != rooms_num as usize {
@@ -93,32 +97,42 @@ impl BasicDungeonMap {
             let y = rng::range(1, self.height as i32 - 1 - h);
             let new_room = Rect::new(x as usize, y as usize, w as usize, h as usize);
             if rooms.iter().all(|room| !new_room.intersect(room)) {
-                apply_room_to_map(&new_room, map);
+                apply_room_to_map(&new_room, &mut self.map);
                 rooms.push(new_room);
             }
         }
-        map.rooms = rooms;
+        self.map.rooms = rooms;
     }
 
-    fn add_corridors(&mut self, map: &mut Map) {
-        let rooms = map.rooms.clone();
+    fn add_corridors(&mut self) {
+        let rooms = self.map.rooms.clone();
         for (room1, room2) in rooms.iter().tuple_windows() {
             let (new_x, new_y) = room1.center();
             let (prev_x, prev_y) = room2.center();
 
             if rng::range(0, 2) == 1 {
-                apply_horizontal_tunnel(map, prev_x, new_x, prev_y);
-                apply_vertical_tunnel(map, prev_y, new_y, new_x);
+                apply_horizontal_tunnel(&mut self.map, prev_x, new_x, prev_y);
+                apply_vertical_tunnel(&mut self.map, prev_y, new_y, new_x);
             } else {
-                apply_vertical_tunnel(map, prev_y, new_y, prev_x);
-                apply_horizontal_tunnel(map, prev_x, new_x, new_y);
+                apply_vertical_tunnel(&mut self.map, prev_y, new_y, prev_x);
+                apply_horizontal_tunnel(&mut self.map, prev_x, new_x, new_y);
             }
         }
     }
 }
 
 impl MapGenerator for BasicDungeonMap {
-    fn generate(mut self, prev_down_stairs_pos: Option<Point>) -> Result<Map> {
-        Ok(self.create_basic_dungeon_map(prev_down_stairs_pos))
+    fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()> {
+        self.create_basic_dungeon_map(prev_down_stairs_pos);
+        Ok(())
+    }
+    fn map(self) -> Map {
+        self.map
+    }
+}
+
+impl SpawnAreas for BasicDungeonMap {
+    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
+        self.map.rooms.iter().map(|r| r.area_within()).collect()
     }
 }

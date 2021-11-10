@@ -12,11 +12,15 @@ impl<'a> System<'a> for MapIndexingSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut current_level, position, blockers, entities) = data;
+        let (mut current_level, positions, blockers, entities) = data;
 
         current_level.map.update_blocked_with_blocking_tiles();
         current_level.map.clear_tiles_contents();
-        for (ent, position) in (&entities, &position).join() {
+        for (ent, position) in (&entities, &positions).join() {
+            if position.level != current_level.level_index {
+                continue;
+            }
+
             let idx = current_level.map.xy_to_index(position.x, position.y);
 
             if let Some(_block) = blockers.get(ent) {

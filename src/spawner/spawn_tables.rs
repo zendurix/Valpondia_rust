@@ -1,4 +1,4 @@
-use crate::levels::level::LevelType;
+use crate::{levels::level::LevelType, rng};
 
 #[derive(Clone, Debug)]
 pub struct SpawnPoint {
@@ -31,12 +31,22 @@ impl SpawnEntry {
         self.chance_perc = chance_percent;
         self
     }
+
+    pub fn roll_spawn_num(&self) -> usize {
+        let chance = rng::random_perc() as usize;
+        if chance <= self.chance_perc {
+            rng::range(self.rng_range.0 as i32, self.rng_range.1 as i32) as usize
+        } else {
+            0
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
 pub struct SpawnPack {
     /// this pack will not be spawned more times than `max_spawns`
     pub max_spawns: usize,
+    pub spawns_counter: usize,
     /// chance percentage % for this pack to be spawned, default to 100
     pub chance_perc: usize,
     pub entities: Vec<SpawnEntry>,
@@ -50,6 +60,7 @@ impl Default for SpawnPack {
             entities: vec![],
             min_area: 0,
             max_spawns: usize::MAX,
+            spawns_counter: 0,
         }
     }
 }
@@ -82,7 +93,7 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Orc".to_string(), 1, 3),
                 SpawnEntry::new("Healing potion".to_string(), 1, 2),
-                SpawnEntry::new("Magic missile scrool".to_string(), 0, 1),
+                SpawnEntry::new("Magic missile scrool".to_string(), 1, 1).with_chance(50),
             ],
             ..SpawnPack::default()
         }
@@ -95,8 +106,8 @@ impl SpawnPack {
                 SpawnEntry::new("Orc".to_string(), 1, 1),
                 SpawnEntry::new("Goblin".to_string(), 2, 4),
                 SpawnEntry::new("Healing potion".to_string(), 1, 2),
-                SpawnEntry::new("Magic missile  scrool".to_string(), 0, 1),
-                SpawnEntry::new("Sleep scrool".to_string(), 0, 1),
+                SpawnEntry::new("Magic missile scrool".to_string(), 1, 1).with_chance(70),
+                SpawnEntry::new("Sleep scrool".to_string(), 1, 1).with_chance(30),
             ],
             ..SpawnPack::default()
         }
@@ -108,7 +119,7 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Knight".to_string(), 1, 1),
                 SpawnEntry::new("Healing potion".to_string(), 2, 3),
-                SpawnEntry::new("Fireball scrool".to_string(), 1, 1),
+                SpawnEntry::new("Fireball scrool".to_string(), 1, 1).with_chance(70),
                 SpawnEntry::new("Teleport scrool".to_string(), 1, 1).with_chance(45),
             ],
             ..SpawnPack::default()
@@ -120,7 +131,7 @@ impl SpawnPack {
             min_area: 5,
             entities: vec![
                 SpawnEntry::new("Human".to_string(), 2, 4),
-                SpawnEntry::new("Healing potion".to_string(), 3, 5).with_chance(70),
+                SpawnEntry::new("Healing potion".to_string(), 3, 5),
                 SpawnEntry::new("Fireball scrool".to_string(), 1, 2).with_chance(70),
                 SpawnEntry::new("Teleport scrool".to_string(), 1, 1).with_chance(70),
             ],
@@ -132,16 +143,41 @@ impl SpawnPack {
 pub struct SpawnTable {
     pub level_type: LevelType,
     pub weight: usize,
-    pub spwan_packs: Vec<SpawnPack>,
+    pub spawn_packs: Vec<SpawnPack>,
 }
 
 impl SpawnTable {
+    /// returns None, if no spawn can happen for this area.
+    pub fn roll_spawn_pack_index(&mut self, area: usize) -> Option<usize> {
+        let max_rolls = 100;
+        let mut i = 0;
+        loop {
+            if i >= max_rolls {
+                println!("Cannot spawn for this area: {}", area);
+                return None;
+            }
+
+            let index = rng::range(0, self.spawn_packs.len() as i32 - 1) as usize;
+            let chance = rng::random_perc() as usize;
+
+            if chance <= self.spawn_packs[index].chance_perc
+                && self.spawn_packs[index].spawns_counter < self.spawn_packs[index].max_spawns
+                && self.spawn_packs[index].min_area <= area
+            {
+                self.spawn_packs[index].spawns_counter += 1;
+                return Some(index);
+            }
+
+            i += 1;
+        }
+    }
+
     pub fn first_level() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
             weight: 0,
-            spwan_packs: vec![
-                SpawnPack::goblins_pack().with_max_spawns(6),
+            spawn_packs: vec![
+                SpawnPack::goblins_pack().with_max_spawns(5),
                 SpawnPack::orcs_pack().with_max_spawns(2),
                 SpawnPack::goblins_with_orc_pack().with_max_spawns(1),
                 SpawnPack::knight_pack().with_max_spawns(1),

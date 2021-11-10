@@ -22,6 +22,7 @@ pub fn rand_bool() -> bool {
     roll_dice(1, 2) == 1
 }
 
+/// random from 0 to 100
 pub fn random_perc() -> i32 {
     range(0, 100)
 }
