@@ -80,7 +80,7 @@ impl SpawnPack {
             min_area: 8,
             entities: vec![
                 SpawnEntry::new("Goblin".to_string(), 2, 6),
-                SpawnEntry::new("Healing potion".to_string(), 0, 1),
+                SpawnEntry::new("Health potion".to_string(), 0, 1),
                 SpawnEntry::new("Sleep scrool".to_string(), 0, 1),
             ],
             ..SpawnPack::default()
@@ -92,7 +92,7 @@ impl SpawnPack {
             min_area: 4,
             entities: vec![
                 SpawnEntry::new("Orc".to_string(), 1, 3),
-                SpawnEntry::new("Healing potion".to_string(), 1, 2),
+                SpawnEntry::new("Health potion".to_string(), 1, 2),
                 SpawnEntry::new("Magic missile scrool".to_string(), 1, 1).with_chance(50),
             ],
             ..SpawnPack::default()
@@ -105,7 +105,8 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Orc".to_string(), 1, 1),
                 SpawnEntry::new("Goblin".to_string(), 2, 4),
-                SpawnEntry::new("Healing potion".to_string(), 1, 2),
+                SpawnEntry::new("Health potion".to_string(), 1, 2),
+                SpawnEntry::new("Great health potion".to_string(), 0, 1).with_chance(20),
                 SpawnEntry::new("Magic missile scrool".to_string(), 1, 1).with_chance(70),
                 SpawnEntry::new("Sleep scrool".to_string(), 1, 1).with_chance(30),
             ],
@@ -118,7 +119,8 @@ impl SpawnPack {
             min_area: 5,
             entities: vec![
                 SpawnEntry::new("Knight".to_string(), 1, 1),
-                SpawnEntry::new("Healing potion".to_string(), 2, 3),
+                SpawnEntry::new("Health potion".to_string(), 2, 3),
+                SpawnEntry::new("Great health potion".to_string(), 0, 1).with_chance(80),
                 SpawnEntry::new("Fireball scrool".to_string(), 1, 1).with_chance(70),
                 SpawnEntry::new("Teleport scrool".to_string(), 1, 1).with_chance(45),
             ],
@@ -131,7 +133,7 @@ impl SpawnPack {
             min_area: 5,
             entities: vec![
                 SpawnEntry::new("Human".to_string(), 2, 4),
-                SpawnEntry::new("Healing potion".to_string(), 3, 5),
+                SpawnEntry::new("Great health potion".to_string(), 2, 3).with_chance(90),
                 SpawnEntry::new("Fireball scrool".to_string(), 1, 2).with_chance(70),
                 SpawnEntry::new("Teleport scrool".to_string(), 1, 1).with_chance(70),
             ],

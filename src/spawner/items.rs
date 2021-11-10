@@ -3,6 +3,23 @@ use specs::{Builder, Entity, EntityBuilder, World, WorldExt};
 
 use crate::ecs::components;
 
+pub fn spawn_great_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    create_base_item_components(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('i'),
+        RGB::named(rltk::RED2),
+        "Great health potion",
+    )
+    .with(components::Heal { heal_power: 50 })
+    .with(components::Usable {
+        destoyed_on_use: true,
+    })
+    .build()
+}
+
 pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     create_base_item_components(
         ecs,

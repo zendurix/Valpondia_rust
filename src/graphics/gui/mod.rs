@@ -71,7 +71,7 @@ impl GuiDrawer {
                 &depth,
             );
 
-            let health = format!(" HP: {} / {} ", hp.hp, hp.max_hp);
+            let health = format!(" HP: {}/{} ", hp.hp, hp.max_hp);
             ctx.print_color(
                 20,
                 self.window_height - (self.console_box_height + 1),
@@ -81,7 +81,7 @@ impl GuiDrawer {
             );
 
             ctx.draw_bar_horizontal(
-                30,
+                21 + 6 + hp.hp.to_string().len() + hp.max_hp.to_string().len(),
                 self.window_height - (self.console_box_height + 1),
                 50,
                 hp.hp,

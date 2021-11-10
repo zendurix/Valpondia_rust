@@ -8,8 +8,8 @@ use crate::{
 
 use self::{
     items::{
-        spawn_fireball_scroll, spawn_magic_missile_scroll, spawn_sleep_scroll,
-        spawn_teleport_scroll,
+        spawn_fireball_scroll, spawn_great_healing_potion, spawn_magic_missile_scroll,
+        spawn_sleep_scroll, spawn_teleport_scroll,
     },
     monsters::{spawn_human, spawn_knight, spawn_orc},
     spawn_tables::SpawnTable,
@@ -73,7 +73,8 @@ fn spawn_entity(ecs: &mut World, name: &str, x: usize, y: usize, level: usize) -
         "Knight" => Some(spawn_knight(ecs, x, y, level)),
         "Human" => Some(spawn_human(ecs, x, y, level)),
 
-        "Healing potion" => Some(spawn_healing_potion(ecs, x, y, level)),
+        "Health potion" => Some(spawn_healing_potion(ecs, x, y, level)),
+        "Great health potion" => Some(spawn_great_healing_potion(ecs, x, y, level)),
 
         "Magic missile scrool" => Some(spawn_magic_missile_scroll(ecs, x, y, level)),
         "Sleep scrool" => Some(spawn_sleep_scroll(ecs, x, y, level)),
