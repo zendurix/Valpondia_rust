@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use itertools::Itertools;
 use rltk::{Rltk, RGB};
 use specs::{Entity, Join, WorldExt};
 
@@ -23,14 +26,14 @@ pub enum ItemMenuAction {
 }
 
 pub fn show_inventory(gs: &mut State, ctx: &mut Rltk) -> InventoryMenuAction {
-    let player = gs.ecs.fetch::<Entity>();
+    let player = *gs.ecs.fetch::<Entity>();
     let names = gs.ecs.read_storage::<components::Name>();
     let inventories = gs.ecs.read_storage::<components::InInventory>();
     let entities = gs.ecs.entities();
 
     let inv_count = (&inventories, &names)
         .join()
-        .filter(|item| item.0.owner == *player)
+        .filter(|item| item.0.owner == player)
         .count();
 
     let _drawer = &mut gs.gui_drawer;
@@ -61,11 +64,25 @@ pub fn show_inventory(gs: &mut State, ctx: &mut Rltk) -> InventoryMenuAction {
 
     let mut inv_entities = vec![];
 
-    let inventory = (&entities, &inventories, &names)
+    let mut items_groupped = HashMap::<String, (usize, Entity)>::default();
+
+    for (ent, _in_inv, name) in (&entities, &inventories, &names)
         .join()
-        .filter(|item| item.1.owner == *player);
-    for (i, (ent, _inv, name)) in inventory.enumerate() {
-        inv_entities.push(ent);
+        .filter(|item| item.1.owner == player)
+    {
+        if items_groupped.contains_key(&name.name) {
+            items_groupped.get_mut(&name.name).unwrap().0 += 1;
+        } else {
+            items_groupped.insert(name.name.clone(), (1, ent));
+        }
+    }
+
+    for (i, (name, (count, first_entity))) in items_groupped
+        .into_iter()
+        .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
+        .enumerate()
+    {
+        inv_entities.push(first_entity);
         ctx.set(
             17,
             y,
@@ -88,7 +105,15 @@ pub fn show_inventory(gs: &mut State, ctx: &mut Rltk) -> InventoryMenuAction {
             rltk::to_cp437(')'),
         );
 
-        ctx.print(21, y, &name.name.to_string());
+        let name_len = name.len();
+        ctx.print(21, y, name);
+        ctx.print_color(
+            23 + name_len,
+            y,
+            RGB::named(rltk::GREEN),
+            RGB::named(rltk::BLACK),
+            format!("x{}", count),
+        );
         y += 1;
     }
 
