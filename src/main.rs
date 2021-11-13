@@ -36,7 +36,7 @@ fn main() {
     if let Ok(mut sound_handle) =
         audio_manager.load_sound("resources/music/Cave.ogg", SoundSettings::default())
     {
-        sound_handle.play(InstanceSettings::default()).unwrap();
+        // sound_handle.play(InstanceSettings::default()).unwrap();
     } else {
         println!("Music file not found!");
     }

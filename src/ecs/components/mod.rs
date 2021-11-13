@@ -191,7 +191,6 @@ pub enum BodyPart {
     /// manly used for weapons (don't use as actual body part in `BodyParts`)
     TwoHanded,
 
-
     HandRight,
     HandLeft,
 
@@ -230,7 +229,6 @@ pub struct Equipped {
     pub owner: Entity,
     pub body_part: BodyPart,
 }
-
 
 #[derive(Component, Debug, Clone)]
 pub struct WantsToEquip {
