@@ -180,8 +180,6 @@ impl Map {
                     {
                         positions.push((x, y));
                     }
-
-
                 }
                 dist += 1;
             }

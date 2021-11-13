@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    default,
+};
 
 use specs::prelude::*;
 
@@ -179,4 +182,62 @@ pub struct SpawnsAfterDeath {
 #[derive(Component, Debug, Clone)]
 pub struct Spawn {
     pub names_nums: Vec<(String, usize)>,
+}
+
+#[derive(Copy, PartialEq, Eq, Debug, Clone)]
+pub enum BodyPart {
+    /// manly used for weapons (don't use as actual body part in `BodyParts`)
+    OneHanded,
+    /// manly used for weapons (don't use as actual body part in `BodyParts`)
+    TwoHanded,
+
+
+    HandRight,
+    HandLeft,
+
+    Head,
+    Body,
+    Hands,
+    Feets,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct BodyParts {
+    pub parts_with_equipped: Vec<(BodyPart, Option<Entity>)>,
+}
+
+impl Default for BodyParts {
+    /// default body parts for standard humanoid (2 hands, head, body, feets)
+    fn default() -> BodyParts {
+        BodyParts {
+            parts_with_equipped: vec![
+                ((BodyPart::HandRight), None),
+                (BodyPart::HandLeft, None),
+                (BodyPart::Head, None),
+                (BodyPart::Body, None),
+                (BodyPart::Hands, None),
+                (BodyPart::Feets, None),
+            ],
+        }
+    }
+}
+
+pub struct Equippable {
+    pub body_part: BodyPart,
+}
+
+pub struct Equipped {
+    pub owner: Entity,
+    pub body_part: BodyPart,
+}
+
+
+#[derive(Component, Debug, Clone)]
+pub struct WantsToEquip {
+    pub item: Entity,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct WantsToRemove {
+    pub item: Entity,
 }
