@@ -1,18 +1,40 @@
 use itertools::Itertools;
 use rltk::{Rltk, RGB};
 
-use crate::ecs::systems::player::input::get_input;
+use crate::ecs::systems::player::{input::get_input, InputType};
 
 pub mod main_menu;
 
+pub enum MenuAction {
+    SelectedIndex(usize),
+    NotSelected,
+    Cancel,
+}
+
 pub type StrCol = (String, RGB);
 
+#[derive(Debug, Clone)]
 pub struct TextCol {
     pub strings: Vec<StrCol>,
     pub bg: rltk::RGB,
 }
 
 impl TextCol {
+    pub fn empty() -> TextCol {
+        TextCol {
+            strings: vec![("".to_string(), rltk::RGB::named(rltk::WHITE))],
+            bg: rltk::RGB::named(rltk::BLACK),
+        }
+    }
+
+    ///  white string with black background
+    pub fn simple(string: String) -> TextCol {
+        TextCol {
+            strings: vec![(string, rltk::RGB::named(rltk::WHITE))],
+            bg: rltk::RGB::named(rltk::BLACK),
+        }
+    }
+
     /// with default black background
     pub fn new(strings: Vec<StrCol>) -> TextCol {
         assert!(strings.len() > 0);
@@ -47,8 +69,8 @@ pub trait WindowOptionSelector {
     fn height(&self) -> usize;
     fn bg(&self) -> rltk::RGB;
 
-    fn title(&self) -> TextCol;
-    fn options(&self) -> Vec<TextCol>;
+    fn title(&self) -> &TextCol;
+    fn options(&self) -> &[TextCol];
     fn selected(&self) -> usize;
     fn selected_mut(&mut self) -> &mut usize;
 
@@ -70,6 +92,15 @@ pub trait WindowOptionSelector {
 
     /// TODO add result
     fn draw(&self, ctx: &mut Rltk) {
+        ctx.draw_box(
+            self.x(),
+            self.y(),
+            self.width(),
+            self.height(),
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+        );
+
         self.title().print(ctx, self.x() + 2, self.y());
 
         let mut current_y = self.y() + 1;
@@ -85,11 +116,21 @@ pub trait WindowOptionSelector {
             })
             .enumerate()
         {
+            let bg = if self.selected() == i {
+                let mut bg = self.bg();
+                bg.r += 0.5;
+                bg.g += 0.5;
+                bg.b += 0.5;
+                bg
+            } else {
+                self.bg()
+            };
+
             ctx.set(
                 self.x() + 1,
                 current_y,
                 RGB::named(rltk::WHITE),
-                self.bg(),
+                bg,
                 rltk::to_cp437('('),
             );
             ctx.set(
@@ -100,22 +141,89 @@ pub trait WindowOptionSelector {
                 } else {
                     RGB::named(rltk::WHITE)
                 },
-                self.bg(),
+                bg,
                 97 + i as rltk::FontCharType,
             );
-            ctx.set(
-                self.x() + 3,
-                current_y,
-                RGB::named(rltk::WHITE),
-                self.bg(),
-                rltk::to_cp437(')'),
-            );
+            ctx.print_color(self.x() + 3, current_y, RGB::named(rltk::WHITE), bg, ") ");
 
-            opt.print(ctx, self.x() + 5, current_y)
+            let opt_selected = opt.clone().with_bg(bg);
+            opt_selected.print(ctx, self.x() + 5, current_y);
+
+            current_y += 1;
+        }
+
+        ctx.print_color(
+            self.x() + 2,
+            self.y() + self.height(),
+            RGB::named(rltk::YELLOW),
+            RGB::named(rltk::BLACK),
+            "press ESCAPE to exit",
+        );
+    }
+
+    fn handle_input(&mut self, ctx: &mut Rltk) -> MenuAction {
+        let input = get_input(ctx);
+        if let Some(key) = input {
+            match key {
+                InputType::Escape => MenuAction::Cancel,
+                InputType::Up => {
+                    self.decr_selection();
+                    MenuAction::NotSelected
+                }
+                InputType::Down => {
+                    self.incr_selection();
+                    MenuAction::NotSelected
+                }
+                InputType::Enter => MenuAction::SelectedIndex(self.selected()),
+                _ => {
+                    let key_press_as_inv_index = rltk::letter_to_option(ctx.key.unwrap());
+
+                    if (0..self.options().len() as i32).contains(&key_press_as_inv_index) {
+                        MenuAction::SelectedIndex(key_press_as_inv_index as usize)
+                    } else {
+                        MenuAction::NotSelected
+                    }
+                }
+            }
+        } else {
+            MenuAction::NotSelected
         }
     }
+}
 
-    fn handle_input(&mut self, ctx: &mut Rltk) {
-        
-    }
+#[macro_export]
+macro_rules! impl_window_option_selector {
+    () => {
+        fn x(&self) -> usize {
+            self.x
+        }
+
+        fn y(&self) -> usize {
+            self.y
+        }
+
+        fn width(&self) -> usize {
+            self.width
+        }
+
+        fn height(&self) -> usize {
+            self.width
+        }
+
+        fn bg(&self) -> rltk::RGB {
+            self.bg
+        }
+
+        fn title(&self) -> &TextCol {
+            &self.title
+        }
+
+        fn selected(&self) -> usize {
+            self.selected
+        }
+
+        fn selected_mut(&mut self) -> &mut usize {
+            &mut self.selected
+        }
+    };
 }

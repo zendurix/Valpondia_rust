@@ -100,7 +100,11 @@ pub fn try_handle_input(gs: &mut State) -> RunState {
             InputType::Center => RunState::PlayerTurn,
 
             InputType::PickUpItem => try_pick_up_item(&mut gs.ecs),
-            InputType::ShowInventory => RunState::ShowInventory,
+            InputType::ShowInventory => {
+                gs.reset_gui_inv_manager();
+                RunState::ShowInventory
+            }
+
             InputType::Escape => RunState::SaveGame,
             _ => RunState::AwaitingInput,
         }

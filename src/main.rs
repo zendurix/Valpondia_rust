@@ -45,11 +45,7 @@ fn main() {
     // caves of qud effect
     // context.with_post_scanlines(true);
 
-    let gui_drawer = GuiDrawer {
-        window_width: WINDOW_WIDTH,
-        window_height: WINDOW_HEIGHT,
-        console_box_height: CONSOLE_BOX_HEIGHT,
-    };
+    let gui_drawer = GuiDrawer::new(WINDOW_WIDTH, WINDOW_HEIGHT, CONSOLE_BOX_HEIGHT);
 
     let map_height = WINDOW_HEIGHT - CONSOLE_BOX_HEIGHT;
 

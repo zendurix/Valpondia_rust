@@ -6,7 +6,9 @@ use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::graphics::gui::menus::main_menu::MainMenu;
-use crate::graphics::gui::{InventoryMenuAction, ItemMenuAction, TargetingMenuAction};
+use crate::graphics::gui::{
+    GuiInventoryManager, InventoryMenuAction, ItemMenuAction, TargetingMenuAction,
+};
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
@@ -112,6 +114,23 @@ impl State {
         self.ecs.register::<components::TeleportingEffect>();
         self.ecs.register::<components::SpawnsAfterDeath>();
         self.ecs.register::<components::Spawn>();
+        self.ecs.register::<components::Equippable>();
+        self.ecs.register::<components::Equipped>();
+        self.ecs.register::<components::WantsToEquip>();
+        self.ecs.register::<components::WantsToRemove>();
+        self.ecs.register::<components::BodyParts>();
+    }
+
+    pub fn reset_gui_inv_manager(&mut self) {
+        let mut inv_manager = self.gui_drawer.inv_manager.clone();
+        inv_manager.reset(&self);
+        self.gui_drawer.inv_manager = inv_manager;
+    }
+
+    pub fn reset_gui_item_action_manager(&mut self, item: Entity) {
+        let mut item_action_manager = self.gui_drawer.item_action_manager.clone();
+        item_action_manager.reset(&self, item);
+        self.gui_drawer.item_action_manager = item_action_manager;
     }
 
     pub fn current_map(&self) -> &Map {
@@ -301,17 +320,18 @@ impl GameState for State {
                 run_state = systems::player::try_player_turn(self, ctx);
             }
             RunState::ShowInventory => {
-                let inv_action = gui::show_inventory(self, ctx);
+                let inv_action = self.gui_drawer.inv_manager.update(ctx);
                 match inv_action {
                     InventoryMenuAction::NoResponse => (),
                     InventoryMenuAction::Cancel => run_state = RunState::AwaitingInput,
                     InventoryMenuAction::SelectedItem(item) => {
+                        self.reset_gui_item_action_manager(item);
                         run_state = RunState::ShowItemActions(item)
                     }
                 }
             }
             RunState::ShowItemActions(item) => {
-                let item_action = gui::show_item_actions(self, ctx, item);
+                let item_action = self.gui_drawer.item_action_manager.update(ctx, item);
                 match item_action {
                     ItemMenuAction::Cancel => run_state = RunState::ShowInventory,
                     ItemMenuAction::NoResponse => (),
@@ -341,6 +361,7 @@ impl GameState for State {
                         self.drop_item(item);
                         run_state = RunState::PlayerTurn;
                     }
+                    ItemMenuAction::Equip(_) => todo!(),
                 }
             }
             RunState::Targeting(action) => {

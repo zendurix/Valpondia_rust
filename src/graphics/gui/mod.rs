@@ -1,3 +1,4 @@
+mod equipment;
 mod inventory;
 pub mod menus;
 mod targeting;
@@ -7,7 +8,9 @@ use specs::prelude::*;
 
 use crate::{ecs::components, gamelog::GameLog, levels::level::Level};
 
-pub use inventory::{show_inventory, show_item_actions, InventoryMenuAction, ItemMenuAction};
+pub use inventory::{
+    GuiInventoryManager, GuiItemActionManager, InventoryMenuAction, ItemMenuAction,
+};
 pub use targeting::{show_targeting, TargetingMenuAction};
 
 #[repr(u8)]
@@ -25,13 +28,27 @@ pub enum MainMenuAction {
     Selected(MainMenuSelection),
 }
 
+#[derive(Debug, Clone)]
 pub struct GuiDrawer {
     pub window_width: usize,
     pub window_height: usize,
     pub console_box_height: usize,
+
+    pub inv_manager: GuiInventoryManager,
+    pub item_action_manager: GuiItemActionManager,
 }
 
 impl GuiDrawer {
+    pub fn new(window_width: usize, window_height: usize, console_box_height: usize) -> GuiDrawer {
+        GuiDrawer {
+            window_height,
+            window_width,
+            console_box_height,
+            inv_manager: GuiInventoryManager::new(10, 10, 30, 40),
+            item_action_manager: GuiItemActionManager::new(10, 10, 30, 20),
+        }
+    }
+
     pub fn draw_ui(&self, ecs: &World, ctx: &mut Rltk) {
         // Draw mouse cursor
         let mouse_pos = ctx.mouse_pos();

@@ -4,11 +4,16 @@ use itertools::Itertools;
 use rltk::{Rltk, RGB};
 use specs::{Entity, Join, WorldExt};
 
-use crate::ecs::{
-    components,
-    systems::player::{input::get_input, InputType},
-    State,
+use crate::{
+    ecs::{
+        components,
+        systems::player::{input::get_input, InputType},
+        State,
+    },
+    impl_window_option_selector,
 };
+
+use super::menus::{TextCol, WindowOptionSelector};
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum InventoryMenuAction {
@@ -23,20 +28,54 @@ pub enum ItemMenuAction {
     NoResponse,
     Use(Entity),
     Drop(Entity),
+    Equip(Entity),
+}
+#[derive(Debug, Clone)]
+pub struct GuiInventoryManager {
+    pub selected: usize,
+    pub x: usize,
+    pub y: usize,
+    pub width: usize,
+    pub height: usize,
+    pub bg: rltk::RGB,
+
+    pub title: TextCol,
+    pub options: Vec<TextCol>,
+    pub options_ent: Vec<Entity>,
 }
 
-pub struct GuiInventoryManager {
-    pub selected_option_index: usize,
+impl WindowOptionSelector for GuiInventoryManager {
+    impl_window_option_selector!();
+
+    fn options(&self) -> &[TextCol] {
+        &self.options
+    }
 }
 
 impl GuiInventoryManager {
-    pub fn show_inventory(&mut self, gs: &mut State, ctx: &mut Rltk) -> InventoryMenuAction {
+    pub fn new(x: usize, y: usize, width: usize, height: usize) -> GuiInventoryManager {
+        GuiInventoryManager {
+            x,
+            y,
+            width,
+            height,
+            selected: 0,
+            bg: rltk::RGB::named(rltk::BLACK),
+            title: TextCol::new(vec![(
+                "Inventory".to_string(),
+                rltk::RGB::named(rltk::WHITE),
+            )]),
+            options: vec![],
+            options_ent: vec![],
+        }
+    }
+
+    pub fn reset(&mut self, gs: &State) {
+        self.selected = 0;
         let player = *gs.ecs.fetch::<Entity>();
         let names = gs.ecs.read_storage::<components::Name>();
         let inventories = gs.ecs.read_storage::<components::InInventory>();
         let entities = gs.ecs.entities();
-
-        let mut inv_entities = vec![];
 
         let mut items_groupped = HashMap::<String, (usize, Entity)>::default();
 
@@ -51,191 +90,109 @@ impl GuiInventoryManager {
             }
         }
 
-        let inv_count = items_groupped.len();
-
-        let _drawer = &mut gs.gui_drawer;
-
-        let mut y = (25 - (inv_count / 2)) as i32;
-        ctx.draw_box(
-            15,
-            y - 2,
-            31,
-            (inv_count + 3) as i32,
-            RGB::named(rltk::WHITE),
-            RGB::named(rltk::BLACK),
-        );
-        ctx.print_color(
-            18,
-            y - 2,
-            RGB::named(rltk::YELLOW),
-            RGB::named(rltk::BLACK),
-            "Inventory",
-        );
-        ctx.print_color(
-            18,
-            y + inv_count as i32 + 1,
-            RGB::named(rltk::YELLOW),
-            RGB::named(rltk::BLACK),
-            "press ESCAPE to exit",
-        );
-
-        for (i, (name, (count, first_entity))) in items_groupped
-            .into_iter()
+        self.options = items_groupped
+            .iter()
             .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
-            .enumerate()
-        {
-            inv_entities.push(first_entity);
-            ctx.set(
-                17,
-                y,
-                RGB::named(rltk::WHITE),
-                RGB::named(rltk::BLACK),
-                rltk::to_cp437('('),
-            );
-            ctx.set(
-                18,
-                y,
-                RGB::named(rltk::YELLOW),
-                RGB::named(rltk::BLACK),
-                97 + i as rltk::FontCharType,
-            );
-            ctx.set(
-                19,
-                y,
-                RGB::named(rltk::WHITE),
-                RGB::named(rltk::BLACK),
-                rltk::to_cp437(')'),
-            );
+            .map(|(name, (num, _ent))| {
+                TextCol::new(vec![
+                    (name.clone(), rltk::RGB::named(rltk::WHITE)),
+                    (format!("  x{}", num), rltk::RGB::named(rltk::GREEN)),
+                ])
+            })
+            .collect_vec();
+        self.options_ent = items_groupped
+            .iter()
+            .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
+            .map(|(_name, (_num, ent))| *ent)
+            .collect_vec();
+    }
 
-            let name_len = name.len();
-            ctx.print(21, y, name);
-            ctx.print_color(
-                23 + name_len,
-                y,
-                RGB::named(rltk::GREEN),
-                RGB::named(rltk::BLACK),
-                format!("x{}", count),
-            );
-            y += 1;
+    pub fn update(&mut self, ctx: &mut Rltk) -> InventoryMenuAction {
+        self.draw(ctx);
+
+        let action = self.handle_input(ctx);
+        match action {
+            crate::graphics::gui::menus::MenuAction::SelectedIndex(i) => {
+                InventoryMenuAction::SelectedItem(self.options_ent[i])
+            }
+            crate::graphics::gui::menus::MenuAction::NotSelected => InventoryMenuAction::NoResponse,
+            crate::graphics::gui::menus::MenuAction::Cancel => InventoryMenuAction::Cancel,
         }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct GuiItemActionManager {
+    pub selected: usize,
+    pub x: usize,
+    pub y: usize,
+    pub width: usize,
+    pub height: usize,
+    pub bg: rltk::RGB,
 
-        let input = get_input(ctx);
+    pub title: TextCol,
+    pub options: Vec<TextCol>,
+}
 
-        match input {
-            None => InventoryMenuAction::NoResponse,
-            Some(key) => match key {
-                InputType::Escape => InventoryMenuAction::Cancel,
-                _ => {
-                    let key_press_as_inv_index = rltk::letter_to_option(ctx.key.unwrap());
+impl WindowOptionSelector for GuiItemActionManager {
+    impl_window_option_selector!();
 
-                    if (0..inv_count as i32).contains(&key_press_as_inv_index) {
-                        InventoryMenuAction::SelectedItem(
-                            inv_entities[key_press_as_inv_index as usize],
-                        )
-                    } else {
-                        InventoryMenuAction::NoResponse
-                    }
-                }
-            },
+    fn options(&self) -> &[TextCol] {
+        &self.options
+    }
+}
+
+impl GuiItemActionManager {
+    pub fn new(x: usize, y: usize, width: usize, height: usize) -> GuiItemActionManager {
+        GuiItemActionManager {
+            x,
+            y,
+            width,
+            height,
+            selected: 0,
+            bg: rltk::RGB::named(rltk::BLACK),
+            title: TextCol::new(vec![(
+                "Inventory".to_string(),
+                rltk::RGB::named(rltk::WHITE),
+            )]),
+            options: vec![],
         }
     }
 
-    pub fn show_item_actions(
-        &mut self,
-        gs: &mut State,
-        ctx: &mut Rltk,
-        item: Entity,
-    ) -> ItemMenuAction {
+    pub fn reset(&mut self, gs: &State, item: Entity) {
         let usables = gs.ecs.read_storage::<components::Usable>();
+        let equipables = gs.ecs.read_storage::<components::Equippable>();
         let names = gs.ecs.read_storage::<components::Name>();
         let name = names.get(item).unwrap();
         let can_be_used = usables.get(item).is_some();
+        let can_be_equipped = equipables.get(item).is_some();
 
-        ctx.draw_box(
-            15,
-            10,
-            31,
-            5,
-            RGB::named(rltk::WHITE),
-            RGB::named(rltk::BLACK),
-        );
-        ctx.print_color(
-            18,
-            10,
-            RGB::named(rltk::YELLOW),
-            RGB::named(rltk::BLACK),
-            "Item: ".to_string() + name.name.as_str(),
-        );
+        self.title = TextCol::simple("Item: ".to_string() + name.name.as_str());
 
-        ctx.set(
-            17,
-            11,
-            RGB::named(rltk::WHITE),
-            RGB::named(rltk::BLACK),
-            rltk::to_cp437('('),
-        );
-        ctx.set(
-            18,
-            11,
-            RGB::named(rltk::RED),
-            RGB::named(rltk::BLACK),
-            rltk::to_cp437('d'),
-        );
-        ctx.print_color(
-            19,
-            11,
-            RGB::named(rltk::WHITE),
-            RGB::named(rltk::BLACK),
-            ") - drop",
-        );
+        self.options.clear();
+        self.options.push(TextCol::simple("Drop".to_string()));
 
         if can_be_used {
-            ctx.set(
-                17,
-                12,
-                RGB::named(rltk::WHITE),
-                RGB::named(rltk::BLACK),
-                rltk::to_cp437('('),
-            );
-            ctx.set(
-                18,
-                12,
-                RGB::named(rltk::GREEN),
-                RGB::named(rltk::BLACK),
-                rltk::to_cp437('u'),
-            );
-            ctx.print_color(
-                19,
-                12,
-                RGB::named(rltk::WHITE),
-                RGB::named(rltk::BLACK),
-                ") - use",
-            );
+            self.options.push(TextCol::simple("Use".to_string()));
         }
+        if can_be_equipped {
+            self.options.push(TextCol::simple("Equip".to_string()));
+        }
+    }
 
-        ctx.print_color(
-            18,
-            14,
-            RGB::named(rltk::YELLOW),
-            RGB::named(rltk::BLACK),
-            "press ESCAPE to exit",
-        );
-
-        let input = get_input(ctx);
-        match input {
-            None => ItemMenuAction::NoResponse,
-            Some(key) => match key {
-                InputType::Escape => ItemMenuAction::Cancel,
-                InputType::U => {
-                    if can_be_used {
-                        ItemMenuAction::Use(item)
-                    } else {
-                        ItemMenuAction::NoResponse
-                    }
+    pub fn update(&mut self, ctx: &mut Rltk, item: Entity) -> ItemMenuAction {
+        self.draw(ctx);
+        let action = self.handle_input(ctx);
+        match action {
+            super::menus::MenuAction::SelectedIndex(i) => {
+                match self.options[i].strings[0].0.as_str() {
+                    "Drop" => ItemMenuAction::Drop(item),
+                    "Use" => ItemMenuAction::Use(item),
+                    "Equip" => ItemMenuAction::Equip(item),
+                    _ => ItemMenuAction::NoResponse,
                 }
-                InputType::D => ItemMenuAction::Drop(item),
-                _ => ItemMenuAction::NoResponse,
-            },
+            }
+            super::menus::MenuAction::NotSelected => ItemMenuAction::NoResponse,
+            super::menus::MenuAction::Cancel => ItemMenuAction::Cancel,
         }
     }
 }

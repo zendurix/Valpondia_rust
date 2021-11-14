@@ -200,6 +200,21 @@ pub enum BodyPart {
     Feets,
 }
 
+impl ToString for BodyPart {
+    fn to_string(&self) -> String {
+        match self {
+            BodyPart::OneHanded => "One Handed".to_string(),
+            BodyPart::TwoHanded => "Two Handed".to_string(),
+            BodyPart::HandRight => "Right Hand".to_string(),
+            BodyPart::HandLeft => "Left  Hand".to_string(),
+            BodyPart::Head => "Head".to_string(),
+            BodyPart::Body => "Body".to_string(),
+            BodyPart::Hands => "Hands".to_string(),
+            BodyPart::Feets => "Feets".to_string(),
+        }
+    }
+}
+
 #[derive(Component, Debug, Clone)]
 pub struct BodyParts {
     pub parts_with_equipped: Vec<(BodyPart, Option<Entity>)>,
@@ -221,10 +236,12 @@ impl Default for BodyParts {
     }
 }
 
+#[derive(Component, Debug, Clone)]
 pub struct Equippable {
     pub body_part: BodyPart,
 }
 
+#[derive(Component, Debug, Clone)]
 pub struct Equipped {
     pub owner: Entity,
     pub body_part: BodyPart,
