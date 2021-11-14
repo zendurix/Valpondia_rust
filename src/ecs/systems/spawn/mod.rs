@@ -1,6 +1,4 @@
-use crate::{
-    components, ecs::State, gamelog::GameLog, levels::level::Level, rng, spawner::spawn_entity,
-};
+use crate::{components, ecs::State, levels::level::Level, spawner::spawn_entity};
 use itertools::Itertools;
 use specs::prelude::*;
 

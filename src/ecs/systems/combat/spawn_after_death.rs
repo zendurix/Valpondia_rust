@@ -1,4 +1,4 @@
-use crate::{components, gamelog::GameLog, rng};
+use crate::components;
 use specs::prelude::*;
 
 pub struct SpawnsAfterDeathSystem {}

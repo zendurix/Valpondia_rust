@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    default,
-};
+use std::collections::{HashMap, HashSet};
 
 use specs::prelude::*;
 
@@ -220,9 +217,9 @@ pub struct BodyParts {
     pub parts_with_equipped: Vec<(BodyPart, Option<Entity>)>,
 }
 
-impl Default for BodyParts {
+impl BodyParts {
     /// default body parts for standard humanoid (2 hands, head, body, feets)
-    fn default() -> BodyParts {
+    pub fn default_humanoid() -> BodyParts {
         BodyParts {
             parts_with_equipped: vec![
                 ((BodyPart::HandRight), None),

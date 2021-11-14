@@ -7,7 +7,7 @@ use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::graphics::gui::menus::main_menu::MainMenu;
 use crate::graphics::gui::{
-    GuiInventoryManager, InventoryMenuAction, ItemMenuAction, TargetingMenuAction,
+    EquipmentMenuAction, InventoryMenuAction, ItemMenuAction, TargetingMenuAction,
 };
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
@@ -31,6 +31,7 @@ pub enum RunState {
     PlayerTurn,
     MonsterTurn,
     ShowInventory,
+    ShowEquipment,
     ShowItemActions(Entity),
     Targeting(TargetingAction),
     MoveLevel(usize),
@@ -125,6 +126,12 @@ impl State {
         let mut inv_manager = self.gui_drawer.inv_manager.clone();
         inv_manager.reset(&self);
         self.gui_drawer.inv_manager = inv_manager;
+    }
+
+    pub fn reset_gui_eq_manager(&mut self) {
+        let mut eq_manager = self.gui_drawer.eq_manager.clone();
+        eq_manager.reset(&self);
+        self.gui_drawer.eq_manager = eq_manager;
     }
 
     pub fn reset_gui_item_action_manager(&mut self, item: Entity) {
@@ -328,6 +335,13 @@ impl GameState for State {
                         self.reset_gui_item_action_manager(item);
                         run_state = RunState::ShowItemActions(item)
                     }
+                }
+            }
+            RunState::ShowEquipment => {
+                let eq_action = self.gui_drawer.eq_manager.update(ctx);
+                match eq_action {
+                    EquipmentMenuAction::NoResponse => (),
+                    EquipmentMenuAction::Cancel => run_state = RunState::AwaitingInput,
                 }
             }
             RunState::ShowItemActions(item) => {

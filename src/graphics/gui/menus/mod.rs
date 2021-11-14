@@ -50,7 +50,7 @@ impl TextCol {
     }
 
     pub fn chars_len(&self) -> usize {
-        self.strings.iter().map(|(s, c)| s.len()).sum()
+        self.strings.iter().map(|(s, _c)| s.len()).sum()
     }
 
     pub fn print(&self, ctx: &mut Rltk, x: usize, y: usize) {
@@ -59,6 +59,18 @@ impl TextCol {
             ctx.print_color(current_x, y, *c, self.bg, s);
             current_x += s.len()
         }
+    }
+}
+
+impl std::ops::AddAssign<TextCol> for TextCol {
+    fn add_assign(&mut self, other: TextCol) {
+        self.strings.extend(other.strings.into_iter());
+    }
+}
+
+impl std::ops::AddAssign<StrCol> for TextCol {
+    fn add_assign(&mut self, str_col: StrCol) {
+        self.strings.push(str_col);
     }
 }
 

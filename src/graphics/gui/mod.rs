@@ -8,6 +8,7 @@ use specs::prelude::*;
 
 use crate::{ecs::components, gamelog::GameLog, levels::level::Level};
 
+pub use equipment::{EquipmentMenuAction, GuiEquipmentManager};
 pub use inventory::{
     GuiInventoryManager, GuiItemActionManager, InventoryMenuAction, ItemMenuAction,
 };
@@ -36,6 +37,7 @@ pub struct GuiDrawer {
 
     pub inv_manager: GuiInventoryManager,
     pub item_action_manager: GuiItemActionManager,
+    pub eq_manager: GuiEquipmentManager,
 }
 
 impl GuiDrawer {
@@ -46,6 +48,7 @@ impl GuiDrawer {
             console_box_height,
             inv_manager: GuiInventoryManager::new(10, 10, 30, 40),
             item_action_manager: GuiItemActionManager::new(10, 10, 30, 20),
+            eq_manager: GuiEquipmentManager::new(10, 10, 40, 10),
         }
     }
 

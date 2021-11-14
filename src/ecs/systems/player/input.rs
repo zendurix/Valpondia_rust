@@ -23,6 +23,7 @@ pub enum InputType {
     Center,
     PickUpItem,
     ShowInventory,
+    ShowEquipment,
     Escape,
     Enter,
     DownLevel,
@@ -49,6 +50,7 @@ pub fn get_input(ctx: &mut Rltk) -> Option<InputType> {
 
             VirtualKeyCode::G => Some(InputType::PickUpItem),
             VirtualKeyCode::I => Some(InputType::ShowInventory),
+            VirtualKeyCode::E => Some(InputType::ShowEquipment),
             VirtualKeyCode::U => Some(InputType::U),
             VirtualKeyCode::D => Some(InputType::D),
 
@@ -103,6 +105,10 @@ pub fn try_handle_input(gs: &mut State) -> RunState {
             InputType::ShowInventory => {
                 gs.reset_gui_inv_manager();
                 RunState::ShowInventory
+            }
+            InputType::ShowEquipment => {
+                gs.reset_gui_eq_manager();
+                RunState::ShowEquipment
             }
 
             InputType::Escape => RunState::SaveGame,

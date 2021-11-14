@@ -1,15 +1,11 @@
 use std::collections::HashMap;
 
 use itertools::Itertools;
-use rltk::{Rltk, RGB};
+use rltk::Rltk;
 use specs::{Entity, Join, WorldExt};
 
 use crate::{
-    ecs::{
-        components,
-        systems::player::{input::get_input, InputType},
-        State,
-    },
+    ecs::{components, State},
     impl_window_option_selector,
 };
 
