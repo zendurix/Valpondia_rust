@@ -67,6 +67,7 @@ impl<'a> System<'a> for ItemEquipSystem {
                             .expect("Cannot insert equipped");
                     }
                 } else {
+                    #[allow(clippy::collapsible_else_if)]
                     if let Some(slot) = eq.parts_with_equipped.get_mut(&body_part) {
                         if let Some(prev_equipped) = slot {
                             items_to_unequip.push((ent, *prev_equipped));
@@ -158,6 +159,7 @@ pub fn insert_item_in_eq(ecs: &mut World, owner: Entity, item: Entity) {
                 .insert(item, components::Equipped { owner })
                 .expect("Cannot insert equipped");
         } else {
+            #[allow(clippy::collapsible_else_if)]
             if let Some(slot) = eq.parts_with_equipped.get_mut(&body_part) {
                 if let Some(prev_equipped) = slot {
                     items_to_unequip.push(*prev_equipped);

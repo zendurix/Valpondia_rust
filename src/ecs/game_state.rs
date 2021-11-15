@@ -129,19 +129,19 @@ impl State {
 
     pub fn reset_gui_inv_manager(&mut self) {
         let mut inv_manager = self.gui_drawer.inv_manager.clone();
-        inv_manager.reset(&self);
+        inv_manager.reset(self);
         self.gui_drawer.inv_manager = inv_manager;
     }
 
     pub fn reset_gui_eq_manager(&mut self) {
         let mut eq_manager = self.gui_drawer.eq_manager.clone();
-        eq_manager.reset(&self);
+        eq_manager.reset(self);
         self.gui_drawer.eq_manager = eq_manager;
     }
 
     pub fn reset_gui_item_action_manager(&mut self, item: Entity) {
         let mut item_action_manager = self.gui_drawer.item_action_manager.clone();
-        item_action_manager.reset(&self, item);
+        item_action_manager.reset(self, item);
         self.gui_drawer.item_action_manager = item_action_manager;
     }
 

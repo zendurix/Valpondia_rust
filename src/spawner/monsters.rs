@@ -4,7 +4,10 @@ use rltk::RGB;
 use specs::{Builder, Entity, EntityBuilder, World, WorldExt};
 
 use crate::{
-    ecs::{components, systems::inventory::insert_item_in_inv},
+    ecs::{
+        components,
+        systems::inventory::{insert_item_in_eq, insert_item_in_inv},
+    },
     rng,
     spawner::spawn_tables::SpawnEntry,
 };
@@ -18,7 +21,7 @@ pub fn spawn_item_into_inventory(
     x: usize,
     y: usize,
     level: usize,
-) {
+) -> Option<Entity> {
     if let Some(item) = spawn_entity(ecs, &item_name, x, y, level) {
         let is_item;
         {
@@ -27,11 +30,27 @@ pub fn spawn_item_into_inventory(
         }
         if is_item {
             insert_item_in_inv(ecs, owner, item);
+            Some(item)
         } else {
             println!("{} isnt item", item_name);
+            None
         }
     } else {
         println!("Unable to create {}", item_name);
+        None
+    }
+}
+
+pub fn spawn_item_in_eq(
+    ecs: &mut World,
+    owner: Entity,
+    item_name: String,
+    x: usize,
+    y: usize,
+    level: usize,
+) {
+    if let Some(item) = spawn_item_into_inventory(ecs, owner, item_name, x, y, level) {
+        insert_item_in_eq(ecs, owner, item);
     }
 }
 
@@ -54,8 +73,9 @@ pub fn spawn_goblin(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
 pub fn spawn_orc(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     let orc = spawn_monster(ecs, x, y, level, rltk::to_cp437('o'), "Orc", 32, 12, 3)
         .with(components::Inventory::new_empty())
+        .with(components::BodyParts::default_humanoid())
         .build();
-    spawn_item_into_inventory(ecs, orc, "Dagger".to_string(), x, y, level);
+    spawn_item_in_eq(ecs, orc, "Dagger".to_string(), x, y, level);
     orc
 }
 
@@ -66,9 +86,10 @@ pub fn spawn_human(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity 
 pub fn spawn_knight(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     let knight = spawn_monster(ecs, x, y, level, rltk::to_cp437('k'), "Knight", 35, 8, 7)
         .with(components::Inventory::new_empty())
+        .with(components::BodyParts::default_humanoid())
         .build();
-    spawn_item_into_inventory(ecs, knight, "Chain armor".to_string(), x, y, level);
-    spawn_item_into_inventory(ecs, knight, "Zweihander".to_string(), x, y, level);
+    spawn_item_in_eq(ecs, knight, "Chain armor".to_string(), x, y, level);
+    spawn_item_in_eq(ecs, knight, "Zweihander".to_string(), x, y, level);
     knight
 }
 

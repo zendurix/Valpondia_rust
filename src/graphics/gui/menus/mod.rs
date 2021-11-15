@@ -37,7 +37,7 @@ impl TextCol {
 
     /// with default black background
     pub fn new(strings: Vec<StrCol>) -> TextCol {
-        assert!(strings.len() > 0);
+        assert!(!strings.is_empty());
         TextCol {
             strings,
             bg: rltk::RGB::named(rltk::BLACK),
