@@ -1,41 +1,9 @@
 use rltk::RGB;
-use specs::{Builder, Entity, EntityBuilder, World, WorldExt};
+use specs::{Builder, Entity, World};
 
 use crate::ecs::components;
 
-pub fn spawn_great_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    create_base_item_components(
-        ecs,
-        x,
-        y,
-        level,
-        rltk::to_cp437('i'),
-        RGB::named(rltk::RED2),
-        "Great health potion",
-    )
-    .with(components::Heal { heal_power: 50 })
-    .with(components::Usable {
-        destoyed_on_use: true,
-    })
-    .build()
-}
-
-pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    create_base_item_components(
-        ecs,
-        x,
-        y,
-        level,
-        rltk::to_cp437('i'),
-        RGB::named(rltk::PINK),
-        "Health potion",
-    )
-    .with(components::Heal { heal_power: 20 })
-    .with(components::Usable {
-        destoyed_on_use: true,
-    })
-    .build()
-}
+use super::create_base_item_components;
 
 pub fn spawn_magic_missile_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     create_base_item_components(
@@ -55,7 +23,7 @@ pub fn spawn_magic_missile_scroll(ecs: &mut World, x: usize, y: usize, level: us
     .build()
 }
 
-/// aoe spell (actuallly granade :) )
+/// aoe spell
 pub fn spawn_fireball_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     create_base_item_components(
         ecs,
@@ -128,29 +96,4 @@ pub fn spawn_teleport_scroll(ecs: &mut World, x: usize, y: usize, level: usize) 
     .with(components::Ranged { range: 15 })
     .with(components::Teleporting {})
     .build()
-}
-
-#[allow(clippy::too_many_arguments)]
-fn create_base_item_components<S: ToString>(
-    ecs: &mut World,
-    x: usize,
-    y: usize,
-    level: usize,
-    glyph: rltk::FontCharType,
-    color: rltk::RGB,
-    name: S,
-) -> EntityBuilder {
-    ecs.create_entity()
-        .with(components::Item {})
-        .with(components::Position { x, y, level })
-        .with(components::Renderable {
-            ascii: glyph,
-            texture: None,
-            fg: color,
-            bg: RGB::named(rltk::BLACK),
-            render_order: 2,
-        })
-        .with(components::Name {
-            name: name.to_string(),
-        })
 }

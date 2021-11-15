@@ -111,6 +111,17 @@ pub struct HealEffect {
 }
 
 #[derive(Component, Debug, Clone)]
+pub struct Inventory {
+    pub items: Vec<Entity>,
+}
+
+impl Inventory {
+    pub fn new_empty() -> Inventory {
+        Inventory { items: vec![] }
+    }
+}
+
+#[derive(Component, Debug, Clone)]
 pub struct InInventory {
     pub owner: Entity,
 }
@@ -250,6 +261,16 @@ pub struct WantsToEquip {
 }
 
 #[derive(Component, Debug, Clone)]
-pub struct WantsToRemove {
+pub struct WantsToUnEquip {
     pub item: Entity,
+}
+
+#[derive(Component, Clone, Debug)]
+pub struct MeleeDamageBonus {
+    pub power: i32,
+}
+
+#[derive(Component, Clone, Debug)]
+pub struct DefenseBonus {
+    pub defense: i32,
 }

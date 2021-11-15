@@ -1,15 +1,18 @@
 use specs::{Entity, World};
 
-use crate::{
-    levels::level::Level,
-    rng,
-    spawner::{items::spawn_healing_potion, monsters::spawn_goblin},
-};
+use crate::{levels::level::Level, rng, spawner::monsters::spawn_goblin};
 
 use self::{
     items::{
-        spawn_area_sleep_scroll, spawn_fireball_scroll, spawn_great_healing_potion,
-        spawn_magic_missile_scroll, spawn_sleep_scroll, spawn_teleport_scroll,
+        eq::{
+            armors::{spawn_chain_armor, spawn_gino_rossi_boots, spawn_leather_armor},
+            weapons::{spawn_dagger, spawn_zweihander},
+        },
+        potions::{spawn_great_healing_potion, spawn_healing_potion},
+        scrolls::{
+            spawn_area_sleep_scroll, spawn_fireball_scroll, spawn_magic_missile_scroll,
+            spawn_sleep_scroll, spawn_teleport_scroll,
+        },
     },
     monsters::{spawn_blip, spawn_blop, spawn_human, spawn_knight, spawn_orc},
     spawn_tables::SpawnTable,
@@ -19,6 +22,44 @@ pub mod items;
 pub mod monsters;
 pub mod player;
 pub mod spawn_tables;
+
+pub fn spawn_entity(
+    ecs: &mut World,
+    name: &str,
+    x: usize,
+    y: usize,
+    level: usize,
+) -> Option<Entity> {
+    match name {
+        "Orc" => Some(spawn_orc(ecs, x, y, level)),
+        "Goblin" => Some(spawn_goblin(ecs, x, y, level)),
+        "Knight" => Some(spawn_knight(ecs, x, y, level)),
+        "Human" => Some(spawn_human(ecs, x, y, level)),
+
+        "Blip" => Some(spawn_blip(ecs, x, y, level)),
+        "Blop" => Some(spawn_blop(ecs, x, y, level)),
+
+        "Health potion" => Some(spawn_healing_potion(ecs, x, y, level)),
+        "Great health potion" => Some(spawn_great_healing_potion(ecs, x, y, level)),
+
+        "Magic missile scroll" => Some(spawn_magic_missile_scroll(ecs, x, y, level)),
+        "Sleep scroll" => Some(spawn_sleep_scroll(ecs, x, y, level)),
+        "Area sleep scroll" => Some(spawn_area_sleep_scroll(ecs, x, y, level)),
+        "Fireball scroll" => Some(spawn_fireball_scroll(ecs, x, y, level)),
+        "Teleport scroll" => Some(spawn_teleport_scroll(ecs, x, y, level)),
+
+        "Dagger" => Some(spawn_dagger(ecs, x, y, level)),
+        "Zweihander" => Some(spawn_zweihander(ecs, x, y, level)),
+        "Leather armor" => Some(spawn_leather_armor(ecs, x, y, level)),
+        "Gino rossi boots" => Some(spawn_gino_rossi_boots(ecs, x, y, level)),
+        "Chain armor" => Some(spawn_chain_armor(ecs, x, y, level)),
+
+        _ => {
+            println!("Cannot spawn {}. Unknown entity", name);
+            None
+        }
+    }
+}
 
 pub fn spawn_from_spawn_table(ecs: &mut World, level: &Level, mut spawn_table: SpawnTable) {
     if level.spawn_areas.is_empty() {
@@ -64,35 +105,4 @@ fn random_spawn_points(
         }
     }
     spawn_points
-}
-
-pub fn spawn_entity(
-    ecs: &mut World,
-    name: &str,
-    x: usize,
-    y: usize,
-    level: usize,
-) -> Option<Entity> {
-    match name {
-        "Orc" => Some(spawn_orc(ecs, x, y, level)),
-        "Goblin" => Some(spawn_goblin(ecs, x, y, level)),
-        "Knight" => Some(spawn_knight(ecs, x, y, level)),
-        "Human" => Some(spawn_human(ecs, x, y, level)),
-
-        "Blip" => Some(spawn_blip(ecs, x, y, level)),
-        "Blop" => Some(spawn_blop(ecs, x, y, level)),
-
-        "Health potion" => Some(spawn_healing_potion(ecs, x, y, level)),
-        "Great health potion" => Some(spawn_great_healing_potion(ecs, x, y, level)),
-
-        "Magic missile scroll" => Some(spawn_magic_missile_scroll(ecs, x, y, level)),
-        "Sleep scroll" => Some(spawn_sleep_scroll(ecs, x, y, level)),
-        "Area sleep scroll" => Some(spawn_area_sleep_scroll(ecs, x, y, level)),
-        "Fireball scroll" => Some(spawn_fireball_scroll(ecs, x, y, level)),
-        "Teleport scroll" => Some(spawn_teleport_scroll(ecs, x, y, level)),
-        _ => {
-            println!("Cannot spawn {}. Unknown entity", name);
-            None
-        }
-    }
 }

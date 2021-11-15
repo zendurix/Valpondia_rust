@@ -118,8 +118,11 @@ impl State {
         self.ecs.register::<components::Equippable>();
         self.ecs.register::<components::Equipped>();
         self.ecs.register::<components::WantsToEquip>();
-        self.ecs.register::<components::WantsToRemove>();
+        self.ecs.register::<components::WantsToUnEquip>();
         self.ecs.register::<components::BodyParts>();
+        self.ecs.register::<components::MeleeDamageBonus>();
+        self.ecs.register::<components::DefenseBonus>();
+        self.ecs.register::<components::Inventory>();
     }
 
     pub fn reset_gui_inv_manager(&mut self) {
@@ -236,12 +239,6 @@ impl State {
     fn run_combat_systems(&mut self) {
         systems::combat::melee::MeleeCombatSystem {}.run_now(&self.ecs);
         systems::combat::damage::DamageSystem {}.run_now(&self.ecs);
-        systems::combat::spawn_after_death::SpawnsAfterDeathSystem {}.run_now(&self.ecs);
-        systems::spawn::spawn_system(self);
-
-        // temp here TODO this should be in effects_systems
-
-        systems::combat::damage::delete_the_dead(&mut self.ecs);
     }
 
     fn run_ai_systems(&mut self) {
@@ -259,6 +256,7 @@ impl State {
 
     fn run_inventory_systems(&mut self) {
         systems::inventory::ItemCollectionSystem {}.run_now(&self.ecs);
+        systems::combat::drop_after_death::DropAfterDeathSystem {}.run_now(&self.ecs);
         systems::inventory::ItemDropSystem {}.run_now(&self.ecs);
         systems::inventory::UseItemSystem {}.run_now(&self.ecs);
         systems::inventory::DestroyUsedItems {}.run_now(&self.ecs);
@@ -267,13 +265,17 @@ impl State {
     fn run_effects_systems(&mut self) {
         systems::effects::HealSystem {}.run_now(&self.ecs);
         systems::effects::TeleportSystem {}.run_now(&self.ecs);
+        systems::combat::spawn_after_death::SpawnsAfterDeathSystem {}.run_now(&self.ecs);
+        systems::spawn::spawn_system(self);
     }
 
     fn run_all_gameplay_systems(&mut self) {
         self.run_ai_systems();
-        self.run_inventory_systems();
         self.run_combat_systems();
+        self.run_inventory_systems();
         self.run_effects_systems();
+
+        systems::combat::damage::delete_the_dead(&mut self.ecs);
         self.run_view_systems();
         self.run_map_systems();
     }

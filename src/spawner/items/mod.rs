@@ -3,13 +3,12 @@ use specs::{Builder, EntityBuilder, World, WorldExt};
 
 use crate::ecs::components;
 
-
-
-
-
+pub mod eq;
+pub mod potions;
+pub mod scrolls;
 
 #[allow(clippy::too_many_arguments)]
-pub (crate) fn create_base_item_components<S: ToString>(
+pub(crate) fn create_base_item_components<S: ToString>(
     ecs: &mut World,
     x: usize,
     y: usize,
