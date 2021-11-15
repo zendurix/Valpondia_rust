@@ -22,7 +22,7 @@ pub struct TextCol {
 impl TextCol {
     pub fn empty() -> TextCol {
         TextCol {
-            strings: vec![("".to_string(), rltk::RGB::named(rltk::WHITE))],
+            strings: vec![],
             bg: rltk::RGB::named(rltk::BLACK),
         }
     }

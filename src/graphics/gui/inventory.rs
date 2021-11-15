@@ -91,10 +91,11 @@ impl GuiInventoryManager {
             .iter()
             .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
             .map(|(name, (num, _ent))| {
-                TextCol::new(vec![
-                    (name.clone(), rltk::RGB::named(rltk::WHITE)),
-                    (format!("  x{}", num), rltk::RGB::named(rltk::GREEN)),
-                ])
+                let mut text = TextCol::new(vec![(name.clone(), rltk::RGB::named(rltk::WHITE))]);
+                if *num > 1 {
+                    text += (format!("  x{}", num), rltk::RGB::named(rltk::GREEN));
+                }
+                text
             })
             .collect_vec();
         self.options_ent = items_groupped

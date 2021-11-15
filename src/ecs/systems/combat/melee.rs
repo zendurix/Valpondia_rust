@@ -12,6 +12,9 @@ impl<'a> System<'a> for MeleeCombatSystem {
         ReadStorage<'a, components::Hp>,
         ReadStorage<'a, components::CombatBaseStats>,
         WriteStorage<'a, components::SufferDamage>,
+        ReadStorage<'a, components::Equipped>,
+        ReadStorage<'a, components::MeleeDamageBonus>,
+        ReadStorage<'a, components::DefenseBonus>,
         WriteExpect<'a, GameLog>,
     );
 
@@ -24,10 +27,13 @@ impl<'a> System<'a> for MeleeCombatSystem {
             hps,
             combat_stats,
             mut inflict_damage,
+            equippeds,
+            melee_bonuses,
+            def_bonuses,
             mut gamelog,
         ) = data;
 
-        for (_entity, wants_melee, name, hp, stats) in
+        for (entity, wants_melee, name, hp, stats) in
             (&entities, &wants_melee, &names, &hps, &combat_stats).join()
         {
             if hp.hp > 0 {
@@ -36,9 +42,27 @@ impl<'a> System<'a> for MeleeCombatSystem {
                 if target_hp.hp > 0 {
                     let target_name = names.get(wants_melee.target).unwrap();
 
-                    let damage = i32::max(0, stats.attack - target_stats.defense);
+                    let mut damage = stats.attack;
 
-                    if damage == 0 {
+                    for (_equipped, melee_bonus) in (&equippeds, &melee_bonuses)
+                        .join()
+                        .filter(|(equipped_by, _bonus)| equipped_by.owner == entity)
+                    {
+                        damage += melee_bonus.power;
+                    }
+
+                    let mut target_defense = target_stats.defense;
+
+                    for (_equipped, def_bonus) in (&equippeds, &def_bonuses)
+                        .join()
+                        .filter(|(equipped_by, _bonus)| equipped_by.owner == wants_melee.target)
+                    {
+                        target_defense += def_bonus.defense;
+                    }
+
+                    damage -= target_defense;
+
+                    if damage <= 0 {
                         gamelog.entries.push(format!(
                             "{} Attacks doesnt affect  {} (0 dmg)",
                             &name.name, &target_name.name
