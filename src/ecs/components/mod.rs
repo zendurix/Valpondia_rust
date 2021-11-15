@@ -192,7 +192,7 @@ pub struct Spawn {
     pub names_nums: Vec<(String, usize)>,
 }
 
-#[derive(Copy, PartialEq, Eq, Debug, Clone)]
+#[derive(Copy, PartialEq, Eq, Debug, Clone, Hash)]
 pub enum BodyPart {
     /// manly used for weapons (don't use as actual body part in `BodyParts`)
     OneHanded,
@@ -205,7 +205,7 @@ pub enum BodyPart {
     Head,
     Body,
     Hands,
-    Feets,
+    Feet,
 }
 
 impl ToString for BodyPart {
@@ -218,28 +218,34 @@ impl ToString for BodyPart {
             BodyPart::Head => "Head".to_string(),
             BodyPart::Body => "Body".to_string(),
             BodyPart::Hands => "Hands".to_string(),
-            BodyPart::Feets => "Feets".to_string(),
+            BodyPart::Feet => "Feet".to_string(),
         }
+    }
+}
+
+impl BodyPart {
+    pub fn is_hand(self) -> bool {
+        self == BodyPart::HandLeft || self == BodyPart::HandRight
     }
 }
 
 #[derive(Component, Debug, Clone)]
 pub struct BodyParts {
-    pub parts_with_equipped: Vec<(BodyPart, Option<Entity>)>,
+    pub parts_with_equipped: HashMap<BodyPart, Option<Entity>>,
 }
 
 impl BodyParts {
-    /// default body parts for standard humanoid (2 hands, head, body, feets)
+    /// default body parts for standard humanoid (2 hands, head, body, Feet)
     pub fn default_humanoid() -> BodyParts {
+        let mut parts_with_equipped = HashMap::default();
+        parts_with_equipped.insert(BodyPart::HandRight, None);
+        parts_with_equipped.insert(BodyPart::HandLeft, None);
+        parts_with_equipped.insert(BodyPart::Head, None);
+        parts_with_equipped.insert(BodyPart::Body, None);
+        parts_with_equipped.insert(BodyPart::Hands, None);
+        parts_with_equipped.insert(BodyPart::Feet, None);
         BodyParts {
-            parts_with_equipped: vec![
-                ((BodyPart::HandRight), None),
-                (BodyPart::HandLeft, None),
-                (BodyPart::Head, None),
-                (BodyPart::Body, None),
-                (BodyPart::Hands, None),
-                (BodyPart::Feets, None),
-            ],
+            parts_with_equipped,
         }
     }
 }
@@ -252,12 +258,12 @@ pub struct Equippable {
 #[derive(Component, Debug, Clone)]
 pub struct Equipped {
     pub owner: Entity,
-    pub body_part: BodyPart,
 }
 
 #[derive(Component, Debug, Clone)]
 pub struct WantsToEquip {
     pub item: Entity,
+    pub target_body_part: BodyPart,
 }
 
 #[derive(Component, Debug, Clone)]

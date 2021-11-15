@@ -16,6 +16,8 @@ use crate::maps::{Map, TileType};
 use crate::spawner::spawn_from_spawn_table;
 use crate::spawner::spawn_tables::SpawnTable;
 
+use super::components::BodyPart;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetingAction {
     TargetingFromItem(Entity, usize),
@@ -260,6 +262,9 @@ impl State {
         systems::inventory::ItemDropSystem {}.run_now(&self.ecs);
         systems::inventory::UseItemSystem {}.run_now(&self.ecs);
         systems::inventory::DestroyUsedItems {}.run_now(&self.ecs);
+
+        systems::inventory::ItemEquipSystem {}.run_now(&self.ecs);
+        systems::inventory::ItemUnEquipSystem {}.run_now(&self.ecs);
     }
 
     fn run_effects_systems(&mut self) {
@@ -299,6 +304,28 @@ impl State {
                 },
             )
             .expect("Unable to insert intent to use item");
+    }
+
+    fn equip_item(&mut self, item: Entity, target_body_part: BodyPart) {
+        let mut wants_eq = self.ecs.write_storage::<components::WantsToEquip>();
+        let player = *self.ecs.fetch::<Entity>();
+        wants_eq
+            .insert(
+                player,
+                components::WantsToEquip {
+                    item,
+                    target_body_part,
+                },
+            )
+            .expect("Unable to insert intent to equip item");
+    }
+
+    fn unequip_item(&mut self, item: Entity) {
+        let mut wants_uneq = self.ecs.write_storage::<components::WantsToUnEquip>();
+        let player = *self.ecs.fetch::<Entity>();
+        wants_uneq
+            .insert(player, components::WantsToUnEquip { item })
+            .expect("Unable to insert intent to unequip item");
     }
 
     fn drop_item(&mut self, item: Entity) {
@@ -377,7 +404,26 @@ impl GameState for State {
                         self.drop_item(item);
                         run_state = RunState::PlayerTurn;
                     }
-                    ItemMenuAction::Equip(_) => todo!(),
+                    ItemMenuAction::Equip(item) => {
+                        // TODO add limb selection menu here
+                        let target;
+                        {
+                            let equipables = self.ecs.read_storage::<components::Equippable>();
+                            let equipable = equipables.get(item).unwrap();
+                            target = if equipable.body_part == BodyPart::OneHanded {
+                                BodyPart::HandRight
+                            } else {
+                                equipable.body_part
+                            };
+                        }
+
+                        self.equip_item(item, target);
+                        run_state = RunState::PlayerTurn;
+                    }
+                    ItemMenuAction::UnEquip(item) => {
+                        self.unequip_item(item);
+                        run_state = RunState::PlayerTurn;
+                    }
                 }
             }
             RunState::Targeting(action) => {

@@ -1,4 +1,4 @@
-use crate::{components};
+use crate::components;
 use specs::prelude::*;
 
 pub struct DropAfterDeathSystem {}

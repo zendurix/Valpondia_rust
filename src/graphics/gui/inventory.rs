@@ -25,6 +25,7 @@ pub enum ItemMenuAction {
     Use(Entity),
     Drop(Entity),
     Equip(Entity),
+    UnEquip(Entity),
 }
 #[derive(Debug, Clone)]
 pub struct GuiInventoryManager {
@@ -157,10 +158,12 @@ impl GuiItemActionManager {
     pub fn reset(&mut self, gs: &State, item: Entity) {
         let usables = gs.ecs.read_storage::<components::Usable>();
         let equipables = gs.ecs.read_storage::<components::Equippable>();
+        let equipeds = gs.ecs.read_storage::<components::Equipped>();
         let names = gs.ecs.read_storage::<components::Name>();
         let name = names.get(item).unwrap();
         let can_be_used = usables.get(item).is_some();
         let can_be_equipped = equipables.get(item).is_some();
+        let can_be_unequipped = equipeds.get(item).is_some();
 
         self.title = TextCol::simple("Item: ".to_string() + name.name.as_str());
 
@@ -170,8 +173,11 @@ impl GuiItemActionManager {
         if can_be_used {
             self.options.push(TextCol::simple("Use".to_string()));
         }
-        if can_be_equipped {
+        if can_be_equipped && !can_be_unequipped {
             self.options.push(TextCol::simple("Equip".to_string()));
+        }
+        if can_be_unequipped {
+            self.options.push(TextCol::simple("UnEquip".to_string()));
         }
     }
 
@@ -184,6 +190,7 @@ impl GuiItemActionManager {
                     "Drop" => ItemMenuAction::Drop(item),
                     "Use" => ItemMenuAction::Use(item),
                     "Equip" => ItemMenuAction::Equip(item),
+                    "UnEquip" => ItemMenuAction::UnEquip(item),
                     _ => ItemMenuAction::NoResponse,
                 }
             }

@@ -35,7 +35,7 @@ pub fn spawn_gino_rossi_boots(ecs: &mut World, x: usize, y: usize, level: usize)
     )
     .with(components::DefenseBonus { defense: 5 })
     .with(components::Equippable {
-        body_part: BodyPart::Feets,
+        body_part: BodyPart::Feet,
     })
     .build()
 }
