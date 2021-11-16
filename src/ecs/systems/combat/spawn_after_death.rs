@@ -6,6 +6,7 @@ pub struct SpawnsAfterDeathSystem {}
 impl<'a> System<'a> for SpawnsAfterDeathSystem {
     type SystemData = (
         Entities<'a>,
+        ReadExpect<'a, Entity>,
         ReadStorage<'a, components::Hp>,
         ReadStorage<'a, components::SpawnsAfterDeath>,
         WriteStorage<'a, components::Spawn>,
@@ -15,6 +16,7 @@ impl<'a> System<'a> for SpawnsAfterDeathSystem {
         #[rustfmt::skip]
         let (
             entities,
+            player,
             hps,
             spawns_at_death,
             mut spawns
@@ -22,7 +24,7 @@ impl<'a> System<'a> for SpawnsAfterDeathSystem {
 
         for (ent, _hp, spawn) in (&entities, &hps, &spawns_at_death)
             .join()
-            .filter(|(_, hp, _)| hp.hp <= 0)
+            .filter(|(ent, hp, _)| *ent != *player && hp.hp <= 0)
         {
             let mut spawn_event = components::Spawn { names_nums: vec![] };
             for spawn_entry in spawn.spawns.iter() {

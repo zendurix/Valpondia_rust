@@ -1,4 +1,4 @@
-use crate::{components, gamelog::GameLog};
+use crate::{components, ecs::game_state::RunState, gamelog::GameLog};
 use specs::prelude::*;
 
 pub struct DamageSystem {}
@@ -27,7 +27,6 @@ pub fn delete_the_dead(ecs: &mut World) {
         let hps = ecs.read_storage::<components::Hp>();
         let entities = ecs.entities();
         let players = ecs.read_storage::<components::Player>();
-        let mut gamelog = ecs.write_resource::<GameLog>();
 
         for (entity, hp) in (&entities, &hps).join() {
             if hp.hp < 1 {
@@ -35,7 +34,8 @@ pub fn delete_the_dead(ecs: &mut World) {
                 match player {
                     None => dead.push(entity),
                     Some(_) => {
-                        gamelog.entries.push("You are dead".to_string());
+                        let mut runstate = ecs.write_resource::<RunState>();
+                        *runstate = RunState::GameOver;
                     }
                 }
             }

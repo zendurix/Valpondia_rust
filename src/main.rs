@@ -76,7 +76,7 @@ fn main() {
 
     let mut p_x = 0;
     let mut p_y = 0;
-    while gs.current_map().tile_at_xy(p_x, p_y).blocks_visibility() {
+    while gs.current_map().tile_at_xy(p_x, p_y).blocks_movement() {
         p_x = rng::range(2, gs.current_map().width_max() as i32 - 2) as usize;
         p_y = rng::range(2, gs.current_map().height_max() as i32 - 2) as usize;
     }

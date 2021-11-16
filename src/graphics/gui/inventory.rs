@@ -72,6 +72,7 @@ impl GuiInventoryManager {
         let player = *gs.ecs.fetch::<Entity>();
         let names = gs.ecs.read_storage::<components::Name>();
         let inventories = gs.ecs.read_storage::<components::InInventory>();
+        let equipped = gs.ecs.read_storage::<components::Equipped>();
         let entities = gs.ecs.entities();
 
         let mut items_groupped = HashMap::<String, (usize, Entity)>::default();
@@ -80,10 +81,14 @@ impl GuiInventoryManager {
             .join()
             .filter(|item| item.1.owner == player)
         {
-            if items_groupped.contains_key(&name.name) {
-                items_groupped.get_mut(&name.name).unwrap().0 += 1;
+            let mut name = name.name.clone();
+            if equipped.contains(ent) {
+                name += " <EQUIPPED> ";
+            }
+            if items_groupped.contains_key(&name) {
+                items_groupped.get_mut(&name).unwrap().0 += 1;
             } else {
-                items_groupped.insert(name.name.clone(), (1, ent));
+                items_groupped.insert(name, (1, ent));
             }
         }
 

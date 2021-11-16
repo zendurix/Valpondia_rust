@@ -28,6 +28,11 @@ impl LevelManager {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.levels.clear();
+        self.current_level_index = 0;
+    }
+
     pub fn current_level(&self) -> &Level {
         &self.levels[self.current_level_index]
     }

@@ -5,14 +5,18 @@ use specs::prelude::*;
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
+use crate::gamelog::GameLog;
 use crate::graphics::gui::menus::main_menu::MainMenu;
 use crate::graphics::gui::{
-    EquipmentMenuAction, InventoryMenuAction, ItemMenuAction, TargetingMenuAction,
+    EquipmentMenuAction, GameOverSelection, InventoryMenuAction, ItemMenuAction,
+    TargetingMenuAction,
 };
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
 use crate::maps::{Map, TileType};
+use crate::rng;
+use crate::spawner::player::spawn_player;
 use crate::spawner::spawn_from_spawn_table;
 use crate::spawner::spawn_tables::SpawnTable;
 
@@ -37,6 +41,8 @@ pub enum RunState {
     ShowItemActions(Entity),
     Targeting(TargetingAction),
     MoveLevel(usize),
+
+    GameOver,
 }
 
 /// State global resources (stored in rltk)
@@ -335,6 +341,54 @@ impl State {
             .insert(player, components::WantsToDropItem { item })
             .expect("Unable to insert intent to drop item");
     }
+
+    fn game_over_cleanup(&mut self) {
+        // Delete everything
+        let mut to_delete = Vec::new();
+        for e in self.ecs.entities().join() {
+            to_delete.push(e);
+        }
+        for del in to_delete.iter() {
+            self.ecs.delete_entity(*del).expect("Deletion failed");
+        }
+
+        let new_gamelog = GameLog {
+            entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
+        };
+        self.ecs.remove::<Level>();
+        self.ecs.insert(new_gamelog);
+
+        // Build a new map and place the player
+        self.level_manager.reset();
+        let test = self.create_new_level(
+            LevelType::BasicDungeon,
+            self.map_width,
+            self.map_height,
+            0,
+            None,
+        );
+
+        match test {
+            Ok(_) => (),
+            Err(e) => {
+                println!("ERROR: {}", e);
+                std::process::exit(1);
+            }
+        }
+        self.set_level_as_curent(0);
+
+        let mut p_x = 0;
+        let mut p_y = 0;
+        while self.current_map().tile_at_xy(p_x, p_y).blocks_movement() {
+            p_x = rng::range(2, self.current_map().width_max() as i32 - 2) as usize;
+            p_y = rng::range(2, self.current_map().height_max() as i32 - 2) as usize;
+        }
+
+        self.ecs.insert(rltk::Point::new(p_x, p_y));
+        let player = spawn_player(&mut self.ecs, p_x, p_y);
+
+        self.ecs.insert(player);
+    }
 }
 
 impl GameState for State {
@@ -352,9 +406,11 @@ impl GameState for State {
                 self.run_all_gameplay_systems();
                 run_state = RunState::AwaitingInput;
             }
+
             RunState::AwaitingInput => {
                 run_state = systems::player::try_player_turn(self, ctx);
             }
+
             RunState::ShowInventory => {
                 let inv_action = self.gui_drawer.inv_manager.update(ctx);
                 match inv_action {
@@ -366,6 +422,7 @@ impl GameState for State {
                     }
                 }
             }
+
             RunState::ShowEquipment => {
                 let eq_action = self.gui_drawer.eq_manager.update(ctx);
                 match eq_action {
@@ -373,6 +430,7 @@ impl GameState for State {
                     EquipmentMenuAction::Cancel => run_state = RunState::AwaitingInput,
                 }
             }
+
             RunState::ShowItemActions(item) => {
                 let item_action = self.gui_drawer.item_action_manager.update(ctx, item);
                 match item_action {
@@ -426,6 +484,7 @@ impl GameState for State {
                     }
                 }
             }
+
             RunState::Targeting(action) => {
                 let target_menu_action = gui::show_targeting(self, ctx, action);
                 match target_menu_action {
@@ -440,13 +499,26 @@ impl GameState for State {
                     },
                 }
             }
+
             RunState::PlayerTurn => {
                 self.run_all_gameplay_systems();
-                run_state = RunState::MonsterTurn;
+                let run_state_check = *self.ecs.fetch::<RunState>();
+
+                if run_state_check != RunState::GameOver {
+                    run_state = RunState::MonsterTurn;
+                } else {
+                    run_state = RunState::GameOver;
+                }
             }
+
             RunState::MonsterTurn => {
                 self.run_all_gameplay_systems();
-                run_state = RunState::AwaitingInput;
+                let run_state_check = *self.ecs.fetch::<RunState>();
+                if run_state_check != RunState::GameOver {
+                    run_state = RunState::AwaitingInput;
+                } else {
+                    run_state = RunState::GameOver;
+                }
             }
 
             RunState::MainMenu => {
@@ -467,14 +539,27 @@ impl GameState for State {
                     },
                 }
             }
+
             RunState::SaveGame => {
                 //  let data = serde_json::to_string(&self.ecs.fetch::<Level>().map).unwrap();
                 //  println!("{}", data);
                 run_state = RunState::MainMenu;
             }
+
             RunState::MoveLevel(next_level) => {
                 self.player_move_level(next_level);
                 run_state = RunState::PreRun;
+            }
+
+            RunState::GameOver => {
+                let result = self.gui_drawer.game_over(ctx);
+                match result {
+                    GameOverSelection::NoSelection => {}
+                    GameOverSelection::QuitToMenu => {
+                        self.game_over_cleanup();
+                        run_state = RunState::MainMenu;
+                    }
+                }
             }
         }
         *self.ecs.write_resource::<RunState>() = run_state;

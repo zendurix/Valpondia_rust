@@ -6,13 +6,26 @@ mod targeting;
 use rltk::{Rltk, RGB};
 use specs::prelude::*;
 
-use crate::{ecs::components, gamelog::GameLog, levels::level::Level};
+use crate::{
+    ecs::{
+        components,
+        systems::player::{input::get_input, InputType},
+    },
+    gamelog::GameLog,
+    levels::level::Level,
+};
 
 pub use equipment::{EquipmentMenuAction, GuiEquipmentManager};
 pub use inventory::{
     GuiInventoryManager, GuiItemActionManager, InventoryMenuAction, ItemMenuAction,
 };
 pub use targeting::{show_targeting, TargetingMenuAction};
+
+#[derive(PartialEq, Copy, Clone)]
+pub enum GameOverSelection {
+    NoSelection,
+    QuitToMenu,
+}
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -222,6 +235,46 @@ impl GuiDrawer {
                     &"<-".to_string(),
                 );
             }
+        }
+    }
+
+    pub fn game_over(&self, ctx: &mut Rltk) -> GameOverSelection {
+        ctx.draw_box_double(
+            (self.window_width / 2) - 20,
+            (self.window_height / 2) - 20,
+            40,
+            40,
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+        );
+
+        ctx.print_color_centered(
+            self.window_height / 2,
+            RGB::named(rltk::YELLOW),
+            RGB::named(rltk::BLACK),
+            "Yo have died!",
+        );
+        ctx.print_color_centered(
+            (self.window_height / 2) + 2,
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+            "...",
+        );
+
+        ctx.print_color_centered(
+            (self.window_height / 2) + 5,
+            RGB::named(rltk::MAGENTA),
+            RGB::named(rltk::BLACK),
+            "Press Enter to return to main menu.",
+        );
+
+        let input = get_input(ctx);
+        match input {
+            None => GameOverSelection::NoSelection,
+            Some(inp) => match inp {
+                InputType::Enter => GameOverSelection::QuitToMenu,
+                _ => GameOverSelection::NoSelection,
+            },
         }
     }
 }

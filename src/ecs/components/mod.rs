@@ -4,7 +4,7 @@ use specs::prelude::*;
 
 use specs_derive::Component;
 
-use crate::{base::Dir, spawner::spawn_tables::SpawnEntry};
+use crate::{base::Dir, graphics::gui::menus::TextCol, spawner::spawn_tables::SpawnEntry};
 pub use rltk::{VirtualKeyCode, RGB};
 
 use super::systems::player::InputType;
@@ -279,4 +279,10 @@ pub struct MeleeDamageBonus {
 #[derive(Component, Clone, Debug)]
 pub struct DefenseBonus {
     pub defense: i32,
+}
+
+#[derive(Component, Clone, Debug)]
+pub struct Description {
+    pub title: TextCol,
+    pub text: TextCol,
 }
