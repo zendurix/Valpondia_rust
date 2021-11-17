@@ -1,12 +1,11 @@
 use rltk::Point;
 
-use crate::maps::{
-    generators::{
-        basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig},
-        cellular_automata::CAMapGen,
-        test_map::TestMap,
-    },
-    genrate_map_and_spawn_areas, MapGenerator,
+use crate::maps::generators::{
+    basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig},
+    cellular_automata::CAMapGen,
+    genrate_map_and_spawn_areas,
+    test_map::TestMap,
+    MapGenerator,
 };
 
 use super::level::{Level, LevelType};

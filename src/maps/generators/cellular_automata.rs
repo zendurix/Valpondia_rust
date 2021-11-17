@@ -3,8 +3,10 @@ use std::ops::Not;
 use rltk::{Point, RandomNumberGenerator};
 
 use crate::maps::errors::{Error, Result};
-use crate::maps::{Map, SpawnAreas, TileType};
-use crate::{rng, MapGenerator};
+use crate::maps::{Map, TileType};
+use crate::rng;
+
+use super::MapGenerator;
 
 pub struct CAMapGenConfig {
     pub alive_on_start_chance_percent: usize,
@@ -410,10 +412,8 @@ impl MapGenerator for CAMapGen {
     fn map(self) -> Map {
         self.map
     }
-}
 
-/// TODO make it smarter
-impl SpawnAreas for CAMapGen {
+    /// TODO make it smarter
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
         let area = self.area();
         vec![

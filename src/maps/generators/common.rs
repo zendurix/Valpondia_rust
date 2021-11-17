@@ -1,4 +1,4 @@
-use super::{Map, TileType};
+use crate::maps::{Map, TileType};
 
 pub fn apply_horizontal_tunnel(map: &mut Map, x1: usize, x2: usize, y: usize) {
     for x in x1.min(x2)..=x1.max(x2) {

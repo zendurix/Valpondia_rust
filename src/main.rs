@@ -21,8 +21,6 @@ use ecs::{components, game_state::RunState, State};
 // };
 use levels::level::LevelType;
 
-use maps::MapGenerator;
-
 use crate::{graphics::GuiDrawer, spawner::player::spawn_player};
 
 const WINDOW_WIDTH: usize = 100;

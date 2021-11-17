@@ -1,6 +1,8 @@
 use rltk::Point;
 
-use crate::maps::{errors::Result, Map, MapGenerator};
+use crate::maps::{errors::Result, Map};
+
+use super::MapGenerator;
 
 pub struct TestMap {
     pub width: usize,
@@ -25,5 +27,17 @@ impl MapGenerator for TestMap {
     }
     fn map(self) -> Map {
         self.map
+    }
+
+    /// TODO this is temp
+    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
+        vec![self
+            .map
+            .tiles
+            .iter()
+            .enumerate()
+            .filter(|(_i, tile)| !tile.blocks_movement())
+            .map(|(i, _tile)| self.map.index_to_xy(i))
+            .collect()]
     }
 }

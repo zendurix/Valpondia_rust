@@ -36,7 +36,6 @@ pub struct Map {
     pub tiles: Vec<TileType>,
     pub width: usize,
     pub height: usize,
-    pub rooms: Vec<Rect>,
     /// by index
     pub blocked: Vec<bool>,
 
@@ -54,7 +53,6 @@ impl Map {
             width,
             height,
             tiles,
-            rooms: vec![],
             blocked: vec![false; width * height],
             tile_content: vec![vec![]; width * height],
         }

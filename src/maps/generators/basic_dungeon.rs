@@ -3,12 +3,16 @@ use rltk::Point;
 
 use crate::{
     maps::{
-        corridor::{apply_horizontal_tunnel, apply_vertical_tunnel},
         errors::Result,
         rect::{apply_room_to_map, Rect},
-        Map, MapGenerator, SpawnAreas, TileType,
+        Map, TileType,
     },
     rng,
+};
+
+use super::{
+    common::{apply_horizontal_tunnel, apply_vertical_tunnel},
+    MapGenerator,
 };
 
 pub struct BasicDungeonMapConfig {
@@ -34,6 +38,7 @@ pub struct BasicDungeonMap {
     height: usize,
     config: BasicDungeonMapConfig,
     map: Map,
+    rooms: Vec<Rect>,
 }
 
 impl BasicDungeonMap {
@@ -43,6 +48,7 @@ impl BasicDungeonMap {
             height,
             config,
             map: Map::new(width, height).with_all_solid(),
+            rooms: vec![],
         }
     }
 
@@ -65,8 +71,8 @@ impl BasicDungeonMap {
 
     fn add_up_and_down_stairs(&mut self, prev_down_stairs_pos: Option<Point>) {
         // TODO add result with errors
-        let random_room = rng::range(0, self.map.rooms.len() as i32 - 1) as usize;
-        let center = self.map.rooms[random_room].center();
+        let random_room = rng::range(0, self.rooms.len() as i32 - 1) as usize;
+        let center = self.rooms[random_room].center();
         let index = self.map.xy_to_index(center.0, center.1);
         self.map.tiles[index] = TileType::StairsDown;
 
@@ -101,11 +107,11 @@ impl BasicDungeonMap {
                 rooms.push(new_room);
             }
         }
-        self.map.rooms = rooms;
+        self.rooms = rooms;
     }
 
     fn add_corridors(&mut self) {
-        let rooms = self.map.rooms.clone();
+        let rooms = self.rooms.clone();
         for (room1, room2) in rooms.iter().tuple_windows() {
             let (new_x, new_y) = room1.center();
             let (prev_x, prev_y) = room2.center();
@@ -129,10 +135,8 @@ impl MapGenerator for BasicDungeonMap {
     fn map(self) -> Map {
         self.map
     }
-}
 
-impl SpawnAreas for BasicDungeonMap {
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
-        self.map.rooms.iter().map(|r| r.area_within()).collect()
+        self.rooms.iter().map(|r| r.area_within()).collect()
     }
 }
