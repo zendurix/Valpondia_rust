@@ -5,6 +5,9 @@ use crate::ecs::systems::player::{input::get_input, InputType};
 
 pub mod main_menu;
 
+#[cfg(feature = "map_gen_testing")]
+pub mod map_testing;
+
 pub enum MenuAction {
     SelectedIndex(usize),
     NotSelected,
@@ -219,7 +222,7 @@ macro_rules! impl_window_option_selector {
         }
 
         fn height(&self) -> usize {
-            self.width
+            self.height
         }
 
         fn bg(&self) -> rltk::RGB {

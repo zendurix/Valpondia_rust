@@ -4,6 +4,7 @@ use specs::prelude::*;
 pub struct DropAfterDeathSystem {}
 
 impl<'a> System<'a> for DropAfterDeathSystem {
+    #[allow(clippy::type_complexity)]
     type SystemData = (
         Entities<'a>,
         ReadExpect<'a, Entity>,

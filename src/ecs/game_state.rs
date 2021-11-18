@@ -14,11 +14,20 @@ use crate::graphics::gui::{
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
+#[cfg(feature = "map_gen_testing")]
+use crate::maps::generators::basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig};
+#[cfg(feature = "map_gen_testing")]
+use crate::maps::generators::cellular_automata::CAMapGen;
 use crate::maps::{Map, TileType};
 use crate::rng;
 use crate::spawner::player::spawn_player;
 use crate::spawner::spawn_from_spawn_table;
 use crate::spawner::spawn_tables::SpawnTable;
+
+#[cfg(feature = "map_gen_testing")]
+use gui::menus::map_testing::MapGenTestingMenuAction;
+#[cfg(feature = "map_gen_testing")]
+use crate::graphics::gui::menus::map_testing::GuiMapGenTestingManager;
 
 use super::components::BodyPart;
 
@@ -31,6 +40,8 @@ pub enum TargetingAction {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RunState {
     MainMenu,
+    #[cfg(feature = "map_gen_testing")]
+    MapGenTesting(bool),
     SaveGame,
     AwaitingInput,
     PreRun,
@@ -398,6 +409,8 @@ impl GameState for State {
 
         match run_state {
             RunState::MainMenu => {}
+            #[cfg(feature = "map_gen_testing")]
+            RunState::MapGenTesting(_) => {}
             _ => self.draw_game_graphics(ctx),
         }
 
@@ -533,6 +546,11 @@ impl GameState for State {
 
                         // not implemented
                         gui::MainMenuSelection::Credits => run_state = RunState::PreRun,
+                        #[cfg(feature = "map_gen_testing")]
+                        gui::MainMenuSelection::MapGenTesting => {
+                            self.gui_drawer.map_gen_testing_manager.reset();
+                            run_state = RunState::MapGenTesting(false)
+                        }
                         gui::MainMenuSelection::Quit => {
                             std::process::exit(0);
                         }
@@ -561,9 +579,122 @@ impl GameState for State {
                     }
                 }
             }
+
+            #[cfg(feature = "map_gen_testing")]
+            RunState::MapGenTesting(draw_map) => {
+                if draw_map {
+                    run_state = print_tested_map(&mut self.gui_drawer.map_gen_testing_manager, ctx);
+                } else {
+                    run_state = print_map_testing_menu(self, ctx);
+                }
+            }
         }
         *self.ecs.write_resource::<RunState>() = run_state;
 
         self.ecs.maintain();
+    }
+}
+
+#[cfg(feature = "map_gen_testing")]
+fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
+    let mut run_state = RunState::MapGenTesting(false);
+
+    let map_testing_action = state.gui_drawer.map_gen_testing_manager.update(ctx);
+    match map_testing_action {
+        MapGenTestingMenuAction::NoResponse => (),
+        MapGenTestingMenuAction::Cancel => run_state = RunState::MainMenu,
+        MapGenTestingMenuAction::SwitchShowSteps => {
+            state.gui_drawer.map_gen_testing_manager.switch_show_steps();
+            state.gui_drawer.map_gen_testing_manager.reset();
+        }
+        MapGenTestingMenuAction::TestBasicDungeonGenerator => {
+            state
+                .gui_drawer
+                .map_gen_testing_manager
+                .reset_map_gen(Box::new(BasicDungeonMap::new(
+                    state.window_height - 4,
+                    state.map_height - 4,
+                    BasicDungeonMapConfig::default(),
+                )));
+            run_state = RunState::MapGenTesting(true);
+        }
+        MapGenTestingMenuAction::TestCaMapGen => {
+            state
+                .gui_drawer
+                .map_gen_testing_manager
+                .reset_map_gen(Box::new(
+                    CAMapGen::new(state.window_height - 4, state.map_height - 4).unwrap(),
+                ));
+            run_state = RunState::MapGenTesting(true);
+        }
+    }
+
+    run_state
+}
+
+#[cfg(feature = "map_gen_testing")]
+fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk) -> RunState {
+    use crate::{
+        ecs::systems::player::{input::get_input, InputType},
+        graphics::draw_map_without_fov,
+    };
+
+    let history = manager.map_gen.try_get_history();
+    let history_size = history.len();
+
+    let mut current_index = manager.current_history_index;
+    if current_index == history_size {
+        manager.reset_current_map_gen();
+        return RunState::MapGenTesting(true);
+    }
+
+    if !manager.show_steps {
+        current_index = history_size - 1;
+        manager.current_history_index = current_index;
+    }
+
+    ctx.cls();
+
+    draw_map_without_fov(&history[current_index], ctx);
+
+    let press_enter_info = if current_index < history_size - 1 {
+        format!(
+            "Current Step: {}. Press Spacebar to progres step",
+            current_index
+        )
+    } else {
+        format!(
+            "Current Step: {}. Generating Map Done. Press Spacebar generate new map.",
+            current_index
+        )
+    };
+    ctx.print_color(
+        2,
+        0,
+        rltk::RGB::named(rltk::WHITE),
+        rltk::RGB::named(rltk::BLACK),
+        press_enter_info,
+    );
+
+    ctx.print_color(
+        2,
+        1,
+        rltk::RGB::named(rltk::WHITE),
+        rltk::RGB::named(rltk::BLACK),
+        "Press EESCAPE to return to menu",
+    );
+
+    let input = get_input(ctx);
+    if let Some(key) = input {
+        match key {
+            InputType::Spacebar => {
+                manager.current_history_index += 1;
+                RunState::MapGenTesting(true)
+            }
+            InputType::Escape => RunState::MapGenTesting(false),
+            _ => RunState::MapGenTesting(true),
+        }
+    } else {
+        RunState::MapGenTesting(true)
     }
 }

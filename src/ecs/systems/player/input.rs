@@ -26,6 +26,7 @@ pub enum InputType {
     ShowEquipment,
     Escape,
     Enter,
+    Spacebar,
     DownLevel,
     UpLevel,
     D,
@@ -60,6 +61,7 @@ pub fn get_input(ctx: &mut Rltk) -> Option<InputType> {
             VirtualKeyCode::Escape => Some(InputType::Escape),
             // Return == normal Enter
             VirtualKeyCode::NumpadEnter | VirtualKeyCode::Return => Some(InputType::Enter),
+            VirtualKeyCode::Space => Some(InputType::Spacebar),
 
             _ => Some(InputType::UnhandledInput), // UnhandledInput
         },

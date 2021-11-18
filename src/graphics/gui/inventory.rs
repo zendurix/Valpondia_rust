@@ -85,10 +85,11 @@ impl GuiInventoryManager {
             if equipped.contains(ent) {
                 name += " <EQUIPPED> ";
             }
-            if items_groupped.contains_key(&name) {
-                items_groupped.get_mut(&name).unwrap().0 += 1;
+            if let std::collections::hash_map::Entry::Vacant(e) = items_groupped.entry(name.clone())
+            {
+                e.insert((1, ent));
             } else {
-                items_groupped.insert(name, (1, ent));
+                items_groupped.get_mut(&name).unwrap().0 += 1;
             }
         }
 

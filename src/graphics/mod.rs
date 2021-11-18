@@ -1,6 +1,6 @@
 mod entities;
 pub mod gui;
-mod map;
+pub mod map;
 mod window;
 
 pub use entities::draw_entities;

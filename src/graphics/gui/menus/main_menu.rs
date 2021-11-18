@@ -21,6 +21,11 @@ impl MainMenu {
                 ("New Game".to_string(), MainMenuSelection::NewGame),
                 ("Load Game".to_string(), MainMenuSelection::LoadGame),
                 ("Credits".to_string(), MainMenuSelection::Credits),
+                #[cfg(feature = "map_gen_testing")]
+                (
+                    "Test Map Generators".to_string(),
+                    MainMenuSelection::MapGenTesting,
+                ),
                 ("Quit".to_string(), MainMenuSelection::Quit),
             ],
             selected: 0,

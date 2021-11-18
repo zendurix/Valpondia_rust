@@ -25,8 +25,13 @@ impl MapGenerator for TestMap {
         self.map = self.map.clone().with_edges_solid();
         Ok(())
     }
-    fn map(self) -> Map {
-        self.map
+
+    fn reset(&mut self) {
+        self.map = Map::new(self.width, self.height).with_all_solid();
+    }
+
+    fn map(&self) -> Map {
+        self.map.clone()
     }
 
     /// TODO this is temp
@@ -39,5 +44,10 @@ impl MapGenerator for TestMap {
             .filter(|(_i, tile)| !tile.blocks_movement())
             .map(|(i, _tile)| self.map.index_to_xy(i))
             .collect()]
+    }
+
+    #[cfg(feature = "map_gen_testing")]
+    fn history(&self) -> Vec<Map> {
+        vec![]
     }
 }

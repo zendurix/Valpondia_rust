@@ -1,6 +1,6 @@
 use std::ops::Not;
 
-use rltk::{Point, RandomNumberGenerator};
+use rltk::Point;
 
 use crate::maps::errors::{Error, Result};
 use crate::maps::{Map, TileType};
@@ -61,6 +61,9 @@ pub struct CAMapGen {
     height: usize,
     config: CAMapGenConfig,
     map: Map,
+
+    #[cfg(feature = "map_gen_testing")]
+    history: Vec<Map>,
 }
 
 impl CAMapGen {
@@ -89,6 +92,9 @@ impl CAMapGen {
             height,
             config: CAMapGenConfig::default(),
             map: Map::new(width, height),
+
+            #[cfg(feature = "map_gen_testing")]
+            history: vec![],
         })
     }
 
@@ -100,8 +106,18 @@ impl CAMapGen {
     pub fn make_cave_map(&mut self) -> Result<()> {
         self.set_random_state();
 
+        #[cfg(feature = "map_gen_testing")]
+        self.set_map();
+        #[cfg(feature = "map_gen_testing")]
+        self.history.push(self.map.clone());
+
         for _ in 0..=self.config.step_limit {
             self.make_step();
+
+            #[cfg(feature = "map_gen_testing")]
+            self.set_map();
+            #[cfg(feature = "map_gen_testing")]
+            self.history.push(self.map.clone());
         }
 
         if self.config.delete_small_caves {
@@ -113,8 +129,10 @@ impl CAMapGen {
                 }
             }
         }
-
         self.set_map();
+
+        #[cfg(feature = "map_gen_testing")]
+        self.history.push(self.map.clone());
         Ok(())
     }
 
@@ -164,9 +182,8 @@ impl CAMapGen {
     }
 
     fn set_random_state(&mut self) {
-        let mut rng = RandomNumberGenerator::new();
         for place in self.ca_map.iter_mut() {
-            place.alive = rng.range(0, 101) <= self.config.alive_on_start_chance_percent;
+            place.alive = rng::range(0, 100) as usize <= self.config.alive_on_start_chance_percent;
         }
     }
 
@@ -301,7 +318,7 @@ impl CAMapGen {
             }
         }
         if cave_surfaces.is_empty() {
-            println!("Reload cace gen");
+            println!("Reload cave gen");
             return false;
         }
 
@@ -409,8 +426,27 @@ impl MapGenerator for CAMapGen {
         self.add_up_and_down_stairs(prev_down_stairs_pos);
         Ok(())
     }
-    fn map(self) -> Map {
-        self.map
+
+    fn reset(&mut self) {
+        #[cfg(feature = "map_gen_testing")]
+        self.history.clear();
+        let mut ca_map = vec![CAPlace::default(); self.width * self.height];
+        let mut x = 0;
+        let mut y = 0;
+        for place in ca_map.iter_mut() {
+            place.x = x;
+            place.y = y;
+            x += 1;
+            if x > self.width - 1 {
+                y += 1;
+                x = 0;
+            }
+        }
+        self.ca_map = ca_map;
+    }
+
+    fn map(&self) -> Map {
+        self.map.clone()
     }
 
     /// TODO make it smarter
@@ -430,5 +466,10 @@ impl MapGenerator for CAMapGen {
             area.clone(),
             area,
         ]
+    }
+
+    #[cfg(feature = "map_gen_testing")]
+    fn history(&self) -> Vec<Map> {
+        self.history.clone()
     }
 }

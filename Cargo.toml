@@ -26,3 +26,7 @@ serde_json = "1.0.39"
 
 # sound
 kira = "0.5.3"
+
+[features]
+default =  ["map_gen_testing"]
+map_gen_testing = []

@@ -34,9 +34,24 @@ pub fn random_map_generator(width: usize, height: usize) -> Box<dyn MapGenerator
 
 pub trait MapGenerator {
     fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()>;
-    fn map(self) -> Map;
+    /// for map testing
+    fn reset(&mut self);
+    fn map(&self) -> Map;
 
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>>;
+
+    #[cfg(feature = "map_gen_testing")]
+    fn history(&self) -> Vec<Map>;
+
+    #[cfg(feature = "map_gen_testing")]
+    fn try_get_history(&self) -> Vec<Map> {
+        let history = self.history();
+        if history.is_empty() {
+            vec![self.map()]
+        } else {
+            history
+        }
+    }
 }
 
 #[allow(clippy::type_complexity)]

@@ -19,7 +19,11 @@ pub use equipment::{EquipmentMenuAction, GuiEquipmentManager};
 pub use inventory::{
     GuiInventoryManager, GuiItemActionManager, InventoryMenuAction, ItemMenuAction,
 };
+
 pub use targeting::{show_targeting, TargetingMenuAction};
+
+#[cfg(feature = "map_gen_testing")]
+use self::menus::map_testing::GuiMapGenTestingManager;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum GameOverSelection {
@@ -33,6 +37,8 @@ pub enum MainMenuSelection {
     NewGame,
     LoadGame,
     Credits,
+    #[cfg(feature = "map_gen_testing")]
+    MapGenTesting,
     Quit,
 }
 
@@ -42,7 +48,6 @@ pub enum MainMenuAction {
     Selected(MainMenuSelection),
 }
 
-#[derive(Debug, Clone)]
 pub struct GuiDrawer {
     pub window_width: usize,
     pub window_height: usize,
@@ -51,6 +56,9 @@ pub struct GuiDrawer {
     pub inv_manager: GuiInventoryManager,
     pub item_action_manager: GuiItemActionManager,
     pub eq_manager: GuiEquipmentManager,
+
+    #[cfg(feature = "map_gen_testing")]
+    pub map_gen_testing_manager: GuiMapGenTestingManager,
 }
 
 impl GuiDrawer {
@@ -62,7 +70,25 @@ impl GuiDrawer {
             inv_manager: GuiInventoryManager::new(10, 10, 30, 40),
             item_action_manager: GuiItemActionManager::new(10, 10, 30, 20),
             eq_manager: GuiEquipmentManager::new(10, 10, 40, 10),
+
+            #[cfg(feature = "map_gen_testing")]
+            map_gen_testing_manager: GuiDrawer::create_map_gen_testing_manager(
+                window_width,
+                window_height,
+            ),
         }
+    }
+
+    #[cfg(feature = "map_gen_testing")]
+    fn create_map_gen_testing_manager(
+        window_width: usize,
+        window_height: usize,
+    ) -> GuiMapGenTestingManager {
+        let width = 50;
+        let height = 20;
+        let x = (window_width / 2) - (width / 2);
+        let y = (window_height / 2) - (height / 2);
+        GuiMapGenTestingManager::new(x, y, width, height)
     }
 
     pub fn draw_ui(&self, ecs: &World, ctx: &mut Rltk) {
@@ -271,10 +297,8 @@ impl GuiDrawer {
         let input = get_input(ctx);
         match input {
             None => GameOverSelection::NoSelection,
-            Some(inp) => match inp {
-                InputType::Enter => GameOverSelection::QuitToMenu,
-                _ => GameOverSelection::NoSelection,
-            },
+            Some(InputType::Enter) => GameOverSelection::QuitToMenu,
+            _ => GameOverSelection::NoSelection,
         }
     }
 }

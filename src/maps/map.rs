@@ -2,8 +2,6 @@ use rltk::{Algorithm2D, BaseMap, FontCharType, RGB};
 use serde::{Deserialize, Serialize};
 use specs::Entity;
 
-use super::rect::Rect;
-
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum TileType {
     Floor,

@@ -39,6 +39,9 @@ pub struct BasicDungeonMap {
     config: BasicDungeonMapConfig,
     map: Map,
     rooms: Vec<Rect>,
+
+    #[cfg(feature = "map_gen_testing")]
+    history: Vec<Map>,
 }
 
 impl BasicDungeonMap {
@@ -49,10 +52,16 @@ impl BasicDungeonMap {
             config,
             map: Map::new(width, height).with_all_solid(),
             rooms: vec![],
+
+            #[cfg(feature = "map_gen_testing")]
+            history: vec![],
         }
     }
 
     pub fn create_basic_dungeon_map(&mut self, prev_down_stairs_pos: Option<Point>) {
+        #[cfg(feature = "map_gen_testing")]
+        self.history.push(self.map.clone());
+
         self.add_rooms();
 
         if let Some(prev_stairs) = prev_down_stairs_pos {
@@ -105,6 +114,9 @@ impl BasicDungeonMap {
             if rooms.iter().all(|room| !new_room.intersect(room)) {
                 apply_room_to_map(&new_room, &mut self.map);
                 rooms.push(new_room);
+
+                #[cfg(feature = "map_gen_testing")]
+                self.history.push(self.map.clone());
             }
         }
         self.rooms = rooms;
@@ -116,13 +128,16 @@ impl BasicDungeonMap {
             let (new_x, new_y) = room1.center();
             let (prev_x, prev_y) = room2.center();
 
-            if rng::range(0, 2) == 1 {
+            if rng::rand_bool() {
                 apply_horizontal_tunnel(&mut self.map, prev_x, new_x, prev_y);
                 apply_vertical_tunnel(&mut self.map, prev_y, new_y, new_x);
             } else {
                 apply_vertical_tunnel(&mut self.map, prev_y, new_y, prev_x);
                 apply_horizontal_tunnel(&mut self.map, prev_x, new_x, new_y);
             }
+
+            #[cfg(feature = "map_gen_testing")]
+            self.history.push(self.map.clone());
         }
     }
 }
@@ -132,11 +147,23 @@ impl MapGenerator for BasicDungeonMap {
         self.create_basic_dungeon_map(prev_down_stairs_pos);
         Ok(())
     }
-    fn map(self) -> Map {
-        self.map
+
+    fn reset(&mut self) {
+        #[cfg(feature = "map_gen_testing")]
+        self.history.clear();
+        self.map = Map::new(self.width, self.height).with_all_solid();
+    }
+
+    fn map(&self) -> Map {
+        self.map.clone()
     }
 
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
         self.rooms.iter().map(|r| r.area_within()).collect()
+    }
+
+    #[cfg(feature = "map_gen_testing")]
+    fn history(&self) -> Vec<Map> {
+        self.history.clone()
     }
 }
