@@ -14,10 +14,6 @@ use crate::graphics::gui::{
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
-#[cfg(feature = "map_gen_testing")]
-use crate::maps::generators::basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig};
-#[cfg(feature = "map_gen_testing")]
-use crate::maps::generators::cellular_automata::CAMapGen;
 use crate::maps::{Map, TileType};
 use crate::rng;
 use crate::spawner::player::spawn_player;
@@ -28,6 +24,10 @@ use crate::spawner::spawn_tables::SpawnTable;
 use gui::menus::map_testing::MapGenTestingMenuAction;
 #[cfg(feature = "map_gen_testing")]
 use crate::graphics::gui::menus::map_testing::GuiMapGenTestingManager;
+#[cfg(feature = "map_gen_testing")]
+use crate::maps::generators::basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig};
+#[cfg(feature = "map_gen_testing")]
+use crate::maps::generators::cellular_automata::CAMapGen;
 
 use super::components::BodyPart;
 
@@ -664,7 +664,7 @@ fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk) -> Ru
         )
     } else {
         format!(
-            "Current Step: {}. Generating Map Done. Press Spacebar generate new map.",
+            "Current Step: {}. ---- Generating Map Done. Press Spacebar generate new map. ----",
             current_index
         )
     };
