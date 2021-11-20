@@ -95,7 +95,7 @@ impl GuiInventoryManager {
 
         self.options = items_groupped
             .iter()
-           // .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
+            // .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
             .map(|(name, (num, _ent))| {
                 let mut text = TextCol::new(vec![(name.clone(), rltk::RGB::named(rltk::WHITE))]);
                 if *num > 1 {
@@ -106,7 +106,7 @@ impl GuiInventoryManager {
             .collect_vec();
         self.options_ent = items_groupped
             .iter()
-         //   .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
+            //   .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
             .map(|(_name, (_num, ent))| *ent)
             .collect_vec();
     }

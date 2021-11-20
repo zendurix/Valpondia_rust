@@ -14,4 +14,7 @@ pub enum Error {
 
     #[snafu(display("Too many tries to split area in BSP.",))]
     TooManyBSPSplitRetries,
+
+    #[snafu(display("Area of BSP node is to small to split into two areas.",))]
+    TooSmallBSPAreaToSplit,
 }

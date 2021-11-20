@@ -49,7 +49,7 @@ pub struct BSPNode {
     pub parent: usize,
     /// index
     pub sister: usize,
-    /// indexes (Left, Right) TODO for sure?
+    /// indexes (Left, Right) / (Up, Down)
     pub childreen: Option<(usize, usize)>,
 
     /// indexes
@@ -57,8 +57,6 @@ pub struct BSPNode {
 
     pub area: Rect,
     pub room: Option<Rect>,
-
-    pub orientation: NodeOrientation,
 }
 
 impl BSPNode {
@@ -68,7 +66,6 @@ impl BSPNode {
         sister: usize,
         tree_level: usize,
         area: Rect,
-        orientation: NodeOrientation,
     ) -> BSPNode {
         BSPNode {
             index,
@@ -79,7 +76,6 @@ impl BSPNode {
             family: vec![],
             area,
             room: None,
-            orientation,
         }
     }
 
@@ -88,16 +84,17 @@ impl BSPNode {
     }
 
     pub fn make_random_room(&mut self, min_size: usize) -> Rect {
-        let min_size = if self.area.width() > (min_size * 2) + 3
-            && self.area.height() > (min_size * 2) + 3
-        {
-            min_size * 2
-        } else if self.area.width() > (min_size * 3) + 3 && self.area.height() > (min_size * 3) + 3
+        let min_size = if self.area.width() > (min_size * 3) + 3
+            && self.area.height() > (min_size * 3) + 3
         {
             min_size * 3
+        } else if self.area.width() > (min_size * 2) + 3 && self.area.height() > (min_size * 2) + 3
+        {
+            min_size * 2
         } else {
             min_size
         };
+
 
         let width = rng::range(min_size as i32, self.area.width() as i32) as usize;
         let height = rng::range(min_size as i32, self.area.height() as i32) as usize;

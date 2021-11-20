@@ -20,10 +20,7 @@ use super::{
 use crate::maps::errors::Result;
 
 pub struct BSPConfig {
-    pub rooms_min: usize,
-    pub rooms_max: usize,
     pub room_size_min: usize,
-    pub room_size_max: usize,
 
     pub tree_height: usize,
 }
@@ -31,11 +28,8 @@ pub struct BSPConfig {
 impl Default for BSPConfig {
     fn default() -> BSPConfig {
         BSPConfig {
-            rooms_min: 6,
-            rooms_max: 9,
-            room_size_min: 8,
-            room_size_max: 15,
-            tree_height: 2,
+            room_size_min: 5,
+            tree_height: 4,
         }
     }
 }
@@ -75,17 +69,20 @@ impl BSPMapGen {
             0,
             0,
             0,
-            Rect::new(0, 0, self.width, self.height),
-            tree::NodeOrientation::Horizontal,
+            Rect::new(0, 0, self.width-1, self.height-1),
         ));
 
         let mut current_parent = 0;
 
-        for tree_level in 1..self.config.tree_height {
+        for tree_level in 0..self.config.tree_height {
             let nodes_num = (2_u32).pow(tree_level as u32);
 
             for _ in 0..nodes_num {
-                self.split_node(current_parent, tree_level)?;
+                println!("current level {}: current_parent {}", tree_level, current_parent);
+                if self.split_node(current_parent, tree_level).is_err() {
+                    // TODO temp break if too many retires, but dont return error
+                    return Ok(());
+                }
                 current_parent += 1;
             }
         }
@@ -103,8 +100,8 @@ impl BSPMapGen {
         let index1 = last_index + 1;
         let index2 = last_index + 2;
 
-        let child1 = BSPNode::new(index1, parent_node, index2, tree_level, rect1, orientation);
-        let child2 = BSPNode::new(index2, parent_node, index1, tree_level, rect2, orientation);
+        let child1 = BSPNode::new(index1, parent_node, index2, tree_level, rect1);
+        let child2 = BSPNode::new(index2, parent_node, index1, tree_level, rect2);
 
         self.tree.nodes.push(child1);
         self.tree.nodes.push(child2);
@@ -120,9 +117,15 @@ impl BSPMapGen {
         match orientation {
             NodeOrientation::Vertical => {
                 loop {
-                    let (rect1, rect2) = self.split_horizontal(parent);
+                    let (rect1, rect2) = self
+                        .split_horizontal(parent)
+                        .or_else(|_| self.split_vertical(parent))?;
 
-                    if rect1.width() >= min_size && rect2.width() >= min_size {
+                    if rect1.width() > min_size
+                        && rect2.width() > min_size
+                        && rect1.height() > min_size
+                        && rect2.height() > min_size
+                    {
                         return Ok((rect1, rect2));
                     }
                     error_count += 1;
@@ -135,9 +138,15 @@ impl BSPMapGen {
             }
             NodeOrientation::Horizontal => {
                 loop {
-                    let (rect1, rect2) = self.split_vertical(parent);
+                    let (rect1, rect2) = self
+                        .split_vertical(parent)
+                        .or_else(|_| self.split_horizontal(parent))?;
 
-                    if rect1.height() >= min_size && rect2.height() >= min_size {
+                    if rect1.height() > min_size
+                        && rect2.height() > min_size
+                        && rect1.width() > min_size
+                        && rect2.width() > min_size
+                    {
                         return Ok((rect1, rect2));
                     }
                     error_count += 1;
@@ -151,8 +160,11 @@ impl BSPMapGen {
         }
     }
 
-    fn split_horizontal(&self, parent: usize) -> (Rect, Rect) {
+    fn split_horizontal(&self, parent: usize) -> Result<(Rect, Rect)> {
         let parent = &self.tree.nodes[parent];
+        if parent.area.height() < self.config.room_size_min * 2 + 2 {
+            return Err(Error::TooSmallBSPAreaToSplit {});
+        }
 
         let min_y = parent.area.y1 + (parent.area.height() / 2) - (self.config.room_size_min / 2);
         let max_y = parent.area.y1 + (parent.area.height() / 2) + (self.config.room_size_min / 2);
@@ -163,14 +175,17 @@ impl BSPMapGen {
         let height2 = parent.area.height() - height1;
 
         // TODO maybe add 1 to y in rects
-        (
+        Ok((
             Rect::new(parent.area.x1, parent.area.y1, width, height1),
             Rect::new(parent.area.x1, y, width, height2),
-        )
+        ))
     }
 
-    fn split_vertical(&self, parent: usize) -> (Rect, Rect) {
+    fn split_vertical(&self, parent: usize) -> Result<(Rect, Rect)> {
         let parent = &self.tree.nodes[parent];
+        if parent.area.width() < self.config.room_size_min * 2 + 2 {
+            return Err(Error::TooSmallBSPAreaToSplit {});
+        }
 
         let min_x = parent.area.x1 + (parent.area.width() / 2) - (self.config.room_size_min / 2);
         let max_x = parent.area.x1 + (parent.area.width() / 2) + (self.config.room_size_min / 2);
@@ -181,20 +196,21 @@ impl BSPMapGen {
         let width2 = parent.area.width() - width1;
 
         // TODO maybe add 1 to x in rects
-        (
+        Ok((
             Rect::new(parent.area.x1, parent.area.y1, width1, height),
             Rect::new(x, parent.area.y1, width2, height),
-        )
+        ))
     }
 
     fn fill_tree_leaves_with_rooms(&mut self) {
-        let tree_height = self.config.tree_height;
-        let is_leaf = |node: &BSPNode| node.tree_level == (tree_height - 1);
-
         let mut rooms = vec![];
 
+
+        println!("tree len: {}", self.tree.nodes.len());
+
         for node in self.tree.nodes.iter_mut() {
-            if is_leaf(node) {
+            if node.childreen.is_none() {
+                println!("childless node: {}", node.index);
                 let room = node.make_random_room(self.config.room_size_min);
                 rooms.push(room);
             }
@@ -213,7 +229,17 @@ impl MapGenerator for BSPMapGen {
     fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()> {
         self.map = Map::new(self.width, self.height).with_all_solid();
 
-        self.make_tree()?;
+        let mut errors_count = 0;
+
+        while let Err(e) = self.make_tree() {
+            println!("RESET ________________");
+            self.reset();
+            errors_count += 1;
+
+            if errors_count > 20 {
+                return Err(e);
+            }
+        }
         self.fill_tree_leaves_with_rooms();
 
         // conect
@@ -225,6 +251,9 @@ impl MapGenerator for BSPMapGen {
     fn reset(&mut self) {
         #[cfg(feature = "map_gen_testing")]
         self.history.clear();
+
+        self.rooms.clear();
+        self.tree.nodes.clear();
         self.map = Map::new(self.width, self.height).with_all_solid();
     }
 
