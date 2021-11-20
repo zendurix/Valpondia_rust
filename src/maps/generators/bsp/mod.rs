@@ -2,7 +2,13 @@ mod tree;
 
 use rltk::Point;
 
-use crate::{maps::{Error, Map, TileType, rect::{Rect, apply_color_to_walls, apply_room_to_map}}, rng};
+use crate::{
+    maps::{
+        rect::{apply_color_to_walls, apply_room_to_map, Rect},
+        Error, Map, TileType,
+    },
+    rng,
+};
 
 use self::tree::{BSPNode, BTree, NodeOrientation};
 
@@ -258,24 +264,96 @@ impl BSPMapGen {
 
                 let mut found_route = false;
 
-                let mut node1 = &self.tree.nodes[i];
-                let mut node2 = &self.tree.nodes[i + 1];
+                let mut parent1 = &self.tree.nodes[i];
+                let mut parent2 = &self.tree.nodes[i + 1];
 
-                while !found_route {
-                    node1 = &self.tree.nodes[i];
-                    node2 = &self.tree.nodes[i + 1];
+                parent1 = &self.tree.nodes[i];
+                parent2 = &self.tree.nodes[i + 1];
 
-                    while node1.childreen.is_some() {
-                        let rand_child = rng::range(0, 1) as usize;
-                        let child1 = node1.childreen.unwrap()[rand_child];
-                        node1 = &self.tree.nodes[child1];
-                    }
-                    while node2.childreen.is_some() {
-                        let rand_child = rng::range(0, 1) as usize;
-                        let child2 = node2.childreen.unwrap()[rand_child];
-                        node2 = &self.tree.nodes[child2];
-                    }
+                let split_orientation = if parent1.area.x1 == parent2.area.x1 {
+                    NodeOrientation::Vertical
+                } else {
+                    NodeOrientation::Horizontal
+                };
+
+                // RANDOM CHILDREEN
+                // while node1.childreen.is_some() {
+                //     let rand_child = rng::range(0, 1) as usize;
+                //     let child1 = node1.childreen.unwrap()[rand_child];
+                //     node1 = &self.tree.nodes[child1];
+                // }
+                // while node2.childreen.is_some() {
+                //     let rand_child = rng::range(0, 1) as usize;
+                //     let child2 = node2.childreen.unwrap()[rand_child];
+                //     node2 = &self.tree.nodes[child2];
+                // }
+
+                let childreen1 = self.tree.node_children(parent1.index);
+                let childreen2 = self.tree.node_children(parent2.index);
+
+                let (index1, index2) = match split_orientation {
+                    NodeOrientation::Horizontal => (
+                        *childreen1
+                            .iter()
+                            .filter(|ind| self.tree.nodes[**ind].room.is_some())
+                            .max_by(|ind1, ind2| {
+                                self.tree.nodes[**ind1]
+                                    .area
+                                    .y2
+                                    .cmp(&self.tree.nodes[**ind2].area.y2)
+                            })
+                            .unwrap_or(&parent1.index),
+                        *childreen2
+                            .iter()
+                            .filter(|ind| self.tree.nodes[**ind].room.is_some())
+                            .min_by(|ind1, ind2| {
+                                self.tree.nodes[**ind1]
+                                    .area
+                                    .y1
+                                    .cmp(&self.tree.nodes[**ind2].area.y1)
+                            })
+                            .unwrap_or(&parent2.index),
+                    ),
+                    NodeOrientation::Vertical => (
+                        *childreen1
+                            .iter()
+                            .filter(|ind| self.tree.nodes[**ind].room.is_some())
+                            .max_by(|ind1, ind2| {
+                                self.tree.nodes[**ind1]
+                                    .area
+                                    .x2
+                                    .cmp(&self.tree.nodes[**ind2].area.x2)
+                            })
+                            .unwrap_or(&parent1.index),
+                        *childreen2
+                            .iter()
+                            .filter(|ind| self.tree.nodes[**ind].room.is_some())
+                            .min_by(|ind1, ind2| {
+                                self.tree.nodes[**ind1]
+                                    .area
+                                    .x1
+                                    .cmp(&self.tree.nodes[**ind2].area.x1)
+                            })
+                            .unwrap_or(&parent2.index),
+                    ),
+                };
+
+                let room1 = &self.tree.nodes[index1].room.unwrap();
+                let room2 = &self.tree.nodes[index2].room.unwrap();
+
+                let (new_x, new_y) = room1.center();
+                let (prev_x, prev_y) = room2.center();
+
+                if rng::rand_bool() {
+                    apply_horizontal_tunnel(&mut self.map, prev_x, new_x, prev_y);
+                    apply_vertical_tunnel(&mut self.map, prev_y, new_y, new_x);
+                } else {
+                    apply_vertical_tunnel(&mut self.map, prev_y, new_y, prev_x);
+                    apply_horizontal_tunnel(&mut self.map, prev_x, new_x, new_y);
                 }
+
+                #[cfg(feature = "map_gen_testing")]
+                self.history.push(self.map.clone());
 
                 i += i_adder(additional_connections_counter);
             }
@@ -317,7 +395,7 @@ impl MapGenerator for BSPMapGen {
             }
         }
         self.fill_tree_leaves_with_rooms();
-        //  self.connect_rooms();
+        self.connect_rooms();
         self.add_up_and_down_stairs(prev_down_stairs_pos);
 
         // conect

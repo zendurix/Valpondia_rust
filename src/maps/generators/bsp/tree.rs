@@ -21,6 +21,19 @@ impl BTree {
 
         family
     }
+
+    pub fn node_children(&self, node_index: usize) -> Vec<usize> {
+        let mut childreen = vec![];
+        let act_node = &self.nodes[node_index];
+
+        if let Some(node_childreen) = act_node.childreen {
+            childreen.push(node_childreen[0]);
+            childreen.push(node_childreen[1]);
+            childreen.extend(self.node_children(node_childreen[0]));
+            childreen.extend(self.node_children(node_childreen[1]));
+        }
+        childreen
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]

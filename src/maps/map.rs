@@ -6,7 +6,7 @@ use specs::Entity;
 pub enum TileType {
     Floor,
     Wall,
-    
+
     #[cfg(feature = "map_gen_testing")]
     WallRed,
     StairsDown,
