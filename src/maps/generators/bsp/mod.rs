@@ -2,13 +2,7 @@ mod tree;
 
 use rltk::Point;
 
-use crate::{
-    maps::{
-        rect::{apply_room_to_map, Rect},
-        Error, Map,
-    },
-    rng,
-};
+use crate::{maps::{Error, Map, TileType, rect::{Rect, apply_color_to_walls, apply_room_to_map}}, rng};
 
 use self::tree::{BSPNode, BTree, NodeOrientation};
 
@@ -69,7 +63,7 @@ impl BSPMapGen {
             0,
             0,
             0,
-            Rect::new(0, 0, self.width-1, self.height-1),
+            Rect::new(0, 0, self.width - 1, self.height - 1),
         ));
 
         let mut current_parent = 0;
@@ -78,7 +72,10 @@ impl BSPMapGen {
             let nodes_num = (2_u32).pow(tree_level as u32);
 
             for _ in 0..nodes_num {
-                println!("current level {}: current_parent {}", tree_level, current_parent);
+                println!(
+                    "current level {}: current_parent {}",
+                    tree_level, current_parent
+                );
                 if self.split_node(current_parent, tree_level).is_err() {
                     // TODO temp break if too many retires, but dont return error
                     return Ok(());
@@ -94,6 +91,14 @@ impl BSPMapGen {
         let orientation = NodeOrientation::rand();
 
         let (rect1, rect2) = self.try_split(parent_node, orientation)?;
+
+        #[cfg(feature = "map_gen_testing")]
+        {
+            apply_color_to_walls(&rect1, &mut self.map);
+            apply_color_to_walls(&rect2, &mut self.map);
+
+            self.history.push(self.map.clone());
+        }
 
         let last_index = self.tree.nodes.len() - 1;
 
@@ -205,7 +210,6 @@ impl BSPMapGen {
     fn fill_tree_leaves_with_rooms(&mut self) {
         let mut rooms = vec![];
 
-
         println!("tree len: {}", self.tree.nodes.len());
 
         for node in self.tree.nodes.iter_mut() {
@@ -222,6 +226,78 @@ impl BSPMapGen {
             self.history.push(self.map.clone());
         }
         self.rooms = rooms;
+    }
+
+    fn connect_rooms(&mut self) {
+        let tree_height = self.config.tree_height;
+
+        let additional_connections = 3;
+        let mut additional_connections_counter = 0;
+
+        for tree_level in (1..=tree_height).rev() {
+            let start_node = ((2_u32).pow(tree_level as u32) - 1) as usize;
+            let max_node = ((2_u32).pow(tree_height as u32 + 1) - 2) as usize;
+
+            let i_adder = |counter: usize| {
+                if tree_level != 1 {
+                    2
+                } else {
+                    if counter < additional_connections {
+                        0
+                    } else {
+                        2
+                    }
+                }
+            } as usize;
+
+            let mut i = start_node;
+            while i < max_node {
+                if tree_level == 1 {
+                    additional_connections_counter += 1;
+                }
+
+                let mut found_route = false;
+
+                let mut node1 = &self.tree.nodes[i];
+                let mut node2 = &self.tree.nodes[i + 1];
+
+                while !found_route {
+                    node1 = &self.tree.nodes[i];
+                    node2 = &self.tree.nodes[i + 1];
+
+                    while node1.childreen.is_some() {
+                        let rand_child = rng::range(0, 1) as usize;
+                        let child1 = node1.childreen.unwrap()[rand_child];
+                        node1 = &self.tree.nodes[child1];
+                    }
+                    while node2.childreen.is_some() {
+                        let rand_child = rng::range(0, 1) as usize;
+                        let child2 = node2.childreen.unwrap()[rand_child];
+                        node2 = &self.tree.nodes[child2];
+                    }
+                }
+
+                i += i_adder(additional_connections_counter);
+            }
+        }
+    }
+
+    fn add_up_and_down_stairs(&mut self, prev_down_stairs_pos: Option<Point>) {
+        // TODO add result with errors
+        let random_room = rng::range(0, self.rooms.len() as i32 - 1) as usize;
+        let center = self.rooms[random_room].center();
+        let index = self.map.xy_to_index(center.0, center.1);
+        self.map.tiles[index] = TileType::StairsDown;
+
+        if let Some(prev_stairs) = prev_down_stairs_pos {
+            let index = self
+                .map
+                .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+
+            if !self.map.tiles[index].blocks_movement() {
+                self.map.tiles[index] = TileType::StairsUp;
+            }
+        }
     }
 }
 
@@ -241,6 +317,8 @@ impl MapGenerator for BSPMapGen {
             }
         }
         self.fill_tree_leaves_with_rooms();
+        //  self.connect_rooms();
+        self.add_up_and_down_stairs(prev_down_stairs_pos);
 
         // conect
         // add stairs

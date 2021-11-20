@@ -6,6 +6,9 @@ use specs::Entity;
 pub enum TileType {
     Floor,
     Wall,
+    
+    #[cfg(feature = "map_gen_testing")]
+    WallRed,
     StairsDown,
     StairsUp,
 }
@@ -23,6 +26,9 @@ impl TileType {
         match self {
             TileType::Floor => (rltk::to_cp437('.'), RGB::named(rltk::GREEN)),
             TileType::Wall => (rltk::to_cp437('#'), RGB::named(rltk::GREEN)),
+            // RODO add color to TileType, temp for testing
+            #[cfg(feature = "map_gen_testing")]
+            TileType::WallRed => (rltk::to_cp437('#'), RGB::named(rltk::RED)),
             TileType::StairsDown => (rltk::to_cp437('>'), RGB::named(rltk::PINK2)),
             TileType::StairsUp => (rltk::to_cp437('<'), RGB::named(rltk::PINK2)),
         }

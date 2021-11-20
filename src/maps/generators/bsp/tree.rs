@@ -50,7 +50,7 @@ pub struct BSPNode {
     /// index
     pub sister: usize,
     /// indexes (Left, Right) / (Up, Down)
-    pub childreen: Option<(usize, usize)>,
+    pub childreen: Option<[usize; 2]>,
 
     /// indexes
     pub family: Vec<usize>,
@@ -80,7 +80,7 @@ impl BSPNode {
     }
 
     pub fn make_childreen(&mut self, child1: usize, child2: usize) {
-        self.childreen = Some((child1, child2));
+        self.childreen = Some([child1, child2]);
     }
 
     pub fn make_random_room(&mut self, min_size: usize) -> Rect {
@@ -94,7 +94,6 @@ impl BSPNode {
         } else {
             min_size
         };
-
 
         let width = rng::range(min_size as i32, self.area.width() as i32) as usize;
         let height = rng::range(min_size as i32, self.area.height() as i32) as usize;

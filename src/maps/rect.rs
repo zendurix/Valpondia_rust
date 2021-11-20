@@ -56,3 +56,19 @@ pub fn apply_room_to_map(room: &Rect, map: &mut Map) {
         }
     }
 }
+
+
+#[cfg(feature = "map_gen_testing")]
+pub fn apply_color_to_walls(room: &Rect, map: &mut Map) {
+    for y in room.y1..=room.y2 {
+        for x in room.x1..=room.x2 {
+
+            if y != room.y1 && y != room.y2 && x != room.x1 && x != room.x2 {
+                continue;
+            }
+
+            let tile_index = map.xy_to_index(x, y);
+            map.tiles[tile_index] = TileType::WallRed;
+        }
+    }
+}
