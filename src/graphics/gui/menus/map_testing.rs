@@ -14,6 +14,7 @@ pub enum MapGenTestingMenuAction {
     SwitchShowSteps,
     TestBasicDungeonGenerator,
     TestCaMapGen,
+    TestBSPMapGen,
 
     //... more to come!
     Cancel,
@@ -26,6 +27,7 @@ impl From<usize> for MapGenTestingMenuAction {
             0 => MapGenTestingMenuAction::SwitchShowSteps,
             1 => MapGenTestingMenuAction::TestBasicDungeonGenerator,
             2 => MapGenTestingMenuAction::TestCaMapGen,
+            3 => MapGenTestingMenuAction::TestBSPMapGen,
 
             _ => MapGenTestingMenuAction::NoResponse,
         }
@@ -109,6 +111,10 @@ impl GuiMapGenTestingManager {
             )]),
             TextCol::new(vec![(
                 "Test Cellular Automata Cave Generator".to_string(),
+                rltk::RGB::named(rltk::WHITE),
+            )]),
+            TextCol::new(vec![(
+                "Test Binary Space Partinionig dungeons Generator".to_string(),
                 rltk::RGB::named(rltk::WHITE),
             )]),
         ]

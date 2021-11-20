@@ -1,25 +1,21 @@
 use rltk::Point;
 
-use crate::maps::rect::Rect;
-
+use crate::{maps::rect::Rect, rng};
 
 #[derive(Default)]
 pub struct BTree {
-    pub nodes: Vec<BSPNode>
+    pub nodes: Vec<BSPNode>,
 }
 
-
 impl BTree {
-
-
     pub fn node_family(&self, node_index: usize) -> Vec<usize> {
         let mut family = vec![];
         let mut act_node_index = node_index;
-        
+
         while act_node_index != 0 {
             family.push(act_node_index);
 
-            act_node_index = self.nodes[act_node_index].parent;            
+            act_node_index = self.nodes[act_node_index].parent;
         }
         family.push(act_node_index);
 
@@ -27,23 +23,27 @@ impl BTree {
     }
 }
 
-
-
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum NodeOrientation {
     Horizontal,
-    Vertical
+    Vertical,
 }
 
-
-
-
+impl NodeOrientation {
+    pub fn rand() -> NodeOrientation {
+        if rng::rand_bool() {
+            NodeOrientation::Horizontal
+        } else {
+            NodeOrientation::Vertical
+        }
+    }
+}
 
 #[derive(Clone)]
-struct BSPNode {
+pub struct BSPNode {
     pub index: usize,
     /// 0 is root of tree
-    pub tree_depth: usize,
+    pub tree_level: usize,
 
     /// index
     pub parent: usize,
@@ -52,36 +52,64 @@ struct BSPNode {
     /// indexes (Left, Right) TODO for sure?
     pub childreen: Option<(usize, usize)>,
 
-    /// indexes 
+    /// indexes
     pub family: Vec<usize>,
 
-
     pub area: Rect,
+    pub room: Option<Rect>,
 
     pub orientation: NodeOrientation,
-
 }
 
-
 impl BSPNode {
-    pub fn new(index: usize, parent: usize, sister: usize, origin: Point, width: usize, height: usize, orientation: NodeOrientation) -> BSPNode {
-
-        let tree_depth = ((index +1) as f32).sqrt() as usize;
-
-
-
+    pub fn new(
+        index: usize,
+        parent: usize,
+        sister: usize,
+        tree_level: usize,
+        area: Rect,
+        orientation: NodeOrientation,
+    ) -> BSPNode {
         BSPNode {
             index,
-            tree_depth,
+            tree_level,
             parent,
             sister,
             childreen: None,
             family: vec![],
-            area: Rect::new(origin.x as usize,origin.y as usize,width,height),
+            area,
+            room: None,
             orientation,
         }
     }
 
+    pub fn make_childreen(&mut self, child1: usize, child2: usize) {
+        self.childreen = Some((child1, child2));
+    }
 
+    pub fn make_random_room(&mut self, min_size: usize) -> Rect {
+        let min_size = if self.area.width() > (min_size * 2) + 3
+            && self.area.height() > (min_size * 2) + 3
+        {
+            min_size * 2
+        } else if self.area.width() > (min_size * 3) + 3 && self.area.height() > (min_size * 3) + 3
+        {
+            min_size * 3
+        } else {
+            min_size
+        };
+
+        let width = rng::range(min_size as i32, self.area.width() as i32) as usize;
+        let height = rng::range(min_size as i32, self.area.height() as i32) as usize;
+
+        let max_x = self.area.x2 - width;
+        let max_y = self.area.y2 - height;
+
+        let x = rng::range(self.area.x1 as i32, max_x as i32) as usize;
+        let y = rng::range(self.area.y1 as i32, max_y as i32) as usize;
+
+        let room = Rect::new(x, y, width, height);
+        self.room = Some(room.clone());
+        room
+    }
 }
-

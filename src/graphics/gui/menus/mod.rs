@@ -123,12 +123,12 @@ pub trait WindowOptionSelector {
         for (i, opt) in self
             .options()
             .iter()
-            .sorted_by(|a, b| {
-                a.strings[0]
-                    .0
-                    .to_lowercase()
-                    .cmp(&b.strings[0].0.to_lowercase())
-            })
+            // .sorted_by(|a, b| {
+            //     a.strings[0]
+            //         .0
+            //         .to_lowercase()
+            //         .cmp(&b.strings[0].0.to_lowercase())
+            // })
             .enumerate()
         {
             let bg = if self.selected() == i {

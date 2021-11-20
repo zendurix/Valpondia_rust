@@ -13,10 +13,10 @@ use super::{errors::Result, Map};
 // use super::MapGenerator;
 
 pub mod basic_dungeon;
+pub mod bsp;
 pub mod cellular_automata;
 mod common;
 pub mod test_map;
-pub mod bsp;
 
 pub fn random_map_generator(width: usize, height: usize) -> Box<dyn MapGenerator> {
     let rand = rng::range(0, 1);

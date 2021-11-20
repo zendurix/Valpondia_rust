@@ -5,7 +5,7 @@ pub enum LevelType {
     Cave,
     BasicDungeon,
     TestLevel,
-   // BSPDungeon,
+    // BSPDungeon,
 }
 
 #[derive(Debug, Clone)]

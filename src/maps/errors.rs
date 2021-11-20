@@ -11,4 +11,7 @@ pub enum Error {
         map_dimensions.1
     ))]
     IncorrectMapDimensions { map_dimensions: (usize, usize) },
+
+    #[snafu(display("Too many tries to split area in BSP.",))]
+    TooManyBSPSplitRetries,
 }

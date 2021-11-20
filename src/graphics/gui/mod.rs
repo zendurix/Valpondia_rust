@@ -84,7 +84,7 @@ impl GuiDrawer {
         window_width: usize,
         window_height: usize,
     ) -> GuiMapGenTestingManager {
-        let width = 50;
+        let width = 60;
         let height = 20;
         let x = (window_width / 2) - (width / 2);
         let y = (window_height / 2) - (height / 2);

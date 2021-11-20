@@ -21,13 +21,13 @@ use crate::spawner::spawn_from_spawn_table;
 use crate::spawner::spawn_tables::SpawnTable;
 
 #[cfg(feature = "map_gen_testing")]
-use gui::menus::map_testing::MapGenTestingMenuAction;
-#[cfg(feature = "map_gen_testing")]
 use crate::graphics::gui::menus::map_testing::GuiMapGenTestingManager;
 #[cfg(feature = "map_gen_testing")]
 use crate::maps::generators::basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig};
 #[cfg(feature = "map_gen_testing")]
 use crate::maps::generators::cellular_automata::CAMapGen;
+#[cfg(feature = "map_gen_testing")]
+use gui::menus::map_testing::MapGenTestingMenuAction;
 
 use super::components::BodyPart;
 
@@ -597,6 +597,8 @@ impl GameState for State {
 
 #[cfg(feature = "map_gen_testing")]
 fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
+    use crate::maps::generators::bsp::{BSPConfig, BSPMapGen};
+
     let mut run_state = RunState::MapGenTesting(false);
 
     let map_testing_action = state.gui_drawer.map_gen_testing_manager.update(ctx);
@@ -625,6 +627,17 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 .reset_map_gen(Box::new(
                     CAMapGen::new(state.window_height - 4, state.map_height - 4).unwrap(),
                 ));
+            run_state = RunState::MapGenTesting(true);
+        }
+        MapGenTestingMenuAction::TestBSPMapGen => {
+            state
+                .gui_drawer
+                .map_gen_testing_manager
+                .reset_map_gen(Box::new(BSPMapGen::new(
+                    state.window_height - 4,
+                    state.map_height - 4,
+                    BSPConfig::default(),
+                )));
             run_state = RunState::MapGenTesting(true);
         }
     }
