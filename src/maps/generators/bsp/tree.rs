@@ -1,5 +1,3 @@
-use rltk::Point;
-
 use crate::{maps::rect::Rect, rng};
 
 #[derive(Default)]

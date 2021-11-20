@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use rltk::{Rltk, RGB};
 
 use crate::ecs::systems::player::{input::get_input, InputType};

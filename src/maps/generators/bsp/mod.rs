@@ -1,6 +1,7 @@
 mod tree;
 
 use rltk::Point;
+use specs::rayon::iter::split;
 
 use crate::{
     maps::{
@@ -78,10 +79,6 @@ impl BSPMapGen {
             let nodes_num = (2_u32).pow(tree_level as u32);
 
             for _ in 0..nodes_num {
-                println!(
-                    "current level {}: current_parent {}",
-                    tree_level, current_parent
-                );
                 if self.split_node(current_parent, tree_level).is_err() {
                     // TODO temp break if too many retires, but dont return error
                     return Ok(());
@@ -216,11 +213,8 @@ impl BSPMapGen {
     fn fill_tree_leaves_with_rooms(&mut self) {
         let mut rooms = vec![];
 
-        println!("tree len: {}", self.tree.nodes.len());
-
         for node in self.tree.nodes.iter_mut() {
             if node.childreen.is_none() {
-                println!("childless node: {}", node.index);
                 let room = node.make_random_room(self.config.room_size_min);
                 rooms.push(room);
             }
@@ -262,18 +256,13 @@ impl BSPMapGen {
                     additional_connections_counter += 1;
                 }
 
-                let mut found_route = false;
-
-                let mut parent1 = &self.tree.nodes[i];
-                let mut parent2 = &self.tree.nodes[i + 1];
-
-                parent1 = &self.tree.nodes[i];
-                parent2 = &self.tree.nodes[i + 1];
+                let parent1 = &self.tree.nodes[i];
+                let parent2 = &self.tree.nodes[i + 1];
 
                 let split_orientation = if parent1.area.x1 == parent2.area.x1 {
-                    NodeOrientation::Vertical
-                } else {
                     NodeOrientation::Horizontal
+                } else {
+                    NodeOrientation::Vertical
                 };
 
                 // RANDOM CHILDREEN
@@ -298,9 +287,10 @@ impl BSPMapGen {
                             .filter(|ind| self.tree.nodes[**ind].room.is_some())
                             .max_by(|ind1, ind2| {
                                 self.tree.nodes[**ind1]
-                                    .area
+                                    .room
+                                    .unwrap()
                                     .y2
-                                    .cmp(&self.tree.nodes[**ind2].area.y2)
+                                    .cmp(&self.tree.nodes[**ind2].room.unwrap().y2)
                             })
                             .unwrap_or(&parent1.index),
                         *childreen2
@@ -308,9 +298,10 @@ impl BSPMapGen {
                             .filter(|ind| self.tree.nodes[**ind].room.is_some())
                             .min_by(|ind1, ind2| {
                                 self.tree.nodes[**ind1]
-                                    .area
+                                    .room
+                                    .unwrap()
                                     .y1
-                                    .cmp(&self.tree.nodes[**ind2].area.y1)
+                                    .cmp(&self.tree.nodes[**ind2].room.unwrap().y1)
                             })
                             .unwrap_or(&parent2.index),
                     ),
@@ -320,9 +311,10 @@ impl BSPMapGen {
                             .filter(|ind| self.tree.nodes[**ind].room.is_some())
                             .max_by(|ind1, ind2| {
                                 self.tree.nodes[**ind1]
-                                    .area
+                                    .room
+                                    .unwrap()
                                     .x2
-                                    .cmp(&self.tree.nodes[**ind2].area.x2)
+                                    .cmp(&self.tree.nodes[**ind2].room.unwrap().x2)
                             })
                             .unwrap_or(&parent1.index),
                         *childreen2
@@ -330,9 +322,10 @@ impl BSPMapGen {
                             .filter(|ind| self.tree.nodes[**ind].room.is_some())
                             .min_by(|ind1, ind2| {
                                 self.tree.nodes[**ind1]
-                                    .area
+                                    .room
+                                    .unwrap()
                                     .x1
-                                    .cmp(&self.tree.nodes[**ind2].area.x1)
+                                    .cmp(&self.tree.nodes[**ind2].room.unwrap().x1)
                             })
                             .unwrap_or(&parent2.index),
                     ),
@@ -344,12 +337,29 @@ impl BSPMapGen {
                 let (new_x, new_y) = room1.center();
                 let (prev_x, prev_y) = room2.center();
 
-                if rng::rand_bool() {
-                    apply_horizontal_tunnel(&mut self.map, prev_x, new_x, prev_y);
-                    apply_vertical_tunnel(&mut self.map, prev_y, new_y, new_x);
-                } else {
-                    apply_vertical_tunnel(&mut self.map, prev_y, new_y, prev_x);
-                    apply_horizontal_tunnel(&mut self.map, prev_x, new_x, new_y);
+                match split_orientation {
+                    NodeOrientation::Horizontal => {
+                        apply_vertical_tunnel(&mut self.map, prev_y, new_y, prev_x);
+                        apply_horizontal_tunnel(&mut self.map, prev_x, new_x, new_y);
+                    }
+                    NodeOrientation::Vertical => {
+                        apply_horizontal_tunnel(&mut self.map, prev_x, new_x, prev_y);
+                        apply_vertical_tunnel(&mut self.map, prev_y, new_y, new_x);
+                    }
+                }
+
+                let family1 = self.tree.node_family(index1);
+                let family2 = self.tree.node_family(index2);
+
+                println!("\nConnecting: ");
+                print!("\t1: ");
+                for f in family1 {
+                    print!("{} ", f);
+                }
+                println!();
+                print!("\t2: ");
+                for f in family2 {
+                    print!("{} ", f);
                 }
 
                 #[cfg(feature = "map_gen_testing")]
