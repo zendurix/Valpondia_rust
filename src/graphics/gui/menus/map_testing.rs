@@ -16,6 +16,7 @@ pub enum MapGenTestingMenuAction {
     TestCaMapGen,
     TestBSPDungeonGen,
     TestBSPInteriorGen,
+    TestDrunkardWalkGen,
 
     //... more to come!
     Cancel,
@@ -30,6 +31,7 @@ impl From<usize> for MapGenTestingMenuAction {
             2 => MapGenTestingMenuAction::TestCaMapGen,
             3 => MapGenTestingMenuAction::TestBSPDungeonGen,
             4 => MapGenTestingMenuAction::TestBSPInteriorGen,
+            5 => MapGenTestingMenuAction::TestDrunkardWalkGen,
 
             _ => MapGenTestingMenuAction::NoResponse,
         }
@@ -121,6 +123,10 @@ impl GuiMapGenTestingManager {
             )]),
             TextCol::new(vec![(
                 "Test Binary Space Partitioning Interior Generator".to_string(),
+                rltk::RGB::named(rltk::WHITE),
+            )]),
+            TextCol::new(vec![(
+                "Test Drunkard walk map generator".to_string(),
                 rltk::RGB::named(rltk::WHITE),
             )]),
         ]

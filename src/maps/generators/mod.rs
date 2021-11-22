@@ -16,6 +16,7 @@ pub mod basic_dungeon;
 pub mod bsp;
 pub mod cellular_automata;
 mod common;
+pub mod drunkard_walk;
 pub mod test_map;
 
 pub fn random_map_generator(width: usize, height: usize) -> Box<dyn MapGenerator> {

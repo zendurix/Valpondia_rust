@@ -9,6 +9,7 @@ pub enum TileType {
 
     #[cfg(feature = "map_gen_testing")]
     WallRed,
+
     StairsDown,
     StairsUp,
 }
@@ -129,6 +130,14 @@ impl Map {
 
     pub fn tiles(&self) -> &[TileType] {
         &self.tiles
+    }
+
+    pub fn floor_tiles_count(&self) -> usize {
+        self.tiles.iter().filter(|t| **t == TileType::Floor).count()
+    }
+
+    pub fn floor_tiles_perc(&self) -> usize {
+        (self.floor_tiles_count() * 100) / self.tiles.len()
     }
 
     pub fn xy_to_index(&self, x: usize, y: usize) -> usize {

@@ -583,7 +583,11 @@ impl GameState for State {
             #[cfg(feature = "map_gen_testing")]
             RunState::MapGenTesting(draw_map) => {
                 if draw_map {
-                    run_state = print_tested_map(&mut self.gui_drawer.map_gen_testing_manager, ctx, self.window_height);
+                    run_state = print_tested_map(
+                        &mut self.gui_drawer.map_gen_testing_manager,
+                        ctx,
+                        self.window_height,
+                    );
                 } else {
                     run_state = print_map_testing_menu(self, ctx);
                 }
@@ -597,7 +601,7 @@ impl GameState for State {
 
 #[cfg(feature = "map_gen_testing")]
 fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
-    use crate::maps::generators::bsp::{interior::BSPInteriorGen, BSPConfig, BSPDungeonGen};
+    use crate::maps::generators::{bsp::{interior::BSPInteriorGen, BSPConfig, BSPDungeonGen}, drunkard_walk::{DrunkardWalkConfig, DrunkardWalkGen}};
 
     let mut run_state = RunState::MapGenTesting(false);
 
@@ -651,13 +655,28 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 )));
             run_state = RunState::MapGenTesting(true);
         }
+        MapGenTestingMenuAction::TestDrunkardWalkGen => {
+            state
+                .gui_drawer
+                .map_gen_testing_manager
+                .reset_map_gen(Box::new(DrunkardWalkGen::new(
+                    state.window_height - 4,
+                    state.map_height - 4,
+                    DrunkardWalkConfig::default(),
+                )));
+            run_state = RunState::MapGenTesting(true);
+        }
     }
 
     run_state
 }
 
 #[cfg(feature = "map_gen_testing")]
-fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk, window_height: usize) -> RunState {
+fn print_tested_map(
+    manager: &mut GuiMapGenTestingManager,
+    ctx: &mut Rltk,
+    window_height: usize,
+) -> RunState {
     use crate::{
         ecs::systems::player::{input::get_input, InputType},
         graphics::draw_map_without_fov,
@@ -713,7 +732,7 @@ fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk, windo
 
     ctx.print_color(
         1,
-        window_height -1,
+        window_height - 1,
         rltk::RGB::named(rltk::WHITE),
         rltk::RGB::named(rltk::BLACK),
         "Press EESCAPE to return to menu",

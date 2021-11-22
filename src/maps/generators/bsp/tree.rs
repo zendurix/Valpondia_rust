@@ -21,7 +21,6 @@ impl BTree {
         splittend_node_index: usize,
         tree_level: usize,
     ) {
-
         use crate::maps::rect::apply_color_to_walls;
 
         let mut last_map_state = self.split_history.last().unwrap().clone();
