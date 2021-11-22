@@ -658,8 +658,6 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
 
 #[cfg(feature = "map_gen_testing")]
 fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk, window_height: usize) -> RunState {
-    use std::fmt::format;
-
     use crate::{
         ecs::systems::player::{input::get_input, InputType},
         graphics::draw_map_without_fov,
@@ -684,7 +682,7 @@ fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk, windo
     draw_map_without_fov(&history[current_index].0, ctx);
 
     let press_enter_info = if current_index < history_size - 1 {
-        "Current Step: {}. Press Spacebar to progres step"
+        "Press Spacebar to progres step"
     } else {
         " ---- Generating Map Done. Press Spacebar generate new map. ----"
     };

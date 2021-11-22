@@ -83,7 +83,7 @@ impl BSPDungeonGen {
                 format!("Adding room in node {}", *node_index),
             ));
         }
-        self.rooms = rooms.into_iter().map(|(room, index)| room).collect_vec();
+        self.rooms = rooms.into_iter().map(|(room, _index)| room).collect_vec();
     }
 
     fn connect_rooms(&mut self) {

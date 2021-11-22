@@ -21,7 +21,6 @@ impl BTree {
         splittend_node_index: usize,
         tree_level: usize,
     ) {
-        use std::fmt::format;
 
         use crate::maps::rect::apply_color_to_walls;
 
