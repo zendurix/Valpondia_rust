@@ -1,11 +1,192 @@
-use crate::{maps::rect::Rect, rng};
+use crate::maps::errors::Result;
+use crate::{
+    maps::{rect::Rect, Error, Map},
+    rng,
+};
 
 #[derive(Default)]
 pub struct BTree {
     pub nodes: Vec<BSPNode>,
+
+    #[cfg(feature = "map_gen_testing")]
+    pub split_history: Vec<Map>,
 }
 
 impl BTree {
+    #[cfg(feature = "map_gen_testing")]
+    fn save_split_to_history(&mut self, rect1: &Rect, rect2: &Rect) {
+        use crate::maps::rect::apply_color_to_walls;
+
+        let mut last_map_state = self.split_history.last().unwrap().clone();
+
+        apply_color_to_walls(&rect1, &mut last_map_state);
+        apply_color_to_walls(&rect2, &mut last_map_state);
+
+        self.split_history.push(last_map_state);
+    }
+
+    pub fn make_tree(
+        &mut self,
+        map_width: usize,
+        map_height: usize,
+        tree_height: usize,
+        min_area_size: usize,
+    ) -> Result<()> {
+        let map_rect = Rect::new(0, 0, map_width - 1, map_height - 1);
+
+        #[cfg(feature = "map_gen_testing")]
+        {
+            let map = Map::new(map_width, map_height).with_all_solid();
+            self.split_history = vec![map];
+            self.save_split_to_history(&map_rect, &map_rect)
+        }
+
+        self.nodes.push(BSPNode::new(0, 0, 0, 0, map_rect));
+
+        let mut current_parent = 0;
+
+        for tree_level in 0..tree_height {
+            let nodes_num = (2_u32).pow(tree_level as u32);
+
+            for _ in 0..nodes_num {
+                if self
+                    .split_node(current_parent, tree_level, min_area_size)
+                    .is_err()
+                {
+                    // TODO temp break if too many retires, but dont return error
+                    return Ok(());
+                }
+                current_parent += 1;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn split_node(
+        &mut self,
+        parent_node: usize,
+        tree_level: usize,
+        min_area_size: usize,
+    ) -> Result<()> {
+        let orientation = NodeOrientation::rand();
+
+        let (rect1, rect2) = self.try_split(parent_node, orientation, min_area_size)?;
+
+        #[cfg(feature = "map_gen_testing")]
+        self.save_split_to_history(&rect1, &rect2);
+
+        let last_index = self.nodes.len() - 1;
+
+        let index1 = last_index + 1;
+        let index2 = last_index + 2;
+
+        let child1 = BSPNode::new(index1, parent_node, index2, tree_level, rect1);
+        let child2 = BSPNode::new(index2, parent_node, index1, tree_level, rect2);
+
+        self.nodes.push(child1);
+        self.nodes.push(child2);
+
+        self.nodes[parent_node].make_childreen(index1, index2);
+
+        Ok(())
+    }
+
+    fn try_split(
+        &self,
+        parent: usize,
+        orientation: NodeOrientation,
+        min_area_size: usize,
+    ) -> Result<(Rect, Rect)> {
+        let mut error_count = 0;
+        match orientation {
+            NodeOrientation::Vertical => {
+                loop {
+                    let (rect1, rect2) = self
+                        .split_horizontal(parent, min_area_size)
+                        .or_else(|_| self.split_vertical(parent, min_area_size))?;
+
+                    if rect1.width() > min_area_size
+                        && rect2.width() > min_area_size
+                        && rect1.height() > min_area_size
+                        && rect2.height() > min_area_size
+                    {
+                        return Ok((rect1, rect2));
+                    }
+                    error_count += 1;
+
+                    // TODO handle this, or maybe add to config
+                    if error_count > 200 {
+                        return Err(Error::TooManyBSPSplitRetries);
+                    }
+                }
+            }
+            NodeOrientation::Horizontal => {
+                loop {
+                    let (rect1, rect2) = self
+                        .split_vertical(parent, min_area_size)
+                        .or_else(|_| self.split_horizontal(parent, min_area_size))?;
+
+                    if rect1.height() > min_area_size
+                        && rect2.height() > min_area_size
+                        && rect1.width() > min_area_size
+                        && rect2.width() > min_area_size
+                    {
+                        return Ok((rect1, rect2));
+                    }
+                    error_count += 1;
+
+                    // TODO handle this, or maybe add to config
+                    if error_count > 200 {
+                        return Err(Error::TooManyBSPSplitRetries);
+                    }
+                }
+            }
+        }
+    }
+
+    fn split_horizontal(&self, parent: usize, min_area_size: usize) -> Result<(Rect, Rect)> {
+        let parent = &self.nodes[parent];
+        if parent.area.height() < min_area_size * 2 + 2 {
+            return Err(Error::TooSmallBSPAreaToSplit {});
+        }
+
+        let min_y = parent.area.y1 + (parent.area.height() / 2) - (min_area_size / 2);
+        let max_y = parent.area.y1 + (parent.area.height() / 2) + (min_area_size / 2);
+        let y = rng::range(min_y as i32, max_y as i32) as usize;
+
+        let width = parent.area.width();
+        let height1 = y - parent.area.y1;
+        let height2 = parent.area.height() - height1;
+
+        // TODO maybe add 1 to y in rects
+        Ok((
+            Rect::new(parent.area.x1, parent.area.y1, width, height1),
+            Rect::new(parent.area.x1, y, width, height2),
+        ))
+    }
+
+    fn split_vertical(&self, parent: usize, min_area_size: usize) -> Result<(Rect, Rect)> {
+        let parent = &self.nodes[parent];
+        if parent.area.width() < min_area_size * 2 + 2 {
+            return Err(Error::TooSmallBSPAreaToSplit {});
+        }
+
+        let min_x = parent.area.x1 + (parent.area.width() / 2) - (min_area_size / 2);
+        let max_x = parent.area.x1 + (parent.area.width() / 2) + (min_area_size / 2);
+        let x = rng::range(min_x as i32, max_x as i32) as usize;
+
+        let height = parent.area.height();
+        let width1 = x - parent.area.x1;
+        let width2 = parent.area.width() - width1;
+
+        // TODO maybe add 1 to x in rects
+        Ok((
+            Rect::new(parent.area.x1, parent.area.y1, width1, height),
+            Rect::new(x, parent.area.y1, width2, height),
+        ))
+    }
+
     pub fn node_family(&self, node_index: usize) -> Vec<usize> {
         let mut family = vec![];
         let mut act_node_index = node_index;
