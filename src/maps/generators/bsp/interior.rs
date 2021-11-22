@@ -1,41 +1,23 @@
-pub mod interior;
-mod tree;
-
 use rltk::Point;
 
 use crate::{
     maps::{
+        generators::{
+            bsp::tree::NodeOrientation,
+            common::{apply_horizontal_tunnel, apply_vertical_tunnel},
+            MapGenerator,
+        },
         rect::{apply_room_to_map, Rect},
         Map, TileType,
     },
     rng,
 };
 
-use self::tree::{BTree, NodeOrientation};
-
-use super::{
-    common::{apply_horizontal_tunnel, apply_vertical_tunnel},
-    MapGenerator,
-};
-
 use crate::maps::errors::Result;
 
-pub struct BSPConfig {
-    pub room_size_min: usize,
+use super::{tree::BTree, BSPConfig};
 
-    pub tree_height: usize,
-}
-
-impl Default for BSPConfig {
-    fn default() -> BSPConfig {
-        BSPConfig {
-            room_size_min: 5,
-            tree_height: 4,
-        }
-    }
-}
-
-pub struct BSPDungeonGen {
+pub struct BSPInteriorGen {
     width: usize,
     height: usize,
     config: BSPConfig,
@@ -49,9 +31,9 @@ pub struct BSPDungeonGen {
     history: Vec<Map>,
 }
 
-impl BSPDungeonGen {
-    pub fn new(width: usize, height: usize, config: BSPConfig) -> BSPDungeonGen {
-        BSPDungeonGen {
+impl BSPInteriorGen {
+    pub fn new(width: usize, height: usize, config: BSPConfig) -> BSPInteriorGen {
+        BSPInteriorGen {
             width,
             height,
             config,
@@ -69,7 +51,8 @@ impl BSPDungeonGen {
 
         for node in self.tree.nodes.iter_mut() {
             if node.childreen.is_none() {
-                let room = node.make_random_room(self.config.room_size_min);
+                let room = node.area.clone();
+                node.room = Some(room);
                 rooms.push(room);
             }
         }
@@ -118,18 +101,6 @@ impl BSPDungeonGen {
                 } else {
                     NodeOrientation::Vertical
                 };
-
-                // RANDOM CHILDREEN
-                // while node1.childreen.is_some() {
-                //     let rand_child = rng::range(0, 1) as usize;
-                //     let child1 = node1.childreen.unwrap()[rand_child];
-                //     node1 = &self.tree.nodes[child1];
-                // }
-                // while node2.childreen.is_some() {
-                //     let rand_child = rng::range(0, 1) as usize;
-                //     let child2 = node2.childreen.unwrap()[rand_child];
-                //     node2 = &self.tree.nodes[child2];
-                // }
 
                 let childreen1 = self.tree.node_children(parent1.index);
                 let childreen2 = self.tree.node_children(parent2.index);
@@ -243,7 +214,7 @@ impl BSPDungeonGen {
     }
 }
 
-impl MapGenerator for BSPDungeonGen {
+impl MapGenerator for BSPInteriorGen {
     fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()> {
         self.map = Map::new(self.width, self.height).with_all_solid();
 

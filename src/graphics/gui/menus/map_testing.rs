@@ -14,7 +14,8 @@ pub enum MapGenTestingMenuAction {
     SwitchShowSteps,
     TestBasicDungeonGenerator,
     TestCaMapGen,
-    TestBSPMapGen,
+    TestBSPDungeonGen,
+    TestBSPInteriorGen,
 
     //... more to come!
     Cancel,
@@ -27,7 +28,8 @@ impl From<usize> for MapGenTestingMenuAction {
             0 => MapGenTestingMenuAction::SwitchShowSteps,
             1 => MapGenTestingMenuAction::TestBasicDungeonGenerator,
             2 => MapGenTestingMenuAction::TestCaMapGen,
-            3 => MapGenTestingMenuAction::TestBSPMapGen,
+            3 => MapGenTestingMenuAction::TestBSPDungeonGen,
+            4 => MapGenTestingMenuAction::TestBSPInteriorGen,
 
             _ => MapGenTestingMenuAction::NoResponse,
         }
@@ -114,7 +116,11 @@ impl GuiMapGenTestingManager {
                 rltk::RGB::named(rltk::WHITE),
             )]),
             TextCol::new(vec![(
-                "Test Binary Space Partinionig dungeons Generator".to_string(),
+                "Test Binary Space Partitioning dungeons Generator".to_string(),
+                rltk::RGB::named(rltk::WHITE),
+            )]),
+            TextCol::new(vec![(
+                "Test Binary Space Partitioning Interior Generator".to_string(),
                 rltk::RGB::named(rltk::WHITE),
             )]),
         ]

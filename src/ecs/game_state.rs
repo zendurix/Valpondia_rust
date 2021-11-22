@@ -597,7 +597,7 @@ impl GameState for State {
 
 #[cfg(feature = "map_gen_testing")]
 fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
-    use crate::maps::generators::bsp::{BSPConfig, BSPMapGen};
+    use crate::maps::generators::bsp::{interior::BSPInteriorGen, BSPConfig, BSPDungeonGen};
 
     let mut run_state = RunState::MapGenTesting(false);
 
@@ -629,11 +629,22 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 ));
             run_state = RunState::MapGenTesting(true);
         }
-        MapGenTestingMenuAction::TestBSPMapGen => {
+        MapGenTestingMenuAction::TestBSPDungeonGen => {
             state
                 .gui_drawer
                 .map_gen_testing_manager
-                .reset_map_gen(Box::new(BSPMapGen::new(
+                .reset_map_gen(Box::new(BSPDungeonGen::new(
+                    state.window_height - 4,
+                    state.map_height - 4,
+                    BSPConfig::default(),
+                )));
+            run_state = RunState::MapGenTesting(true);
+        }
+        MapGenTestingMenuAction::TestBSPInteriorGen => {
+            state
+                .gui_drawer
+                .map_gen_testing_manager
+                .reset_map_gen(Box::new(BSPInteriorGen::new(
                     state.window_height - 4,
                     state.map_height - 4,
                     BSPConfig::default(),
