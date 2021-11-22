@@ -583,7 +583,7 @@ impl GameState for State {
             #[cfg(feature = "map_gen_testing")]
             RunState::MapGenTesting(draw_map) => {
                 if draw_map {
-                    run_state = print_tested_map(&mut self.gui_drawer.map_gen_testing_manager, ctx);
+                    run_state = print_tested_map(&mut self.gui_drawer.map_gen_testing_manager, ctx, self.window_height);
                 } else {
                     run_state = print_map_testing_menu(self, ctx);
                 }
@@ -657,7 +657,9 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
 }
 
 #[cfg(feature = "map_gen_testing")]
-fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk) -> RunState {
+fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk, window_height: usize) -> RunState {
+    use std::fmt::format;
+
     use crate::{
         ecs::systems::player::{input::get_input, InputType},
         graphics::draw_map_without_fov,
@@ -679,30 +681,41 @@ fn print_tested_map(manager: &mut GuiMapGenTestingManager, ctx: &mut Rltk) -> Ru
 
     ctx.cls();
 
-    draw_map_without_fov(&history[current_index], ctx);
+    draw_map_without_fov(&history[current_index].0, ctx);
 
     let press_enter_info = if current_index < history_size - 1 {
-        format!(
-            "Current Step: {}. Press Spacebar to progres step",
-            current_index
-        )
+        "Current Step: {}. Press Spacebar to progres step"
     } else {
-        format!(
-            "Current Step: {}. ---- Generating Map Done. Press Spacebar generate new map. ----",
-            current_index
-        )
+        " ---- Generating Map Done. Press Spacebar generate new map. ----"
     };
+
     ctx.print_color(
-        2,
-        0,
+        1,
+        window_height - 4,
+        rltk::RGB::named(rltk::WHITE),
+        rltk::RGB::named(rltk::BLACK),
+        format!("Current Step: {} ", current_index),
+    );
+
+    ctx.print_color(
+        1,
+        window_height - 3,
+        rltk::RGB::named(rltk::WHITE),
+        rltk::RGB::named(rltk::BLACK),
+        format!("STEP: {} ", &history[current_index].1),
+    );
+
+    ctx.print_color(
+        1,
+        window_height - 2,
         rltk::RGB::named(rltk::WHITE),
         rltk::RGB::named(rltk::BLACK),
         press_enter_info,
     );
 
     ctx.print_color(
-        2,
         1,
+        window_height -1,
         rltk::RGB::named(rltk::WHITE),
         rltk::RGB::named(rltk::BLACK),
         "Press EESCAPE to return to menu",

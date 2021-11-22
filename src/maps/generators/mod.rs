@@ -42,13 +42,13 @@ pub trait MapGenerator {
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>>;
 
     #[cfg(feature = "map_gen_testing")]
-    fn history(&self) -> Vec<Map>;
+    fn history(&self) -> Vec<(Map, String)>;
 
     #[cfg(feature = "map_gen_testing")]
-    fn try_get_history(&self) -> Vec<Map> {
+    fn try_get_history(&self) -> Vec<(Map, String)> {
         let history = self.history();
         if history.is_empty() {
-            vec![self.map()]
+            vec![(self.map(), "Finished map".to_string())]
         } else {
             history
         }

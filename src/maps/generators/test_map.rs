@@ -47,7 +47,7 @@ impl MapGenerator for TestMap {
     }
 
     #[cfg(feature = "map_gen_testing")]
-    fn history(&self) -> Vec<Map> {
+    fn history(&self) -> Vec<(Map, String)> {
         vec![]
     }
 }

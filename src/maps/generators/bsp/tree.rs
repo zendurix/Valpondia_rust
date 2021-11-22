@@ -9,20 +9,34 @@ pub struct BTree {
     pub nodes: Vec<BSPNode>,
 
     #[cfg(feature = "map_gen_testing")]
-    pub split_history: Vec<Map>,
+    pub split_history: Vec<(Map, String)>,
 }
 
 impl BTree {
     #[cfg(feature = "map_gen_testing")]
-    fn save_split_to_history(&mut self, rect1: &Rect, rect2: &Rect) {
+    fn save_split_to_history(
+        &mut self,
+        rect1: &Rect,
+        rect2: &Rect,
+        splittend_node_index: usize,
+        tree_level: usize,
+    ) {
+        use std::fmt::format;
+
         use crate::maps::rect::apply_color_to_walls;
 
         let mut last_map_state = self.split_history.last().unwrap().clone();
 
-        apply_color_to_walls(&rect1, &mut last_map_state);
-        apply_color_to_walls(&rect2, &mut last_map_state);
+        apply_color_to_walls(&rect1, &mut last_map_state.0);
+        apply_color_to_walls(&rect2, &mut last_map_state.0);
 
-        self.split_history.push(last_map_state);
+        self.split_history.push((
+            last_map_state.0,
+            format!(
+                "Splitting node: {} at tree level: {}",
+                splittend_node_index, tree_level
+            ),
+        ));
     }
 
     pub fn make_tree(
@@ -37,8 +51,8 @@ impl BTree {
         #[cfg(feature = "map_gen_testing")]
         {
             let map = Map::new(map_width, map_height).with_all_solid();
-            self.split_history = vec![map];
-            self.save_split_to_history(&map_rect, &map_rect)
+            self.split_history = vec![(map, "Start".to_string())];
+            self.save_split_to_history(&map_rect, &map_rect, 0, 0)
         }
 
         self.nodes.push(BSPNode::new(0, 0, 0, 0, map_rect));
@@ -74,7 +88,7 @@ impl BTree {
         let (rect1, rect2) = self.try_split(parent_node, orientation, min_area_size)?;
 
         #[cfg(feature = "map_gen_testing")]
-        self.save_split_to_history(&rect1, &rect2);
+        self.save_split_to_history(&rect1, &rect2, parent_node, tree_level);
 
         let last_index = self.nodes.len() - 1;
 

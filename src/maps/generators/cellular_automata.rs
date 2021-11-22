@@ -63,7 +63,7 @@ pub struct CAMapGen {
     map: Map,
 
     #[cfg(feature = "map_gen_testing")]
-    history: Vec<Map>,
+    history: Vec<(Map, String)>,
 }
 
 impl CAMapGen {
@@ -104,20 +104,27 @@ impl CAMapGen {
     }
 
     pub fn make_cave_map(&mut self) -> Result<()> {
+        #[cfg(feature = "map_gen_testing")]
+        self.history.push((self.map.clone(), "Start".to_string()));
+
         self.set_random_state();
 
         #[cfg(feature = "map_gen_testing")]
         self.set_map();
         #[cfg(feature = "map_gen_testing")]
-        self.history.push(self.map.clone());
+        self.history
+            .push((self.map.clone(), "Random State".to_string()));
 
-        for _ in 0..=self.config.step_limit {
+        for i in 0..=self.config.step_limit {
             self.make_step();
 
             #[cfg(feature = "map_gen_testing")]
             self.set_map();
             #[cfg(feature = "map_gen_testing")]
-            self.history.push(self.map.clone());
+            self.history.push((
+                self.map.clone(),
+                format!("Step {} of Cellular Autamata.", i),
+            ));
         }
 
         if self.config.delete_small_caves {
@@ -132,7 +139,8 @@ impl CAMapGen {
         self.set_map();
 
         #[cfg(feature = "map_gen_testing")]
-        self.history.push(self.map.clone());
+        self.history
+            .push((self.map.clone(), "Finished Map".to_string()));
         Ok(())
     }
 
@@ -469,7 +477,7 @@ impl MapGenerator for CAMapGen {
     }
 
     #[cfg(feature = "map_gen_testing")]
-    fn history(&self) -> Vec<Map> {
+    fn history(&self) -> Vec<(Map, String)> {
         self.history.clone()
     }
 }

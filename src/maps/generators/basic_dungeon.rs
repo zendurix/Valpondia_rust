@@ -41,7 +41,7 @@ pub struct BasicDungeonMap {
     rooms: Vec<Rect>,
 
     #[cfg(feature = "map_gen_testing")]
-    history: Vec<Map>,
+    history: Vec<(Map, String)>,
 }
 
 impl BasicDungeonMap {
@@ -60,7 +60,7 @@ impl BasicDungeonMap {
 
     pub fn create_basic_dungeon_map(&mut self, prev_down_stairs_pos: Option<Point>) {
         #[cfg(feature = "map_gen_testing")]
-        self.history.push(self.map.clone());
+        self.history.push((self.map.clone(), "Start".to_string()));
 
         self.add_rooms();
 
@@ -116,7 +116,8 @@ impl BasicDungeonMap {
                 rooms.push(new_room);
 
                 #[cfg(feature = "map_gen_testing")]
-                self.history.push(self.map.clone());
+                self.history
+                    .push((self.map.clone(), "Adding rooms".to_string()));
             }
         }
         self.rooms = rooms;
@@ -137,7 +138,8 @@ impl BasicDungeonMap {
             }
 
             #[cfg(feature = "map_gen_testing")]
-            self.history.push(self.map.clone());
+            self.history
+                .push((self.map.clone(), "Adding corridors".to_string()));
         }
     }
 }
@@ -163,7 +165,7 @@ impl MapGenerator for BasicDungeonMap {
     }
 
     #[cfg(feature = "map_gen_testing")]
-    fn history(&self) -> Vec<Map> {
+    fn history(&self) -> Vec<(Map, String)> {
         self.history.clone()
     }
 }

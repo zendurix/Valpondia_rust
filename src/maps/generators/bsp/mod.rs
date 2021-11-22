@@ -1,6 +1,7 @@
 pub mod interior;
 mod tree;
 
+use itertools::Itertools;
 use rltk::Point;
 
 use crate::{
@@ -46,7 +47,7 @@ pub struct BSPDungeonGen {
     rooms: Vec<Rect>,
 
     #[cfg(feature = "map_gen_testing")]
-    history: Vec<Map>,
+    history: Vec<(Map, String)>,
 }
 
 impl BSPDungeonGen {
@@ -70,16 +71,19 @@ impl BSPDungeonGen {
         for node in self.tree.nodes.iter_mut() {
             if node.childreen.is_none() {
                 let room = node.make_random_room(self.config.room_size_min);
-                rooms.push(room);
+                rooms.push((room, node.index));
             }
         }
-        for room in rooms.iter() {
+        for (room, node_index) in rooms.iter() {
             apply_room_to_map(room, &mut self.map);
 
             #[cfg(feature = "map_gen_testing")]
-            self.history.push(self.map.clone());
+            self.history.push((
+                self.map.clone(),
+                format!("Adding room in node {}", *node_index),
+            ));
         }
-        self.rooms = rooms;
+        self.rooms = rooms.into_iter().map(|(room, index)| room).collect_vec();
     }
 
     fn connect_rooms(&mut self) {
@@ -202,22 +206,24 @@ impl BSPDungeonGen {
                     }
                 }
 
-                let family1 = self.tree.node_family(index1);
-                let family2 = self.tree.node_family(index2);
-
-                println!("\nConnecting: ");
-                print!("\t1: ");
-                for f in family1 {
-                    print!("{} ", f);
-                }
-                println!();
-                print!("\t2: ");
-                for f in family2 {
-                    print!("{} ", f);
-                }
-
                 #[cfg(feature = "map_gen_testing")]
-                self.history.push(self.map.clone());
+                {
+                    let mut familystr1 = "".to_string();
+                    let mut familystr2 = "".to_string();
+                    // TODO use iterators!!
+                    for f in self.tree.node_family(index1) {
+                        familystr1 += f.to_string().as_str();
+                        familystr1 += " ";
+                    }
+                    for f in self.tree.node_family(index2) {
+                        familystr2 += f.to_string().as_str();
+                        familystr2 += " ";
+                    }
+                    self.history.push((
+                        self.map.clone(),
+                        format!("Connecting {} with {}", familystr1, familystr2),
+                    ));
+                }
 
                 i += i_adder(additional_connections_counter);
             }
@@ -267,7 +273,7 @@ impl MapGenerator for BSPDungeonGen {
         #[cfg(feature = "map_gen_testing")]
         {
             self.history = self.tree.split_history.clone();
-            self.map = self.history.last().unwrap().clone();
+            self.map = self.history.last().unwrap().0.clone();
         }
 
         self.fill_tree_leaves_with_rooms();
@@ -298,7 +304,7 @@ impl MapGenerator for BSPDungeonGen {
     }
 
     #[cfg(feature = "map_gen_testing")]
-    fn history(&self) -> Vec<Map> {
+    fn history(&self) -> Vec<(Map, String)> {
         self.history.clone()
     }
 }
