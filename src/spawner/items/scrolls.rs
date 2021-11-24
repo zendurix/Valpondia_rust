@@ -12,6 +12,7 @@ pub fn spawn_magic_missile_scroll(ecs: &mut World, x: usize, y: usize, level: us
         y,
         level,
         rltk::to_cp437(')'),
+        Some(15),
         RGB::named(rltk::WHITE),
         "Magic missile scroll",
     )
@@ -31,6 +32,7 @@ pub fn spawn_fireball_scroll(ecs: &mut World, x: usize, y: usize, level: usize) 
         y,
         level,
         rltk::to_cp437(')'),
+        Some(15),
         RGB::named(rltk::ORANGE),
         "Fireball scroll",
     )
@@ -50,6 +52,7 @@ pub fn spawn_sleep_scroll(ecs: &mut World, x: usize, y: usize, level: usize) -> 
         y,
         level,
         rltk::to_cp437(')'),
+        Some(15),
         RGB::named(rltk::BROWN2),
         "Sleep scroll",
     )
@@ -68,6 +71,7 @@ pub fn spawn_area_sleep_scroll(ecs: &mut World, x: usize, y: usize, level: usize
         y,
         level,
         rltk::to_cp437(')'),
+        Some(15),
         RGB::named(rltk::PINK),
         "Area sleep scroll",
     )
@@ -87,6 +91,7 @@ pub fn spawn_teleport_scroll(ecs: &mut World, x: usize, y: usize, level: usize) 
         y,
         level,
         rltk::to_cp437(')'),
+        Some(15),
         RGB::named(rltk::BLUE),
         "Teleport scroll",
     )

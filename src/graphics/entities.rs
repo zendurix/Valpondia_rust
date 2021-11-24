@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use rltk::Rltk;
+use rltk::{RGB, Rltk};
 use specs::{Entity, Join, WorldExt};
 
 use crate::{
@@ -8,7 +8,14 @@ use crate::{
     maps::TileType,
 };
 
-pub fn draw_entities(gs: &State, ctx: &mut Rltk) {
+pub fn draw_entities(gs: &State, ctx: &mut Rltk) {    
+    ctx.set_active_console(0);    
+    
+    let mut draw_batch = rltk::DrawBatch::new();
+    draw_batch.target(0);
+
+
+
     let positions = gs.ecs.read_storage::<components::Position>();
     let renderables = gs.ecs.read_storage::<components::Renderable>();
 
@@ -32,7 +39,15 @@ pub fn draw_entities(gs: &State, ctx: &mut Rltk) {
                 || (current_level.map.tiles[index] != TileType::StairsUp
                     && current_level.map.tiles[index] != TileType::StairsDown))
         {
-            ctx.set(pos.x, pos.y, render.fg, render.bg, render.ascii);
+            //ctx.set(pos.x, pos.y, render.fg, render.bg, render.ascii);
+
+            draw_batch.set(
+                rltk::Point::new(pos.x, pos.y),
+                rltk::ColorPair::new(RGB::from_f32(1.0, 1., 1.0), RGB::from_f32(0., 0., 0.)),
+                render.texture.unwrap_or(3),
+            );
         }
     }
+    draw_batch.submit(0).expect("Batch error");
+    ctx.set_active_console(1);
 }

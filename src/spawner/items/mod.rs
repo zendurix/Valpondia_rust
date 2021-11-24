@@ -14,6 +14,7 @@ pub(crate) fn create_base_item_components<S: ToString>(
     y: usize,
     level: usize,
     glyph: rltk::FontCharType,
+    texture_index: Option<usize>,
     color: rltk::RGB,
     name: S,
 ) -> EntityBuilder {
@@ -22,7 +23,7 @@ pub(crate) fn create_base_item_components<S: ToString>(
         .with(components::Position { x, y, level })
         .with(components::Renderable {
             ascii: glyph,
-            texture: None,
+            texture: texture_index,
             fg: color,
             bg: RGB::named(rltk::BLACK),
             render_order: 2,

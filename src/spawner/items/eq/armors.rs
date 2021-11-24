@@ -13,6 +13,8 @@ pub fn spawn_leather_armor(ecs: &mut World, x: usize, y: usize, level: usize) ->
         y,
         level,
         rltk::to_cp437('['),
+        // TODO for now same as chain armor
+        Some(10),
         RGB::named(rltk::BROWN1),
         "Dagger",
     )
@@ -30,6 +32,7 @@ pub fn spawn_gino_rossi_boots(ecs: &mut World, x: usize, y: usize, level: usize)
         y,
         level,
         rltk::to_cp437('['),
+        Some(9),
         RGB::named(rltk::BROWN1),
         "Gino rossi boots",
     )
@@ -47,6 +50,7 @@ pub fn spawn_chain_armor(ecs: &mut World, x: usize, y: usize, level: usize) -> E
         y,
         level,
         rltk::to_cp437('['),
+        Some(10),
         RGB::named(rltk::WHITE),
         "Chain armor",
     )

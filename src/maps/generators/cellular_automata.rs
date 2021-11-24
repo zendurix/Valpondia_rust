@@ -182,7 +182,7 @@ impl CAMapGen {
             let tile_type = if place.alive {
                 TileType::Floor
             } else {
-                TileType::Wall
+                TileType::Rock
             };
             self.map.set_tile_at_index(i, tile_type);
         }

@@ -71,8 +71,6 @@ impl DrunkardWalkGen {
             .xy_to_index(centr_pos.x as usize, centr_pos.y as usize);
         self.map.tiles[centr_idx] = TileType::Floor;
 
-        let tiles_len = self.map.tiles.len();
-
         let mut floor_tile_perc = self.map.floor_tiles_perc();
 
         let mut digger_count = 0;

@@ -19,7 +19,7 @@ pub struct Position {
 #[derive(Component, Debug, Clone)]
 pub struct Renderable {
     pub ascii: u16,
-    pub texture: Option<()>, // add textures here
+    pub texture: Option<usize>, // texture index
     pub fg: RGB,
     pub bg: RGB,
     /// If more then one entities are on same pos ent with lowest order is drawn.

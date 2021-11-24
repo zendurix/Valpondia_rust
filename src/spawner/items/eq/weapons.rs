@@ -13,6 +13,7 @@ pub fn spawn_dagger(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
         y,
         level,
         rltk::to_cp437('/'),
+        Some(11),
         RGB::named(rltk::WHITE),
         "Dagger",
     )
@@ -30,6 +31,7 @@ pub fn spawn_zweihander(ecs: &mut World, x: usize, y: usize, level: usize) -> En
         y,
         level,
         rltk::to_cp437('/'),
+        Some(12),
         RGB::named(rltk::WHITE),
         "Zweihander",
     )

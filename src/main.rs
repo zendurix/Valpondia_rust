@@ -21,13 +21,23 @@ use ecs::{components, game_state::RunState, State};
 // };
 use levels::level::LevelType;
 
-use crate::{graphics::GuiDrawer, spawner::player::spawn_player};
+use crate::{
+    graphics::{window::create_sprite_window, GuiDrawer},
+    spawner::player::spawn_player,
+};
 
-const WINDOW_WIDTH: usize = 100;
-const WINDOW_HEIGHT: usize = 80;
+// const WINDOW_WIDTH: usize = 100;
+// const WINDOW_HEIGHT: usize = 80;
+const WINDOW_WIDTH: usize = 80;
+const WINDOW_HEIGHT: usize = 60;
 pub const CONSOLE_BOX_HEIGHT: usize = 8;
 
+rltk::embedded_resource!(SPRITE_SHEET, "../resources/sprite_sheet_16x16.png");
+rltk::embedded_resource!(CHAR_SHEET, "../resources/terminal_16x16.png");
+
 fn main() {
+    rltk::link_resource!(SPRITE_SHEET, "resources/sprite_sheet_16x16.png");
+    rltk::link_resource!(CHAR_SHEET, "resources/terminal_16x16.png");
     // music
     //  let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
     //
@@ -39,7 +49,8 @@ fn main() {
     //      println!("Music file not found!");
     //  }
 
-    let context = graphics::create_window(WINDOW_WIDTH, WINDOW_HEIGHT);
+    let context = create_sprite_window(WINDOW_WIDTH, WINDOW_HEIGHT);
+
     // caves of qud effect
     // context.with_post_scanlines(true);
 

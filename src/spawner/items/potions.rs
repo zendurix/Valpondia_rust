@@ -12,6 +12,7 @@ pub fn spawn_great_healing_potion(ecs: &mut World, x: usize, y: usize, level: us
         y,
         level,
         rltk::to_cp437('i'),
+        Some(13),
         RGB::named(rltk::RED2),
         "Great health potion",
     )
@@ -29,6 +30,7 @@ pub fn spawn_healing_potion(ecs: &mut World, x: usize, y: usize, level: usize) -
         y,
         level,
         rltk::to_cp437('i'),
+        Some(14),
         RGB::named(rltk::PINK),
         "Health potion",
     )

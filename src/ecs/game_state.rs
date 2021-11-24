@@ -411,7 +411,12 @@ impl GameState for State {
             RunState::MainMenu => {}
             #[cfg(feature = "map_gen_testing")]
             RunState::MapGenTesting(_) => {}
-            _ => self.draw_game_graphics(ctx),
+            _ => {
+                
+                self.draw_game_graphics(ctx);
+                
+                rltk::render_draw_buffer(ctx).expect("Render error");
+            },
         }
 
         match run_state {
@@ -601,7 +606,10 @@ impl GameState for State {
 
 #[cfg(feature = "map_gen_testing")]
 fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
-    use crate::maps::generators::{bsp::{interior::BSPInteriorGen, BSPConfig, BSPDungeonGen}, drunkard_walk::{DrunkardWalkConfig, DrunkardWalkGen}};
+    use crate::maps::generators::{
+        bsp::{interior::BSPInteriorGen, BSPConfig, BSPDungeonGen},
+        drunkard_walk::{DrunkardWalkConfig, DrunkardWalkGen},
+    };
 
     let mut run_state = RunState::MapGenTesting(false);
 

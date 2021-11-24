@@ -5,6 +5,7 @@ use specs::Entity;
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum TileType {
     Floor,
+    Rock,
     Wall,
 
     #[cfg(feature = "map_gen_testing")]
@@ -16,22 +17,36 @@ pub enum TileType {
 
 impl TileType {
     pub fn blocks_visibility(self) -> bool {
-        self == TileType::Wall
+        self == TileType::Wall || self == TileType::Rock
     }
 
     pub fn blocks_movement(self) -> bool {
-        self == TileType::Wall
+        self == TileType::Wall || self == TileType::Rock
     }
 
     pub fn draw(self) -> (FontCharType, RGB) {
         match self {
             TileType::Floor => (rltk::to_cp437('.'), RGB::named(rltk::GREEN)),
             TileType::Wall => (rltk::to_cp437('#'), RGB::named(rltk::GREEN)),
+            TileType::Rock => (rltk::to_cp437('#'), RGB::named(rltk::GREEN)),
             // RODO add color to TileType, temp for testing
             #[cfg(feature = "map_gen_testing")]
             TileType::WallRed => (rltk::to_cp437('#'), RGB::named(rltk::RED)),
             TileType::StairsDown => (rltk::to_cp437('>'), RGB::named(rltk::PINK2)),
             TileType::StairsUp => (rltk::to_cp437('<'), RGB::named(rltk::PINK2)),
+        }
+    }
+
+    pub fn texture_index(self) -> Option<usize> {
+        match self {
+            TileType::Floor => Some(18),
+            TileType::Wall => Some(0),
+            TileType::Rock => Some(1),
+            // RODO add color to TileType, temp for testing
+            #[cfg(feature = "map_gen_testing")]
+            TileType::WallRed => None,
+            TileType::StairsDown => Some(16),
+            TileType::StairsUp => Some(17),
         }
     }
 }
