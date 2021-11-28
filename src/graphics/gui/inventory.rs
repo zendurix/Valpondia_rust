@@ -39,6 +39,7 @@ pub struct GuiInventoryManager {
     pub title: TextCol,
     pub options: Vec<TextCol>,
     pub options_ent: Vec<Entity>,
+    pub options_sprites_indexes: Vec<Option<usize>>,
 }
 
 impl WindowOptionSelector for GuiInventoryManager {
@@ -64,6 +65,7 @@ impl GuiInventoryManager {
             )]),
             options: vec![],
             options_ent: vec![],
+            options_sprites_indexes: vec![],
         }
     }
 
@@ -73,6 +75,7 @@ impl GuiInventoryManager {
         let names = gs.ecs.read_storage::<components::Name>();
         let inventories = gs.ecs.read_storage::<components::InInventory>();
         let equipped = gs.ecs.read_storage::<components::Equipped>();
+        let renderables = gs.ecs.read_storage::<components::Renderable>();
         let entities = gs.ecs.entities();
 
         let mut items_groupped = HashMap::<String, (usize, Entity)>::default();
@@ -104,6 +107,16 @@ impl GuiInventoryManager {
                 text
             })
             .collect_vec();
+
+        self.options_sprites_indexes.clear();
+        for item in items_groupped.iter() {
+            if let Some(render) = renderables.get(item.1 .1) {
+                self.options_sprites_indexes.push(render.texture);
+            } else {
+                self.options_sprites_indexes.push(None);
+            }
+        }
+
         self.options_ent = items_groupped
             .iter()
             //   .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
@@ -112,8 +125,6 @@ impl GuiInventoryManager {
     }
 
     pub fn update(&mut self, ctx: &mut Rltk) -> InventoryMenuAction {
-        self.draw(ctx);
-
         let action = self.handle_input(ctx);
         match action {
             crate::graphics::gui::menus::MenuAction::SelectedIndex(i) => {
@@ -135,6 +146,7 @@ pub struct GuiItemActionManager {
 
     pub title: TextCol,
     pub options: Vec<TextCol>,
+    pub options_sprites_indexes: Vec<Option<usize>>,
 }
 
 impl WindowOptionSelector for GuiItemActionManager {
@@ -159,6 +171,7 @@ impl GuiItemActionManager {
                 rltk::RGB::named(rltk::WHITE),
             )]),
             options: vec![],
+            options_sprites_indexes: vec![],
         }
     }
 

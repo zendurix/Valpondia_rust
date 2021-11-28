@@ -67,47 +67,115 @@ pub fn spawn_random_monster(ecs: &mut World, x: usize, y: usize, level: usize) -
 }
 
 pub fn spawn_goblin(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('g'), 
-    Some(3),"Goblin", 10, 4, 1).build()
+    spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('g'),
+        Some(3),
+        "Goblin",
+        10,
+        4,
+        1,
+    )
+    .build()
 }
 
 pub fn spawn_orc(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    let orc = spawn_monster(ecs, x, y, level, rltk::to_cp437('o'), Some(4),"Orc", 32, 12, 3)
-        .with(components::Inventory::new_empty())
-        .with(components::BodyParts::default_humanoid())
-        .build();
+    let orc = spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('o'),
+        Some(4),
+        "Orc",
+        32,
+        12,
+        3,
+    )
+    .with(components::Inventory::new_empty())
+    .with(components::BodyParts::default_humanoid())
+    .build();
     spawn_item_in_eq(ecs, orc, "Dagger".to_string(), x, y, level);
     orc
 }
 
 pub fn spawn_human(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('h'), Some(6),"Human", 20, 15, 2).build()
+    spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('h'),
+        Some(6),
+        "Human",
+        20,
+        15,
+        2,
+    )
+    .build()
 }
 
 pub fn spawn_knight(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    let knight = spawn_monster(ecs, x, y, level, rltk::to_cp437('k'), Some(5),"Knight", 35, 8, 7)
-        .with(components::Inventory::new_empty())
-        .with(components::BodyParts::default_humanoid())
-        .build();
+    let knight = spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('k'),
+        Some(5),
+        "Knight",
+        35,
+        8,
+        7,
+    )
+    .with(components::Inventory::new_empty())
+    .with(components::BodyParts::default_humanoid())
+    .build();
     spawn_item_in_eq(ecs, knight, "Chain armor".to_string(), x, y, level);
     spawn_item_in_eq(ecs, knight, "Zweihander".to_string(), x, y, level);
     knight
 }
 
 pub fn spawn_blip(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(ecs, x, y, level, rltk::to_cp437('b'), Some(8),"Blip", 8, 3, 2).build()
+    spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('b'),
+        Some(8),
+        "Blip",
+        8,
+        3,
+        2,
+    )
+    .build()
 }
 
 pub fn spawn_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    let blop = spawn_monster(ecs, x, y, level, rltk::to_cp437('B'), Some(7),"Blop", 50, 4, 5)
-        .with(components::SpawnsAfterDeath {
-            spawns: vec![
-                SpawnEntry::new("Blip".to_string(), 3, 5),
-                SpawnEntry::new("Blop".to_string(), 1, 1).with_chance(10),
-            ],
-        })
-        .with(components::Inventory::new_empty())
-        .build();
+    let blop = spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('B'),
+        Some(7),
+        "Blop",
+        50,
+        4,
+        5,
+    )
+    .with(components::SpawnsAfterDeath {
+        spawns: vec![
+            SpawnEntry::new("Blip".to_string(), 3, 5),
+            SpawnEntry::new("Blop".to_string(), 1, 1).with_chance(10),
+        ],
+    })
+    .with(components::Inventory::new_empty())
+    .build();
     spawn_item_into_inventory(ecs, blop, "Gino rossi boots".to_string(), x, y, level);
     blop
 }

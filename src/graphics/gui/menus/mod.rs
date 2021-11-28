@@ -1,6 +1,9 @@
-use rltk::{Rltk, RGB};
+use rltk::{DrawBatch, Rltk, RGB};
 
-use crate::ecs::systems::player::{input::get_input, InputType};
+use crate::{
+    ecs::systems::player::{input::get_input, InputType},
+    graphics::window::{CHAR_CONSOLE_INDEX, SPRITE_CONSOLE_INDEX},
+};
 
 pub mod main_menu;
 
@@ -85,6 +88,7 @@ pub trait WindowOptionSelector {
 
     fn title(&self) -> &TextCol;
     fn options(&self) -> &[TextCol];
+    fn options_sprites_indexes(&self) -> &[Option<usize>];
     fn selected(&self) -> usize;
     fn selected_mut(&mut self) -> &mut usize;
 
@@ -106,7 +110,21 @@ pub trait WindowOptionSelector {
 
     /// TODO add result
     fn draw(&self, ctx: &mut Rltk) {
+        ctx.set_active_console(SPRITE_CONSOLE_INDEX);
+        let mut draw_batch = DrawBatch::new();
+        draw_batch.target(SPRITE_CONSOLE_INDEX);
+
         ctx.draw_box(
+            self.x(),
+            self.y(),
+            self.width(),
+            self.height(),
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+        );
+
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
+        ctx.draw_box_double(
             self.x(),
             self.y(),
             self.width(),
@@ -160,8 +178,21 @@ pub trait WindowOptionSelector {
             );
             ctx.print_color(self.x() + 3, current_y, RGB::named(rltk::WHITE), bg, ") ");
 
+            if i < self.options_sprites_indexes().len() {
+                if let Some(sprite_index) = self.options_sprites_indexes()[i] {
+                    draw_batch.set(
+                        rltk::Point::new(self.x() as i32 + 5, current_y as i32),
+                        rltk::ColorPair::new(
+                            RGB::from_f32(1.0, 1., 1.0),
+                            RGB::from_f32(0., 0., 0.),
+                        ),
+                        sprite_index,
+                    );
+                }
+            }
+
             let opt_selected = opt.clone().with_bg(bg);
-            opt_selected.print(ctx, self.x() + 5, current_y);
+            opt_selected.print(ctx, self.x() + 6, current_y);
 
             current_y += 1;
         }
@@ -172,6 +203,17 @@ pub trait WindowOptionSelector {
             RGB::named(rltk::YELLOW),
             RGB::named(rltk::BLACK),
             "press ESCAPE to exit",
+        );
+
+        ctx.set_active_console(SPRITE_CONSOLE_INDEX);
+
+        ctx.draw_box(
+            self.x(),
+            self.y(),
+            self.width(),
+            self.height(),
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
         );
     }
 
@@ -238,6 +280,10 @@ macro_rules! impl_window_option_selector {
 
         fn selected_mut(&mut self) -> &mut usize {
             &mut self.selected
+        }
+
+        fn options_sprites_indexes(&self) -> &[Option<usize>] {
+            &self.options_sprites_indexes
         }
     };
 }

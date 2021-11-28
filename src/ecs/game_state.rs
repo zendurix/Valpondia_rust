@@ -1,5 +1,5 @@
 use lazy_static::__Deref;
-use rltk::{GameState, Point, Rltk};
+use rltk::{DrawBatch, GameState, Point, Rltk};
 use specs::prelude::*;
 
 use crate::ecs::components;
@@ -7,10 +7,12 @@ use crate::ecs::errors::Result;
 use crate::ecs::systems;
 use crate::gamelog::GameLog;
 use crate::graphics::gui::menus::main_menu::MainMenu;
+use crate::graphics::gui::menus::WindowOptionSelector;
 use crate::graphics::gui::{
     EquipmentMenuAction, GameOverSelection, InventoryMenuAction, ItemMenuAction,
     TargetingMenuAction,
 };
+use crate::graphics::window::{CHAR_CONSOLE_INDEX, SPRITE_CONSOLE_INDEX};
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
@@ -400,24 +402,56 @@ impl State {
 
         self.ecs.insert(player);
     }
-}
 
-impl GameState for State {
-    fn tick(&mut self, ctx: &mut Rltk) {
-        let mut run_state = *self.ecs.fetch::<RunState>();
+    pub fn draw_graphics(&self, ctx: &mut Rltk) {
+        let run_state = *self.ecs.fetch::<RunState>();
+
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
         ctx.cls();
+        ctx.set_active_console(SPRITE_CONSOLE_INDEX);
+        ctx.cls();
+
+        let mut draw_batch = DrawBatch::new();
+        draw_batch.target(SPRITE_CONSOLE_INDEX);
+        draw_batch.cls();
 
         match run_state {
             RunState::MainMenu => {}
             #[cfg(feature = "map_gen_testing")]
             RunState::MapGenTesting(_) => {}
             _ => {
-                
                 self.draw_game_graphics(ctx);
-                
-                rltk::render_draw_buffer(ctx).expect("Render error");
-            },
+            }
         }
+
+        match run_state {
+            RunState::ShowInventory => self.gui_drawer.inv_manager.draw(ctx),
+
+            RunState::ShowEquipment => {
+                self.gui_drawer.eq_manager.draw(ctx);
+            }
+
+            RunState::ShowItemActions(_item) => {
+                self.gui_drawer.item_action_manager.draw(ctx);
+            }
+
+            _ => {}
+        }
+
+        let mut draw_batch = DrawBatch::new();
+        draw_batch.target(SPRITE_CONSOLE_INDEX);
+        draw_batch
+            .submit(SPRITE_CONSOLE_INDEX)
+            .expect("Draw Batch error");
+        rltk::render_draw_buffer(ctx).expect("Render error");
+    }
+}
+
+impl GameState for State {
+    fn tick(&mut self, ctx: &mut Rltk) {
+        let mut run_state = *self.ecs.fetch::<RunState>();
+
+        self.draw_graphics(ctx);
 
         match run_state {
             RunState::PreRun => {
@@ -690,6 +724,9 @@ fn print_tested_map(
         graphics::draw_map_without_fov,
     };
 
+    ctx.set_active_console(CHAR_CONSOLE_INDEX);
+    ctx.cls();
+
     let history = manager.map_gen.try_get_history();
     let history_size = history.len();
 
@@ -704,10 +741,17 @@ fn print_tested_map(
         manager.current_history_index = current_index;
     }
 
-    ctx.cls();
-
     draw_map_without_fov(&history[current_index].0, ctx);
 
+    let mut draw_batch = DrawBatch::new();
+    draw_batch.target(SPRITE_CONSOLE_INDEX);
+    draw_batch
+        .submit(SPRITE_CONSOLE_INDEX)
+        .expect("Draw Batch error");
+    rltk::render_draw_buffer(ctx).expect("Render error");
+
+    
+    ctx.set_active_console(CHAR_CONSOLE_INDEX);
     let press_enter_info = if current_index < history_size - 1 {
         "Press Spacebar to progres step"
     } else {

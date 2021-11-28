@@ -26,6 +26,7 @@ pub struct GuiEquipmentManager {
 
     pub title: TextCol,
     pub options: Vec<TextCol>,
+    pub options_sprites_indexes: Vec<Option<usize>>,
 }
 
 impl WindowOptionSelector for GuiEquipmentManager {
@@ -50,6 +51,7 @@ impl GuiEquipmentManager {
                 rltk::RGB::named(rltk::WHITE),
             )]),
             options: vec![],
+            options_sprites_indexes: vec![],
         }
     }
 
@@ -79,7 +81,6 @@ impl GuiEquipmentManager {
     }
 
     pub fn update(&mut self, ctx: &mut Rltk) -> EquipmentMenuAction {
-        self.draw(ctx);
         let action = self.handle_input(ctx);
         match action {
             super::menus::MenuAction::SelectedIndex(_i) => {

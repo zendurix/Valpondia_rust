@@ -25,6 +25,8 @@ pub use targeting::{show_targeting, TargetingMenuAction};
 #[cfg(feature = "map_gen_testing")]
 use self::menus::map_testing::GuiMapGenTestingManager;
 
+use super::window::{CHAR_CONSOLE_INDEX, SPRITE_CONSOLE_INDEX};
+
 #[derive(PartialEq, Copy, Clone)]
 pub enum GameOverSelection {
     NoSelection,
@@ -92,6 +94,7 @@ impl GuiDrawer {
     }
 
     pub fn draw_ui(&self, ecs: &World, ctx: &mut Rltk) {
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
         // Draw mouse cursor
         let mouse_pos = ctx.mouse_pos();
         ctx.set_bg(mouse_pos.0, mouse_pos.1, RGB::named(rltk::MAGENTA));
@@ -265,6 +268,7 @@ impl GuiDrawer {
     }
 
     pub fn game_over(&self, ctx: &mut Rltk) -> GameOverSelection {
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
         ctx.draw_box_double(
             (self.window_width / 2) - 20,
             (self.window_height / 2) - 20,

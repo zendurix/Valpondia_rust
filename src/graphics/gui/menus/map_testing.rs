@@ -49,6 +49,7 @@ pub struct GuiMapGenTestingManager {
 
     pub title: TextCol,
     pub options: Vec<TextCol>,
+    pub options_sprites_indexes: Vec<Option<usize>>,
 
     pub map_gen: Box<dyn MapGenerator>,
     pub current_history_index: usize,
@@ -76,6 +77,7 @@ impl GuiMapGenTestingManager {
                 rltk::RGB::named(rltk::WHITE),
             )]),
             options: vec![],
+            options_sprites_indexes: vec![],
             show_steps: false,
             map_gen: Box::new(TestMap::new(width - 4, height - 4)),
             current_history_index: 0,
@@ -134,7 +136,6 @@ impl GuiMapGenTestingManager {
 
     pub fn update(&mut self, ctx: &mut Rltk) -> MapGenTestingMenuAction {
         self.draw(ctx);
-
         let action = self.handle_input(ctx);
         match action {
             MenuAction::SelectedIndex(i) => MapGenTestingMenuAction::from(i),

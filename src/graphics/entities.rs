@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use rltk::{RGB, Rltk};
+use rltk::{Rltk, RGB};
 use specs::{Entity, Join, WorldExt};
 
 use crate::{
@@ -8,13 +8,11 @@ use crate::{
     maps::TileType,
 };
 
-pub fn draw_entities(gs: &State, ctx: &mut Rltk) {    
-    ctx.set_active_console(0);    
-    
+use super::window::SPRITE_CONSOLE_INDEX;
+
+pub fn draw_entities(gs: &State, _ctx: &mut Rltk) {
     let mut draw_batch = rltk::DrawBatch::new();
-    draw_batch.target(0);
-
-
+    draw_batch.target(SPRITE_CONSOLE_INDEX);
 
     let positions = gs.ecs.read_storage::<components::Position>();
     let renderables = gs.ecs.read_storage::<components::Renderable>();
@@ -48,6 +46,4 @@ pub fn draw_entities(gs: &State, ctx: &mut Rltk) {
             );
         }
     }
-    draw_batch.submit(0).expect("Batch error");
-    ctx.set_active_console(1);
 }

@@ -44,7 +44,7 @@ impl TileType {
             TileType::Rock => Some(1),
             // RODO add color to TileType, temp for testing
             #[cfg(feature = "map_gen_testing")]
-            TileType::WallRed => None,
+            TileType::WallRed => Some(16),
             TileType::StairsDown => Some(16),
             TileType::StairsUp => Some(17),
         }

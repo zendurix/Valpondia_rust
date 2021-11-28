@@ -2,7 +2,10 @@ use rltk::{Rltk, RGB};
 
 use crate::{
     ecs::systems::player::{input::get_input, InputType},
-    graphics::gui::{MainMenuAction, MainMenuSelection},
+    graphics::{
+        gui::{MainMenuAction, MainMenuSelection},
+        window::CHAR_CONSOLE_INDEX,
+    },
 };
 
 pub struct MainMenu {
@@ -51,6 +54,8 @@ impl MainMenu {
     }
 
     pub fn draw(&mut self, ctx: &mut Rltk) -> MainMenuAction {
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
+
         ctx.print_color_centered(
             self.title_y,
             RGB::named(rltk::YELLOW),
