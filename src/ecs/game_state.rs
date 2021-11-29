@@ -424,6 +424,13 @@ impl State {
             }
         }
 
+        let mut draw_batch = DrawBatch::new();
+        draw_batch.target(SPRITE_CONSOLE_INDEX);
+        draw_batch
+            .submit(SPRITE_CONSOLE_INDEX)
+            .expect("Draw Batch error");
+        rltk::render_draw_buffer(ctx).expect("Render error");
+
         match run_state {
             RunState::ShowInventory => self.gui_drawer.inv_manager.draw(ctx),
 
@@ -438,12 +445,7 @@ impl State {
             _ => {}
         }
 
-        let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_CONSOLE_INDEX);
-        draw_batch
-            .submit(SPRITE_CONSOLE_INDEX)
-            .expect("Draw Batch error");
-        rltk::render_draw_buffer(ctx).expect("Render error");
+
     }
 }
 

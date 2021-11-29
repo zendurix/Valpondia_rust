@@ -111,15 +111,12 @@ pub trait WindowOptionSelector {
     /// TODO add result
     fn draw(&self, ctx: &mut Rltk) {
         ctx.set_active_console(SPRITE_CONSOLE_INDEX);
-        let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_CONSOLE_INDEX);
-
         ctx.draw_box(
             self.x(),
             self.y(),
             self.width(),
             self.height(),
-            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
             RGB::named(rltk::BLACK),
         );
 
@@ -178,18 +175,18 @@ pub trait WindowOptionSelector {
             );
             ctx.print_color(self.x() + 3, current_y, RGB::named(rltk::WHITE), bg, ") ");
 
-            if i < self.options_sprites_indexes().len() {
-                if let Some(sprite_index) = self.options_sprites_indexes()[i] {
-                    draw_batch.set(
-                        rltk::Point::new(self.x() as i32 + 5, current_y as i32),
-                        rltk::ColorPair::new(
-                            RGB::from_f32(1.0, 1., 1.0),
-                            RGB::from_f32(0., 0., 0.),
-                        ),
-                        sprite_index,
-                    );
-                }
-            }
+           // if i < self.options_sprites_indexes().len() {
+           //     if let Some(sprite_index) = self.options_sprites_indexes()[i] {
+           //         draw_batch.set(
+           //             rltk::Point::new(self.x() as i32 + 5, current_y as i32),
+           //             rltk::ColorPair::new(
+           //                 RGB::from_f32(1.0, 1., 1.0),
+           //                 RGB::from_f32(0., 0., 0.),
+           //             ),
+           //             sprite_index,
+           //         );
+           //     }
+           // }
 
             let opt_selected = opt.clone().with_bg(bg);
             opt_selected.print(ctx, self.x() + 6, current_y);
@@ -203,17 +200,6 @@ pub trait WindowOptionSelector {
             RGB::named(rltk::YELLOW),
             RGB::named(rltk::BLACK),
             "press ESCAPE to exit",
-        );
-
-        ctx.set_active_console(SPRITE_CONSOLE_INDEX);
-
-        ctx.draw_box(
-            self.x(),
-            self.y(),
-            self.width(),
-            self.height(),
-            RGB::named(rltk::WHITE),
-            RGB::named(rltk::BLACK),
         );
     }
 
