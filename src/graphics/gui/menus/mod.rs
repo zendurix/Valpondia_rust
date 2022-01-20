@@ -1,4 +1,4 @@
-use rltk::{DrawBatch, Rltk, RGB};
+use rltk::{Rltk, RGB};
 
 use crate::{
     ecs::systems::player::{input::get_input, InputType},
@@ -175,18 +175,18 @@ pub trait WindowOptionSelector {
             );
             ctx.print_color(self.x() + 3, current_y, RGB::named(rltk::WHITE), bg, ") ");
 
-           // if i < self.options_sprites_indexes().len() {
-           //     if let Some(sprite_index) = self.options_sprites_indexes()[i] {
-           //         draw_batch.set(
-           //             rltk::Point::new(self.x() as i32 + 5, current_y as i32),
-           //             rltk::ColorPair::new(
-           //                 RGB::from_f32(1.0, 1., 1.0),
-           //                 RGB::from_f32(0., 0., 0.),
-           //             ),
-           //             sprite_index,
-           //         );
-           //     }
-           // }
+            // if i < self.options_sprites_indexes().len() {
+            //     if let Some(sprite_index) = self.options_sprites_indexes()[i] {
+            //         draw_batch.set(
+            //             rltk::Point::new(self.x() as i32 + 5, current_y as i32),
+            //             rltk::ColorPair::new(
+            //                 RGB::from_f32(1.0, 1., 1.0),
+            //                 RGB::from_f32(0., 0., 0.),
+            //             ),
+            //             sprite_index,
+            //         );
+            //     }
+            // }
 
             let opt_selected = opt.clone().with_bg(bg);
             opt_selected.print(ctx, self.x() + 6, current_y);

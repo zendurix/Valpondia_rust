@@ -305,9 +305,7 @@ impl State {
     }
 
     fn draw_game_graphics(&self, ctx: &mut Rltk) {
-        graphics::draw_map_with_fov(self, ctx);
-        // graphics::draw_map_without_fov(self.current_map(), ctx);
-        graphics::draw_entities(self, ctx);
+        graphics::draw_map_and_entities_with_fov_and_camera(self, ctx);
         self.gui_drawer.draw_ui(&self.ecs, ctx);
     }
 
@@ -444,8 +442,6 @@ impl State {
 
             _ => {}
         }
-
-
     }
 }
 
@@ -752,7 +748,6 @@ fn print_tested_map(
         .expect("Draw Batch error");
     rltk::render_draw_buffer(ctx).expect("Render error");
 
-    
     ctx.set_active_console(CHAR_CONSOLE_INDEX);
     let press_enter_info = if current_index < history_size - 1 {
         "Press Spacebar to progres step"

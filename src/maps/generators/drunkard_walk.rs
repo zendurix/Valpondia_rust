@@ -1,17 +1,14 @@
-use itertools::Itertools;
 use rltk::Point;
 
 use crate::{
     maps::{
         errors::Result,
-        rect::{apply_room_to_map, Rect},
         Map, TileType,
     },
     rng,
 };
 
 use super::{
-    common::{apply_horizontal_tunnel, apply_vertical_tunnel},
     MapGenerator,
 };
 
@@ -62,13 +59,9 @@ impl DrunkardWalkGen {
             Point::new(self.width as i32 / 2, self.height as i32 / 2)
         };
 
-        let centr_pos = Point {
-            x: self.map.width as i32 / 2,
-            y: self.map.height as i32 / 2,
-        };
         let centr_idx = self
             .map
-            .xy_to_index(centr_pos.x as usize, centr_pos.y as usize);
+            .xy_to_index(start_pos.x as usize, start_pos.y as usize);
         self.map.tiles[centr_idx] = TileType::Floor;
 
         let mut floor_tile_perc = self.map.floor_tiles_perc();
@@ -78,8 +71,8 @@ impl DrunkardWalkGen {
 
         while floor_tile_perc < self.config.min_area_perc {
             let mut did_something = false;
-            let mut drunk_x = centr_pos.x as usize;
-            let mut drunk_y = centr_pos.y as usize;
+            let mut drunk_x = start_pos.x as usize;
+            let mut drunk_y = start_pos.y as usize;
             let mut drunkard_life = self.config.drunkard_life;
 
             while drunkard_life > 0 {
