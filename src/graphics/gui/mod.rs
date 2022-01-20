@@ -25,7 +25,7 @@ pub use targeting::{show_targeting, TargetingMenuAction};
 #[cfg(feature = "map_gen_testing")]
 use self::menus::map_testing::GuiMapGenTestingManager;
 
-use super::window::{CHAR_CONSOLE_INDEX};
+use super::window::CHAR_CONSOLE_INDEX;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum GameOverSelection {
@@ -37,8 +37,6 @@ pub enum GameOverSelection {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MainMenuSelection {
     NewGame,
-    LoadGame,
-    Credits,
     #[cfg(feature = "map_gen_testing")]
     MapGenTesting,
     Quit,

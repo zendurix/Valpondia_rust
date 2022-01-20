@@ -417,7 +417,9 @@ impl MapGenerator for CAMapGen {
             let index = self
                 .map
                 .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
-            while self.map.tiles[index] != TileType::Floor || self.area().len() < self.config.min_cave_size_percent{
+            while self.map.tiles[index] != TileType::Floor
+                || self.area().len() < self.config.min_cave_size_percent
+            {
                 self.reset();
                 self.make_cave_map()?;
             }

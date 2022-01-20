@@ -22,8 +22,6 @@ impl MainMenu {
             title: "Rust roguelike".to_string(),
             options: vec![
                 ("New Game".to_string(), MainMenuSelection::NewGame),
-                ("Load Game".to_string(), MainMenuSelection::LoadGame),
-                ("Credits".to_string(), MainMenuSelection::Credits),
                 #[cfg(feature = "map_gen_testing")]
                 (
                     "Test Map Generators".to_string(),

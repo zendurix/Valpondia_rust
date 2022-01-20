@@ -1,16 +1,11 @@
 use rltk::Point;
 
 use crate::{
-    maps::{
-        errors::Result,
-        Map, TileType,
-    },
+    maps::{errors::Result, Map, TileType},
     rng,
 };
 
-use super::{
-    MapGenerator,
-};
+use super::MapGenerator;
 
 pub struct DrunkardWalkConfig {
     min_area_perc: usize,
@@ -160,7 +155,7 @@ impl MapGenerator for DrunkardWalkGen {
         self.map.clone()
     }
 
-    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {    
+    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
         let area = self.area();
         let areas_num = area.len() / 30;
         let mut areas = vec![];

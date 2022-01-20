@@ -578,11 +578,12 @@ impl GameState for State {
                         run_state = RunState::MainMenu;
                     }
                     gui::MainMenuAction::Selected(selected) => match selected {
-                        gui::MainMenuSelection::NewGame => run_state = RunState::PreRun,
-                        gui::MainMenuSelection::LoadGame => run_state = RunState::PreRun,
-
-                        // not implemented
-                        gui::MainMenuSelection::Credits => run_state = RunState::PreRun,
+                        gui::MainMenuSelection::NewGame => {
+                            run_state = {
+                                self.game_over_cleanup();
+                                RunState::PreRun
+                            }
+                        }
                         #[cfg(feature = "map_gen_testing")]
                         gui::MainMenuSelection::MapGenTesting => {
                             self.gui_drawer.map_gen_testing_manager.reset();

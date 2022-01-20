@@ -69,7 +69,12 @@ pub fn draw_map_and_entities_with_fov_and_camera(gs: &State, _ctx: &mut Rltk) {
     let seen_tiles_opt = player_view_memory
         .seen_tiles
         .get(&current_level.level_index)
-        .and_then(|t| Some(t.symmetric_difference(&player_view.visible_tiles).collect_vec()));
+        .and_then(|t| {
+            Some(
+                t.symmetric_difference(&player_view.visible_tiles)
+                    .collect_vec(),
+            )
+        });
 
     for i in 0..=(y_down - y_up) {
         for j in 0..=(x_right - x_left) {
