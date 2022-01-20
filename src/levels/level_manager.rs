@@ -2,7 +2,9 @@ use rltk::Point;
 
 use crate::maps::generators::{
     basic_dungeon::{BasicDungeonMap, BasicDungeonMapConfig},
+    bsp::{interior::BSPInteriorGen, BSPConfig, BSPDungeonGen},
     cellular_automata::CAMapGen,
+    drunkard_walk::{DrunkardWalkConfig, DrunkardWalkGen},
     genrate_map_and_spawn_areas,
     test_map::TestMap,
     MapGenerator,
@@ -50,10 +52,6 @@ impl LevelManager {
         prev_down_stairs_pos: Option<Point>,
     ) -> Result<usize> {
         let (map, spawn_areas) = match level_type {
-            LevelType::TestLevel => {
-                let gen = TestMap::new(width, height);
-                (gen.map(), vec![])
-            }
             LevelType::Cave => {
                 let gen = CAMapGen::new(width, height)?;
                 genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
@@ -62,7 +60,20 @@ impl LevelManager {
                 let gen = BasicDungeonMap::new(width, height, BasicDungeonMapConfig::default());
                 genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
             }
+            LevelType::BSPDungeon => {
+                let gen = BSPDungeonGen::new(width, height, BSPConfig::default());
+                genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
+            }
+            LevelType::BSPInterior => {
+                let gen = BSPInteriorGen::new(width, height, BSPConfig::default());
+                genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
+            }
+            LevelType::DrunkardWalk => {
+                let gen = DrunkardWalkGen::new(width, height, DrunkardWalkConfig::default());
+                genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
+            }
         };
+
         let new_level = Level {
             map,
             depth,

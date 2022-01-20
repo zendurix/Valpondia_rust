@@ -4,8 +4,10 @@ use crate::maps::Map;
 pub enum LevelType {
     Cave,
     BasicDungeon,
-    TestLevel,
-    // BSPDungeon,
+    BSPDungeon,
+    BSPInterior,
+    DrunkardWalk,
+    // TestLevel,
 }
 
 #[derive(Debug, Clone)]

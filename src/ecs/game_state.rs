@@ -64,7 +64,6 @@ pub enum RunState {
 /// Level - current level
 /// RunState - run state
 /// GameLog - messages log
-
 pub struct State {
     pub ecs: World,
 
@@ -81,6 +80,8 @@ pub struct State {
     pub map_height: usize,
 
     pub targeting_pos: Point,
+
+    pub level_order: Vec<LevelType>,
 }
 
 impl State {
@@ -102,6 +103,13 @@ impl State {
             gui_drawer,
             main_menu: MainMenu::new(),
             targeting_pos: Point::new(0, 0),
+            level_order: vec![
+                LevelType::BasicDungeon,
+                LevelType::BSPDungeon,
+                LevelType::Cave,
+                LevelType::DrunkardWalk,
+                LevelType::BSPInterior,
+            ],
         }
     }
 

@@ -81,7 +81,7 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Goblin".to_string(), 2, 6),
                 SpawnEntry::new("Health potion".to_string(), 0, 1),
-                SpawnEntry::new("Sleep scroll".to_string(), 0, 1),
+                SpawnEntry::new("Sleep scroll".to_string(), 1, 1).with_chance(20),
             ],
             ..SpawnPack::default()
         }
@@ -106,8 +106,8 @@ impl SpawnPack {
                 SpawnEntry::new("Orc".to_string(), 1, 1),
                 SpawnEntry::new("Goblin".to_string(), 2, 4),
                 SpawnEntry::new("Health potion".to_string(), 1, 2),
-                SpawnEntry::new("Great health potion".to_string(), 0, 1).with_chance(20),
-                SpawnEntry::new("Magic missile scroll".to_string(), 1, 1).with_chance(70),
+                SpawnEntry::new("Great health potion".to_string(), 1, 1).with_chance(20),
+                SpawnEntry::new("Magic missile scroll".to_string(), 1, 2).with_chance(70),
                 SpawnEntry::new("Sleep scroll".to_string(), 1, 1).with_chance(30),
             ],
             ..SpawnPack::default()
@@ -120,8 +120,8 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Knight".to_string(), 1, 1),
                 SpawnEntry::new("Health potion".to_string(), 2, 3),
-                SpawnEntry::new("Great health potion".to_string(), 0, 1).with_chance(80),
-                SpawnEntry::new("Fireball scroll".to_string(), 1, 1).with_chance(70),
+                SpawnEntry::new("Great health potion".to_string(), 1, 1).with_chance(80),
+                SpawnEntry::new("Fireball scroll".to_string(), 1, 2).with_chance(70),
                 SpawnEntry::new("Teleport scroll".to_string(), 1, 1).with_chance(45),
             ],
             ..SpawnPack::default()
@@ -148,7 +148,17 @@ impl SpawnPack {
                 SpawnEntry::new("Blop".to_string(), 1, 1),
                 SpawnEntry::new("Blip".to_string(), 2, 6),
                 SpawnEntry::new("Area sleep scroll".to_string(), 1, 1),
-                SpawnEntry::new("Great health potion".to_string(), 0, 1),
+                SpawnEntry::new("Great health potion".to_string(), 1, 1),
+            ],
+            ..SpawnPack::default()
+        }
+    }
+
+    pub fn blips_pack() -> SpawnPack {
+        SpawnPack {
+            min_area: 7,
+            entities: vec![
+                SpawnEntry::new("Blip".to_string(), 2, 6),
             ],
             ..SpawnPack::default()
         }
@@ -164,11 +174,10 @@ pub struct SpawnTable {
 impl SpawnTable {
     /// returns None, if no spawn can happen for this area.
     pub fn roll_spawn_pack_index(&mut self, area: usize) -> Option<usize> {
-        let max_rolls = 100;
+        let max_rolls = 1000;
         let mut i = 0;
         loop {
-            if i >= max_rolls {
-                println!("Cannot spawn for this area: {}", area);
+            if i >= max_rolls || self.spawn_packs.iter().all(|sp| sp.spawns_counter >= sp.max_spawns) {
                 return None;
             }
 
@@ -192,14 +201,21 @@ impl SpawnTable {
             level_type: LevelType::BasicDungeon,
             weight: 0,
             spawn_packs: vec![
-                SpawnPack::goblins_pack().with_max_spawns(5),
-                SpawnPack::orcs_pack().with_max_spawns(2),
+                SpawnPack::blips_pack().with_max_spawns(2),
+                SpawnPack::goblins_pack().with_max_spawns(2),
+                SpawnPack::goblins_with_orc_pack().with_max_spawns(1).with_chance_perc(10),
+            ],
+        }
+    }
+
+    pub fn bsp_dungeon() -> SpawnTable {
+        SpawnTable {
+            level_type: LevelType::BasicDungeon,
+            weight: 0,
+            spawn_packs: vec![
+                SpawnPack::goblins_pack().with_max_spawns(2),
+                SpawnPack::orcs_pack().with_max_spawns(1),
                 SpawnPack::goblins_with_orc_pack().with_max_spawns(1),
-                SpawnPack::knight_pack().with_max_spawns(1),
-                SpawnPack::blop_pack().with_max_spawns(1),
-                SpawnPack::humans_pack()
-                    .with_max_spawns(1)
-                    .with_chance_perc(30),
             ],
         }
     }
@@ -211,6 +227,28 @@ impl SpawnTable {
             spawn_packs: vec![
                 SpawnPack::goblins_pack().with_max_spawns(10),
                 SpawnPack::orcs_pack().with_max_spawns(2),
+            ],
+        }
+    }
+
+    pub fn drunkard_walk() -> SpawnTable {
+        SpawnTable {
+            level_type: LevelType::Cave,
+            weight: 0,
+            spawn_packs: vec![
+                SpawnPack::blips_pack().with_max_spawns(3),
+                SpawnPack::blop_pack().with_max_spawns(3),
+            ],
+        }
+    }
+
+    pub fn bsp_interior() -> SpawnTable {
+        SpawnTable {
+            level_type: LevelType::BasicDungeon,
+            weight: 0,
+            spawn_packs: vec![
+                SpawnPack::knight_pack().with_max_spawns(3),
+                SpawnPack::humans_pack().with_max_spawns(5)
             ],
         }
     }
