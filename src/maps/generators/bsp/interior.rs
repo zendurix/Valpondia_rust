@@ -47,6 +47,36 @@ impl BSPInteriorGen {
         }
     }
 
+    fn create_map(&mut self) -> Result<()> {
+        self.map = Map::new(self.width, self.height).with_all_solid();
+
+        let mut errors_count = 0;
+
+        while let Err(e) = self.tree.make_tree(
+            self.width,
+            self.height,
+            self.config.tree_height,
+            self.config.room_size_min,
+        ) {
+            self.reset();
+            errors_count += 1;
+
+            if errors_count > 20 {
+                return Err(e);
+            }
+        }
+
+        #[cfg(feature = "map_gen_testing")]
+        {
+            self.history = self.tree.split_history.clone();
+            self.map = self.history.last().unwrap().0.clone();
+        }
+
+        self.fill_tree_leaves_with_rooms();
+        self.connect_rooms();
+        Ok(())
+    }
+
     fn fill_tree_leaves_with_rooms(&mut self) {
         let mut rooms = vec![];
 
@@ -222,33 +252,18 @@ impl BSPInteriorGen {
 
 impl MapGenerator for BSPInteriorGen {
     fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()> {
-        self.map = Map::new(self.width, self.height).with_all_solid();
+        self.create_map()?;
 
-        let mut errors_count = 0;
-
-        while let Err(e) = self.tree.make_tree(
-            self.width,
-            self.height,
-            self.config.tree_height,
-            self.config.room_size_min,
-        ) {
-            println!("RESET ________________");
-            self.reset();
-            errors_count += 1;
-
-            if errors_count > 20 {
-                return Err(e);
+        if let Some(prev_stairs) = prev_down_stairs_pos {
+            let index = self
+                .map
+                .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
+            while self.map.tiles[index] != TileType::Floor {
+                self.reset();
+                self.create_map()?;
             }
         }
 
-        #[cfg(feature = "map_gen_testing")]
-        {
-            self.history = self.tree.split_history.clone();
-            self.map = self.history.last().unwrap().0.clone();
-        }
-
-        self.fill_tree_leaves_with_rooms();
-        self.connect_rooms();
         self.add_up_and_down_stairs(prev_down_stairs_pos);
 
         Ok(())

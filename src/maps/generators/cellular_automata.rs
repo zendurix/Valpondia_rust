@@ -452,7 +452,7 @@ impl MapGenerator for CAMapGen {
 
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
         let area = self.area();
-        let areas_num = area.len() / 30;
+        let areas_num = area.len() / 60;
         let mut areas = vec![];
         for _ in 0..areas_num {
             areas.push(area.clone());
