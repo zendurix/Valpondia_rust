@@ -145,17 +145,6 @@ impl CAMapGen {
     }
 
     fn add_up_and_down_stairs(&mut self, prev_down_stairs_pos: Option<Point>) {
-        // TODO add result with errors
-        let mut random_point = 0;
-
-        while self.map.tiles[random_point].blocks_movement() {
-            random_point = rng::range(
-                self.width as i32 + 1,
-                (self.width * (self.height - 1)) as i32,
-            ) as usize;
-        }
-        self.map.tiles[random_point] = TileType::StairsDown;
-
         if let Some(prev_stairs) = prev_down_stairs_pos {
             let index = self
                 .map
@@ -165,6 +154,18 @@ impl CAMapGen {
                 self.map.tiles[index] = TileType::StairsUp;
             }
         }
+
+        let mut random_point = 0;
+
+        while self.map.tiles[random_point].blocks_movement()
+            || self.map.tiles[random_point] == TileType::StairsUp
+        {
+            random_point = rng::range(
+                self.width as i32 + 1,
+                (self.width * (self.height - 1)) as i32,
+            ) as usize;
+        }
+        self.map.tiles[random_point] = TileType::StairsDown;
     }
 
     fn set_map(&mut self) {

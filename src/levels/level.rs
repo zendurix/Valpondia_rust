@@ -7,7 +7,7 @@ pub enum LevelType {
     BSPDungeon,
     BSPInterior,
     DrunkardWalk,
-    // TestLevel,
+    TestLevel,
 }
 
 #[derive(Debug, Clone)]

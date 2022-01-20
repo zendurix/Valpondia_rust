@@ -157,9 +157,7 @@ impl SpawnPack {
     pub fn blips_pack() -> SpawnPack {
         SpawnPack {
             min_area: 7,
-            entities: vec![
-                SpawnEntry::new("Blip".to_string(), 2, 6),
-            ],
+            entities: vec![SpawnEntry::new("Blip".to_string(), 2, 6)],
             ..SpawnPack::default()
         }
     }
@@ -177,7 +175,12 @@ impl SpawnTable {
         let max_rolls = 1000;
         let mut i = 0;
         loop {
-            if i >= max_rolls || self.spawn_packs.iter().all(|sp| sp.spawns_counter >= sp.max_spawns) {
+            if i >= max_rolls
+                || self
+                    .spawn_packs
+                    .iter()
+                    .all(|sp| sp.spawns_counter >= sp.max_spawns)
+            {
                 return None;
             }
 
@@ -203,7 +206,9 @@ impl SpawnTable {
             spawn_packs: vec![
                 SpawnPack::blips_pack().with_max_spawns(2),
                 SpawnPack::goblins_pack().with_max_spawns(2),
-                SpawnPack::goblins_with_orc_pack().with_max_spawns(1).with_chance_perc(10),
+                SpawnPack::goblins_with_orc_pack()
+                    .with_max_spawns(1)
+                    .with_chance_perc(10),
             ],
         }
     }
@@ -248,7 +253,7 @@ impl SpawnTable {
             weight: 0,
             spawn_packs: vec![
                 SpawnPack::knight_pack().with_max_spawns(3),
-                SpawnPack::humans_pack().with_max_spawns(5)
+                SpawnPack::humans_pack().with_max_spawns(5),
             ],
         }
     }

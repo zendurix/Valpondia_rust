@@ -232,12 +232,6 @@ impl BSPInteriorGen {
     }
 
     fn add_up_and_down_stairs(&mut self, prev_down_stairs_pos: Option<Point>) {
-        // TODO add result with errors
-        let random_room = rng::range(0, self.rooms.len() as i32 - 1) as usize;
-        let center = self.rooms[random_room].center();
-        let index = self.map.xy_to_index(center.0, center.1);
-        self.map.tiles[index] = TileType::StairsDown;
-
         if let Some(prev_stairs) = prev_down_stairs_pos {
             let index = self
                 .map
@@ -247,6 +241,15 @@ impl BSPInteriorGen {
                 self.map.tiles[index] = TileType::StairsUp;
             }
         }
+
+        let mut index = 0;
+        while self.map.tiles[index].blocks_movement() || self.map.tiles[index] == TileType::StairsUp
+        {
+            let random_room = rng::range(0, self.rooms.len() as i32 - 1) as usize;
+            let center = self.rooms[random_room].center();
+            index = self.map.xy_to_index(center.0, center.1);
+        }
+        self.map.tiles[index] = TileType::StairsDown;
     }
 }
 
