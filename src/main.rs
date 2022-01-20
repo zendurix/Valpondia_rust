@@ -54,7 +54,7 @@ fn main() {
 
     gs.ecs.insert(RunState::MainMenu);
     gs.ecs.insert(gamelog::GameLog {
-        entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
+        entries: vec!["  =====WELCOME INTO ROGUELIKE======  ".to_string()],
     });
 
     let test = gs.create_new_level(LevelType::BasicDungeon, WINDOW_WIDTH, map_height, 0, None);

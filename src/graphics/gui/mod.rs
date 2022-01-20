@@ -28,7 +28,7 @@ use self::menus::map_testing::GuiMapGenTestingManager;
 use super::window::CHAR_CONSOLE_INDEX;
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum GameOverSelection {
+pub enum PopuSelection {
     NoSelection,
     QuitToMenu,
 }
@@ -39,6 +39,7 @@ pub enum MainMenuSelection {
     NewGame,
     #[cfg(feature = "map_gen_testing")]
     MapGenTesting,
+    Controls,
     Quit,
 }
 
@@ -265,7 +266,7 @@ impl GuiDrawer {
         }
     }
 
-    pub fn game_over(&self, ctx: &mut Rltk) -> GameOverSelection {
+    pub fn game_over(&self, ctx: &mut Rltk) -> PopuSelection {
         ctx.set_active_console(CHAR_CONSOLE_INDEX);
         ctx.draw_box_double(
             (self.window_width / 2) - 20,
@@ -298,14 +299,13 @@ impl GuiDrawer {
 
         let input = get_input(ctx);
         match input {
-            None => GameOverSelection::NoSelection,
-            Some(InputType::Enter) => GameOverSelection::QuitToMenu,
-            _ => GameOverSelection::NoSelection,
+            None => PopuSelection::NoSelection,
+            Some(InputType::Enter) => PopuSelection::QuitToMenu,
+            _ => PopuSelection::NoSelection,
         }
     }
 
-    
-    pub fn game_won(&self, ctx: &mut Rltk) -> GameOverSelection {
+    pub fn game_won(&self, ctx: &mut Rltk) -> PopuSelection {
         ctx.set_active_console(CHAR_CONSOLE_INDEX);
         ctx.draw_box_double(
             (self.window_width / 2) - 20,
@@ -344,9 +344,70 @@ impl GuiDrawer {
 
         let input = get_input(ctx);
         match input {
-            None => GameOverSelection::NoSelection,
-            Some(InputType::Enter) => GameOverSelection::QuitToMenu,
-            _ => GameOverSelection::NoSelection,
+            None => PopuSelection::NoSelection,
+            Some(InputType::Enter) => PopuSelection::QuitToMenu,
+            _ => PopuSelection::NoSelection,
+        }
+    }
+
+    pub fn show_controls(&self, ctx: &mut Rltk) -> PopuSelection {
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
+
+        let controls = "CONTROLS:
+
+Moving Up - Numpad'8' / Up arrow
+Moving Down - Numpad'2' / Down arrow
+Moving Left - Numpad'4' / Left arrow
+Moving Right - Numpad'6' / Right arrow
+Moving UpLeft - Numpad'7' / 'O'
+Moving UpRight - Numpad'9' / 'P'
+Moving DownLeft - Numpad'1' / 'K'
+Moving DownLeft - Numpad'3' / 'L'
+Wait One Turn - Numpad'5' / 'W'
+
+Fighting - walk over enemy
+
+Go Down Stairs - '.' (<) / '-'
+
+Go Up Stairs - ',' (>) / '+'
+
+Inventory - 'I'
+Equipped items - 'E'
+Selection in menus - 'Enter'
+
+Return to main menu (ends the game) - 'Esc'
+
+
+
+
+
+Press Enter to return to main menu
+        "
+        .to_string();
+
+        ctx.draw_box_double(
+            (self.window_width / 2) - 30,
+            3,
+            60,
+            controls.lines().count() + 2,
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+        );
+
+        for (i, line) in controls.lines().enumerate() {
+            ctx.print_color_centered(
+                5 + i,
+                RGB::named(rltk::WHITE),
+                RGB::named(rltk::BLACK),
+                line,
+            );
+        }
+
+        let input = get_input(ctx);
+        match input {
+            None => PopuSelection::NoSelection,
+            Some(InputType::Enter) => PopuSelection::QuitToMenu,
+            _ => PopuSelection::NoSelection,
         }
     }
 }

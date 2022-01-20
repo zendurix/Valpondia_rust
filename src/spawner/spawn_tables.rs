@@ -229,6 +229,7 @@ impl SpawnTable {
                 SpawnPack::goblins_pack().with_max_spawns(4),
                 SpawnPack::orcs_pack().with_max_spawns(3),
                 SpawnPack::goblins_with_orc_pack().with_max_spawns(2),
+                SpawnPack::knight_pack().with_max_spawns(1),
             ],
         }
     }

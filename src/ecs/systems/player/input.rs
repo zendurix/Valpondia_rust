@@ -39,15 +39,15 @@ pub enum InputType {
 pub fn get_input(ctx: &mut Rltk) -> Option<InputType> {
     match ctx.key {
         Some(key) => match key {
-            VirtualKeyCode::Numpad1 => Some(InputType::DownLeft),
+            VirtualKeyCode::Numpad1 | VirtualKeyCode::K => Some(InputType::DownLeft),
             VirtualKeyCode::Numpad2 | VirtualKeyCode::Down => Some(InputType::Down),
-            VirtualKeyCode::Numpad3 => Some(InputType::DownRight),
+            VirtualKeyCode::Numpad3 | VirtualKeyCode::L => Some(InputType::DownRight),
             VirtualKeyCode::Numpad4 | VirtualKeyCode::Left => Some(InputType::Left),
-            VirtualKeyCode::Numpad5 => Some(InputType::Center),
+            VirtualKeyCode::Numpad5 | VirtualKeyCode::W => Some(InputType::Center),
             VirtualKeyCode::Numpad6 | VirtualKeyCode::Right => Some(InputType::Right),
-            VirtualKeyCode::Numpad7 => Some(InputType::UpLeft),
+            VirtualKeyCode::Numpad7 | VirtualKeyCode::O => Some(InputType::UpLeft),
             VirtualKeyCode::Numpad8 | VirtualKeyCode::Up => Some(InputType::Up),
-            VirtualKeyCode::Numpad9 => Some(InputType::UpRight),
+            VirtualKeyCode::Numpad9 | VirtualKeyCode::P => Some(InputType::UpRight),
 
             VirtualKeyCode::G => Some(InputType::PickUpItem),
             VirtualKeyCode::I => Some(InputType::ShowInventory),
@@ -113,7 +113,7 @@ pub fn try_handle_input(gs: &mut State) -> RunState {
                 RunState::ShowEquipment
             }
 
-            InputType::Escape => RunState::SaveGame,
+            InputType::Escape => RunState::MainMenu,
             _ => RunState::AwaitingInput,
         }
     } else {

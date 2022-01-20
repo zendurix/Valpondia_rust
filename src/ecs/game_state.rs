@@ -9,8 +9,7 @@ use crate::gamelog::GameLog;
 use crate::graphics::gui::menus::main_menu::MainMenu;
 use crate::graphics::gui::menus::WindowOptionSelector;
 use crate::graphics::gui::{
-    EquipmentMenuAction, GameOverSelection, InventoryMenuAction, ItemMenuAction,
-    TargetingMenuAction,
+    EquipmentMenuAction, InventoryMenuAction, ItemMenuAction, PopuSelection, TargetingMenuAction,
 };
 use crate::graphics::window::{CHAR_CONSOLE_INDEX, SPRITE_CONSOLE_INDEX};
 use crate::graphics::{self, gui, GuiDrawer};
@@ -44,7 +43,6 @@ pub enum RunState {
     MainMenu,
     #[cfg(feature = "map_gen_testing")]
     MapGenTesting(bool),
-    SaveGame,
     AwaitingInput,
     PreRun,
     PlayerTurn,
@@ -56,6 +54,7 @@ pub enum RunState {
     MoveLevel(usize),
 
     GameOver,
+    Controls,
     Won,
 }
 
@@ -373,7 +372,7 @@ impl State {
         }
 
         let new_gamelog = GameLog {
-            entries: vec!["  =====WELCOME INTO VALPONDIA======  ".to_string()],
+            entries: vec!["  =====WELCOME INTO ROGUELIKE======  ".to_string()],
         };
         self.ecs.remove::<Level>();
         self.ecs.insert(new_gamelog);
@@ -598,17 +597,12 @@ impl GameState for State {
                             self.gui_drawer.map_gen_testing_manager.reset();
                             run_state = RunState::MapGenTesting(false)
                         }
+                        gui::MainMenuSelection::Controls => run_state = RunState::Controls,
                         gui::MainMenuSelection::Quit => {
                             std::process::exit(0);
                         }
                     },
                 }
-            }
-
-            RunState::SaveGame => {
-                //  let data = serde_json::to_string(&self.ecs.fetch::<Level>().map).unwrap();
-                //  println!("{}", data);
-                run_state = RunState::MainMenu;
             }
 
             RunState::MoveLevel(next_level) => {
@@ -623,19 +617,30 @@ impl GameState for State {
             RunState::GameOver => {
                 let result = self.gui_drawer.game_over(ctx);
                 match result {
-                    GameOverSelection::NoSelection => {}
-                    GameOverSelection::QuitToMenu => {
+                    PopuSelection::NoSelection => {}
+                    PopuSelection::QuitToMenu => {
                         self.game_over_cleanup();
                         run_state = RunState::MainMenu;
                     }
                 }
             }
+
             RunState::Won => {
                 let result = self.gui_drawer.game_won(ctx);
                 match result {
-                    GameOverSelection::NoSelection => {}
-                    GameOverSelection::QuitToMenu => {
+                    PopuSelection::NoSelection => {}
+                    PopuSelection::QuitToMenu => {
                         self.game_over_cleanup();
+                        run_state = RunState::MainMenu;
+                    }
+                }
+            }
+
+            RunState::Controls => {
+                let result = self.gui_drawer.show_controls(ctx);
+                match result {
+                    PopuSelection::NoSelection => {}
+                    PopuSelection::QuitToMenu => {
                         run_state = RunState::MainMenu;
                     }
                 }

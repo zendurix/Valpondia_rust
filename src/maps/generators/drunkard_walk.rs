@@ -130,7 +130,6 @@ impl DrunkardWalkGen {
                 }
             }
             floor_tile_perc = self.map.floor_tiles_perc();
-            println!("{}", floor_tile_perc);
         }
     }
 
