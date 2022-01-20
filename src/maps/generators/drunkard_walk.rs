@@ -78,7 +78,7 @@ impl DrunkardWalkGen {
 
                 #[cfg(feature = "map_gen_testing")]
                 {
-                    self.map.tiles[drunk_idx] = TileType::WallRed;
+                    self.map.tiles[drunk_idx] = TileType::TestWall;
                 }
                 #[cfg(not(feature = "map_gen_testing"))]
                 {
@@ -124,7 +124,7 @@ impl DrunkardWalkGen {
             #[cfg(feature = "map_gen_testing")]
             {
                 for t in self.map.tiles.iter_mut() {
-                    if *t == TileType::WallRed {
+                    if *t == TileType::TestWall {
                         *t = TileType::Floor;
                     }
                 }
@@ -157,12 +157,25 @@ impl DrunkardWalkGen {
         }
         self.map.tiles[random_point] = TileType::StairsDown;
     }
+
+    fn replace_debug_walls_with_walls(&mut self) {
+        for t in self.map.tiles.iter_mut() {
+            if *t == TileType::TestWall {
+                *t = TileType::Wall;
+            }
+        }
+    }
 }
 
 impl MapGenerator for DrunkardWalkGen {
     fn generate(&mut self, prev_down_stairs_pos: Option<Point>) -> Result<()> {
         self.create_drunkard_walk_map(prev_down_stairs_pos);
         self.add_up_and_down_stairs(prev_down_stairs_pos);
+        self.replace_debug_walls_with_walls();
+        #[cfg(feature = "map_gen_testing")]
+        {
+            self.history.push((self.map.clone(), format!("Finished")));
+        }
         Ok(())
     }
 

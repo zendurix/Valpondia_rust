@@ -66,7 +66,7 @@ pub fn apply_color_to_walls(room: &Rect, map: &mut Map) {
             }
 
             let tile_index = map.xy_to_index(x, y);
-            map.tiles[tile_index] = TileType::WallRed;
+            map.tiles[tile_index] = TileType::TestWall;
         }
     }
 }

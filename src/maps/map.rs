@@ -8,8 +8,7 @@ pub enum TileType {
     Rock,
     Wall,
 
-    #[cfg(feature = "map_gen_testing")]
-    WallRed,
+    TestWall,
 
     StairsDown,
     StairsUp,
@@ -29,9 +28,7 @@ impl TileType {
             TileType::Floor => (rltk::to_cp437('.'), RGB::named(rltk::GREEN)),
             TileType::Wall => (rltk::to_cp437('#'), RGB::named(rltk::GREEN)),
             TileType::Rock => (rltk::to_cp437('#'), RGB::named(rltk::GREEN)),
-            // RODO add color to TileType, temp for testing
-            #[cfg(feature = "map_gen_testing")]
-            TileType::WallRed => (rltk::to_cp437('#'), RGB::named(rltk::RED)),
+            TileType::TestWall => (rltk::to_cp437('#'), RGB::named(rltk::RED)),
             TileType::StairsDown => (rltk::to_cp437('>'), RGB::named(rltk::PINK2)),
             TileType::StairsUp => (rltk::to_cp437('<'), RGB::named(rltk::PINK2)),
         }
@@ -42,9 +39,7 @@ impl TileType {
             TileType::Floor => Some(18),
             TileType::Wall => Some(0),
             TileType::Rock => Some(1),
-            // RODO add color to TileType, temp for testing
-            #[cfg(feature = "map_gen_testing")]
-            TileType::WallRed => Some(16),
+            TileType::TestWall => Some(16),
             TileType::StairsDown => Some(16),
             TileType::StairsUp => Some(17),
         }

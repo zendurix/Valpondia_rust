@@ -30,8 +30,8 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             render_order: 0,
         })
         .with(components::Hp {
-            max_hp: 150,
-            hp: 150,
+            max_hp: 3000,
+            hp: 3000,
         })
         .with(components::CombatBaseStats {
             //attack: 10,

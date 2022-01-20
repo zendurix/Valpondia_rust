@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use rltk::field_of_view_set;
 use specs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
 
-use crate::{ecs::components, levels::level::Level};
+use crate::{ecs::components, levels::level::Level, graphics::gui::menus::WindowOptionSelector};
 
 pub struct ViewSystem {}
 
@@ -33,11 +33,17 @@ impl<'a> System<'a> for ViewSystem {
                 &current_level.map,
             );
             view.visible_tiles.retain(|p| {
-                p.x >= 0
-                    && p.x < current_level.map.width as i32
-                    && p.y >= 0
-                    && p.y < current_level.map.height as i32
+                p.x >= -1
+                    && p.x <= current_level.map.width as i32
+                    && p.y >= -1
+                    && p.y <= current_level.map.height as i32
             });
+            for i in 0..current_level.map.height_max() {
+                view.visible_tiles.insert(rltk::Point::new(0, i));
+            }
+            for i in 0..current_level.map.width_max() {
+                view.visible_tiles.insert(rltk::Point::new(i, 0));
+            }
             view.should_update = false;
         }
     }

@@ -10,8 +10,8 @@ use crate::{
 
 use super::window::SPRITE_CONSOLE_INDEX;
 
-pub const CAMERA_SIZE_X: i32 = 50;
-pub const CAMERA_SIZE_Y: i32 = 30;
+pub const CAMERA_SIZE_X: i32 = 79;
+pub const CAMERA_SIZE_Y: i32 = 50;
 
 /// return x_left, x_right, y_up, y_down
 fn calculate_camera_bounds(

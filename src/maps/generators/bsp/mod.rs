@@ -272,13 +272,23 @@ impl BSPDungeonGen {
         }
 
         let mut index = 0;
-        while self.map.tiles[index].blocks_movement() || self.map.tiles[index] == TileType::StairsUp
+        while index == 0
+            || self.map.tiles[index].blocks_movement()
+            || self.map.tiles[index] == TileType::StairsUp
         {
             let random_room = rng::range(0, self.rooms.len() as i32 - 1) as usize;
             let center = self.rooms[random_room].center();
             index = self.map.xy_to_index(center.0, center.1);
         }
         self.map.tiles[index] = TileType::StairsDown;
+    }
+
+    fn replace_debug_walls_with_walls(&mut self) {
+        for t in self.map.tiles.iter_mut() {
+            if *t == TileType::TestWall {
+                *t = TileType::Wall;
+            }
+        }
     }
 }
 
@@ -296,6 +306,11 @@ impl MapGenerator for BSPDungeonGen {
             }
         }
         self.add_up_and_down_stairs(prev_down_stairs_pos);
+        self.replace_debug_walls_with_walls();
+        #[cfg(feature = "map_gen_testing")]
+        {
+            self.history.push((self.map.clone(), format!("Finished")));
+        }
 
         Ok(())
     }

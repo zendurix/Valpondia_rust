@@ -303,4 +303,50 @@ impl GuiDrawer {
             _ => GameOverSelection::NoSelection,
         }
     }
+
+    
+    pub fn game_won(&self, ctx: &mut Rltk) -> GameOverSelection {
+        ctx.set_active_console(CHAR_CONSOLE_INDEX);
+        ctx.draw_box_double(
+            (self.window_width / 2) - 20,
+            (self.window_height / 2) - 20,
+            40,
+            40,
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+        );
+
+        ctx.print_color_centered(
+            self.window_height / 2,
+            RGB::named(rltk::YELLOW),
+            RGB::named(rltk::BLACK),
+            "CONGRATULATIONS!",
+        );
+        ctx.print_color_centered(
+            (self.window_height / 2) + 1,
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+            "You have won the game!",
+        );
+        ctx.print_color_centered(
+            (self.window_height / 2) + 3,
+            RGB::named(rltk::WHITE),
+            RGB::named(rltk::BLACK),
+            "...",
+        );
+
+        ctx.print_color_centered(
+            (self.window_height / 2) + 5,
+            RGB::named(rltk::MAGENTA),
+            RGB::named(rltk::BLACK),
+            "Press Enter to return to main menu.",
+        );
+
+        let input = get_input(ctx);
+        match input {
+            None => GameOverSelection::NoSelection,
+            Some(InputType::Enter) => GameOverSelection::QuitToMenu,
+            _ => GameOverSelection::NoSelection,
+        }
+    }
 }

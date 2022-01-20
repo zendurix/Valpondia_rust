@@ -199,12 +199,20 @@ impl SpawnTable {
         }
     }
 
+    pub fn empty() -> SpawnTable {
+        SpawnTable {
+            level_type: LevelType::TestLevel,
+            weight: 0,
+            spawn_packs: vec![],
+        }
+    }
+
     pub fn basic_dungeon() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
             weight: 0,
             spawn_packs: vec![
-                SpawnPack::blips_pack().with_max_spawns(2),
+                SpawnPack::blips_pack().with_max_spawns(5),
                 SpawnPack::goblins_pack().with_max_spawns(2),
                 SpawnPack::goblins_with_orc_pack()
                     .with_max_spawns(1)
@@ -218,9 +226,9 @@ impl SpawnTable {
             level_type: LevelType::BasicDungeon,
             weight: 0,
             spawn_packs: vec![
-                SpawnPack::goblins_pack().with_max_spawns(2),
-                SpawnPack::orcs_pack().with_max_spawns(1),
-                SpawnPack::goblins_with_orc_pack().with_max_spawns(1),
+                SpawnPack::goblins_pack().with_max_spawns(4),
+                SpawnPack::orcs_pack().with_max_spawns(3),
+                SpawnPack::goblins_with_orc_pack().with_max_spawns(2),
             ],
         }
     }

@@ -56,6 +56,7 @@ pub enum RunState {
     MoveLevel(usize),
 
     GameOver,
+    Won,
 }
 
 /// State global resources (stored in rltk)
@@ -109,6 +110,7 @@ impl State {
                 LevelType::Cave,
                 LevelType::DrunkardWalk,
                 LevelType::BSPInterior,
+                LevelType::TestLevel,
             ],
         }
     }
@@ -205,7 +207,10 @@ impl State {
         let spawn_table = match level_type {
             LevelType::Cave => SpawnTable::caves(),
             LevelType::BasicDungeon => SpawnTable::basic_dungeon(),
-            _ => SpawnTable::basic_dungeon(),
+            LevelType::BSPDungeon => SpawnTable::bsp_dungeon(),
+            LevelType::BSPInterior => SpawnTable::bsp_interior(),
+            LevelType::DrunkardWalk => SpawnTable::drunkard_walk(),
+            LevelType::TestLevel => SpawnTable::empty(),
         };
 
         spawn_from_spawn_table(
@@ -246,11 +251,7 @@ impl State {
                     .map(|i| current_level.map.index_to_xy(i));
             }
 
-            let new_level_type = if current_depth.is_some() && current_depth.unwrap() == 0 {
-                LevelType::Cave
-            } else {
-                LevelType::BasicDungeon
-            };
+            let new_level_type = self.level_order[next_level];
 
             let new_level_index = self
                 .create_new_level(
@@ -380,7 +381,7 @@ impl State {
         // Build a new map and place the player
         self.level_manager.reset();
         let test = self.create_new_level(
-            LevelType::BasicDungeon,
+            self.level_order[0],
             self.map_width,
             self.map_height,
             0,
@@ -611,12 +612,26 @@ impl GameState for State {
             }
 
             RunState::MoveLevel(next_level) => {
-                self.player_move_level(next_level);
-                run_state = RunState::PreRun;
+                if next_level == self.level_order.len() {
+                    run_state = RunState::Won;
+                } else {
+                    self.player_move_level(next_level);
+                    run_state = RunState::PreRun;
+                }
             }
 
             RunState::GameOver => {
                 let result = self.gui_drawer.game_over(ctx);
+                match result {
+                    GameOverSelection::NoSelection => {}
+                    GameOverSelection::QuitToMenu => {
+                        self.game_over_cleanup();
+                        run_state = RunState::MainMenu;
+                    }
+                }
+            }
+            RunState::Won => {
+                let result = self.gui_drawer.game_won(ctx);
                 match result {
                     GameOverSelection::NoSelection => {}
                     GameOverSelection::QuitToMenu => {
@@ -667,7 +682,7 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 .gui_drawer
                 .map_gen_testing_manager
                 .reset_map_gen(Box::new(BasicDungeonMap::new(
-                    state.window_height - 4,
+                    state.window_width - 4,
                     state.map_height - 4,
                     BasicDungeonMapConfig::default(),
                 )));
@@ -678,7 +693,7 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 .gui_drawer
                 .map_gen_testing_manager
                 .reset_map_gen(Box::new(
-                    CAMapGen::new(state.window_height - 4, state.map_height - 4).unwrap(),
+                    CAMapGen::new(state.window_width - 4, state.map_height - 4).unwrap(),
                 ));
             run_state = RunState::MapGenTesting(true);
         }
@@ -687,7 +702,7 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 .gui_drawer
                 .map_gen_testing_manager
                 .reset_map_gen(Box::new(BSPDungeonGen::new(
-                    state.window_height - 4,
+                    state.window_width - 4,
                     state.map_height - 4,
                     BSPConfig::default(),
                 )));
@@ -698,7 +713,7 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 .gui_drawer
                 .map_gen_testing_manager
                 .reset_map_gen(Box::new(BSPInteriorGen::new(
-                    state.window_height - 4,
+                    state.window_width - 4,
                     state.map_height - 4,
                     BSPConfig::default(),
                 )));
@@ -709,7 +724,7 @@ fn print_map_testing_menu(state: &mut State, ctx: &mut Rltk) -> RunState {
                 .gui_drawer
                 .map_gen_testing_manager
                 .reset_map_gen(Box::new(DrunkardWalkGen::new(
-                    state.window_height - 4,
+                    state.window_width - 4,
                     state.map_height - 4,
                     DrunkardWalkConfig::default(),
                 )));
