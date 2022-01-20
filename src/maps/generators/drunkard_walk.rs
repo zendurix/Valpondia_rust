@@ -160,8 +160,14 @@ impl MapGenerator for DrunkardWalkGen {
         self.map.clone()
     }
 
-    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
-        vec![]
+    fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {    
+        let area = self.area();
+        let areas_num = area.len() / 30;
+        let mut areas = vec![];
+        for _ in 0..areas_num {
+            areas.push(area.clone());
+        }
+        areas
     }
 
     #[cfg(feature = "map_gen_testing")]

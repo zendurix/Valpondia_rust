@@ -54,6 +54,16 @@ pub trait MapGenerator {
             history
         }
     }
+
+    fn area(&self) -> Vec<(usize, usize)> {
+        self.map()
+            .tiles
+            .iter()
+            .enumerate()
+            .filter(|(_i, tile)| !tile.blocks_movement())
+            .map(|(i, _tile)| self.map().index_to_xy(i))
+            .collect()
+    }
 }
 
 #[allow(clippy::type_complexity)]

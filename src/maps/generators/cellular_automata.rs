@@ -167,16 +167,6 @@ impl CAMapGen {
         }
     }
 
-    pub fn area(&self) -> Vec<(usize, usize)> {
-        self.map
-            .tiles
-            .iter()
-            .enumerate()
-            .filter(|(_i, tile)| !tile.blocks_movement())
-            .map(|(i, _tile)| self.map.index_to_xy(i))
-            .collect()
-    }
-
     fn set_map(&mut self) {
         for (i, place) in self.ca_map.iter().enumerate() {
             let tile_type = if place.alive {
@@ -427,7 +417,8 @@ impl MapGenerator for CAMapGen {
             let index = self
                 .map
                 .xy_to_index(prev_stairs.x as usize, prev_stairs.y as usize);
-            while self.map.tiles[index] != TileType::Floor {
+            while self.map.tiles[index] != TileType::Floor || self.area().len() < self.config.min_cave_size_percent{
+                self.reset();
                 self.make_cave_map()?;
             }
         }
@@ -457,23 +448,14 @@ impl MapGenerator for CAMapGen {
         self.map.clone()
     }
 
-    /// TODO make it smarter
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
         let area = self.area();
-        vec![
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area.clone(),
-            area,
-        ]
+        let areas_num = area.len() / 30;
+        let mut areas = vec![];
+        for _ in 0..areas_num {
+            areas.push(area.clone());
+        }
+        areas
     }
 
     #[cfg(feature = "map_gen_testing")]
