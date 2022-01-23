@@ -34,7 +34,6 @@ pub fn show_targeting(
     let view = views.get(player).unwrap();
     let map = &gs.ecs.fetch::<Level>().map;
 
-    // camera bounds
     let (x_left, x_right, y_up, y_down) = calculate_camera_bounds(
         player_pos.x,
         player_pos.y,
@@ -75,10 +74,10 @@ pub fn show_targeting(
 
             let mouse_pos = rltk::Point::new(ctx.mouse_pos().0, ctx.mouse_pos().1);
 
-            if available_points.contains(&mouse_pos) {
+            if available_points.contains(&(mouse_pos + rltk::Point::new(x_left, y_up))) {
                 ctx.set_bg(mouse_pos.x, mouse_pos.y, RGB::named(rltk::PINK));
                 if ctx.left_click {
-                    gs.targeting_pos = mouse_pos;
+                    gs.targeting_pos = mouse_pos + rltk::Point::new(x_left, y_up);
                     return TargetingMenuAction::Selected;
                 }
             } else {
@@ -90,14 +89,14 @@ pub fn show_targeting(
 
             if available_points.contains(&gs.targeting_pos) {
                 ctx.set_bg(
-                    gs.targeting_pos.x,
-                    gs.targeting_pos.y,
+                    gs.targeting_pos.x - x_left,
+                    gs.targeting_pos.y - y_up,
                     RGB::named(rltk::ORANGE),
                 );
             } else {
                 ctx.set_bg(
-                    gs.targeting_pos.x,
-                    gs.targeting_pos.y,
+                    gs.targeting_pos.x - x_left,
+                    gs.targeting_pos.y - y_up,
                     RGB::named(rltk::RED),
                 );
             }
