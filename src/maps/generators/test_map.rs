@@ -1,4 +1,5 @@
 use rltk::Point;
+use specs::rayon::vec;
 
 use crate::{
     maps::{errors::Result, Map, TileType},
@@ -62,7 +63,7 @@ impl MapGenerator for TestMap {
     }
 
     fn spawn_areas(&self) -> Vec<Vec<(usize, usize)>> {
-        vec![]
+        vec![vec![(30, 30)]]
     }
 
     #[cfg(feature = "map_gen_testing")]

@@ -84,6 +84,8 @@ pub struct State {
     pub targeting_pos: Point,
 
     pub level_order: Vec<LevelType>,
+
+    pub game_won: bool,
 }
 
 impl State {
@@ -113,6 +115,7 @@ impl State {
                 LevelType::BSPInterior,
                 LevelType::TestLevel,
             ],
+            game_won: false,
         }
     }
 
@@ -155,6 +158,7 @@ impl State {
         self.ecs.register::<components::MeleeDamageBonus>();
         self.ecs.register::<components::DefenseBonus>();
         self.ecs.register::<components::Inventory>();
+        self.ecs.register::<components::FinalBoss>();
     }
 
     pub fn reset_gui_inv_manager(&mut self) {
@@ -211,7 +215,7 @@ impl State {
             LevelType::BSPDungeon => SpawnTable::bsp_dungeon(),
             LevelType::BSPInterior => SpawnTable::bsp_interior(),
             LevelType::DrunkardWalk => SpawnTable::drunkard_walk(),
-            LevelType::TestLevel => SpawnTable::empty(),
+            LevelType::TestLevel => SpawnTable::boss_level(),
         };
 
         spawn_from_spawn_table(
@@ -309,7 +313,7 @@ impl State {
         self.run_inventory_systems();
         self.run_effects_systems();
 
-        systems::combat::damage::delete_the_dead(&mut self.ecs);
+        systems::combat::damage::delete_the_dead(self);
         self.run_view_systems();
         self.run_map_systems();
     }
@@ -374,7 +378,10 @@ impl State {
         }
 
         let new_gamelog = GameLog {
-            entries: vec!["  =====WELCOME INTO ROGUELIKE======  ".to_string()],
+            entries: vec![
+                "  =====WELCOME INTO ROGUELIKE======  ".to_string(),
+                "Your task is to delve deep into dungeon and slain Mighty Blop ".to_string(),
+            ],
         };
         self.ecs.remove::<Level>();
         self.ecs.insert(new_gamelog);
@@ -620,7 +627,14 @@ impl GameState for State {
 
             RunState::MoveLevel(next_level) => {
                 if next_level == self.level_order.len() {
-                    run_state = RunState::Won;
+                    if self.game_won {
+                        run_state = RunState::Won;
+                    } else {
+                        let mut gamelog = self.ecs.write_resource::<GameLog>();
+                        gamelog
+                            .entries
+                            .push(format!("You must kill the Mighty blop to finish the game!",));
+                    }
                 } else {
                     self.player_move_level(next_level);
                     run_state = RunState::PreRun;

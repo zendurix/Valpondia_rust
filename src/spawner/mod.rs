@@ -5,8 +5,13 @@ use crate::{levels::level::Level, rng, spawner::monsters::spawn_goblin};
 use self::{
     items::{
         eq::{
-            armors::{spawn_chain_armor, spawn_leather_armor, spawn_leather_boots},
-            weapons::{spawn_dagger, spawn_zweihander},
+            armors::{
+                spawn_chain_armor, spawn_leather_armor, spawn_leather_boots, spawn_plate_armor,
+            },
+            weapons::{
+                spawn_champion_sword, spawn_dagger, spawn_longsword, spawn_shortsword,
+                spawn_zweihander,
+            },
         },
         potions::{spawn_great_healing_potion, spawn_healing_potion},
         scrolls::{
@@ -14,7 +19,7 @@ use self::{
             spawn_sleep_scroll, spawn_teleport_scroll,
         },
     },
-    monsters::{spawn_blip, spawn_blop, spawn_human, spawn_knight, spawn_orc},
+    monsters::{spawn_blip, spawn_blop, spawn_human, spawn_knight, spawn_mighty_blop, spawn_orc},
     spawn_tables::SpawnTable,
 };
 
@@ -53,6 +58,11 @@ pub fn spawn_entity(
         "Leather armor" => Some(spawn_leather_armor(ecs, x, y, level)),
         "Leather boots" => Some(spawn_leather_boots(ecs, x, y, level)),
         "Chain armor" => Some(spawn_chain_armor(ecs, x, y, level)),
+        "Plate armor" => Some(spawn_plate_armor(ecs, x, y, level)),
+        "Long sword" => Some(spawn_longsword(ecs, x, y, level)),
+        "Short sword" => Some(spawn_shortsword(ecs, x, y, level)),
+        "Mighty blop" => Some(spawn_mighty_blop(ecs, x, y, level)),
+        "Champion sword" => Some(spawn_champion_sword(ecs, x, y, level)),
 
         _ => {
             println!("Cannot spawn {}. Unknown entity", name);

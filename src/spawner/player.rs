@@ -34,8 +34,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             hp: 3000,
         })
         .with(components::CombatBaseStats {
-            //attack: 10,
-            attack: 200,
+            attack: 50,
             defense: 1,
         })
         .with(components::BodyParts::default_humanoid())

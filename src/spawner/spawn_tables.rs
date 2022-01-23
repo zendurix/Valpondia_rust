@@ -161,6 +161,70 @@ impl SpawnPack {
             ..SpawnPack::default()
         }
     }
+
+    pub fn armory_low_tier() -> SpawnPack {
+        SpawnPack {
+            min_area: 4,
+            entities: vec![
+                SpawnEntry::new("Short sword".to_string(), 1, 1),
+                SpawnEntry::new("Leather armor".to_string(), 1, 1),
+                SpawnEntry::new("Long sword".to_string(), 1, 1).with_chance(10),
+                SpawnEntry::new("Health potion".to_string(), 0, 2),
+            ],
+            ..SpawnPack::default()
+        }
+    }
+
+    pub fn armory_medium_tier() -> SpawnPack {
+        SpawnPack {
+            min_area: 4,
+            entities: vec![
+                SpawnEntry::new("Leather boots".to_string(), 1, 1).with_chance(30),
+                SpawnEntry::new("Chain armor".to_string(), 1, 1),
+                SpawnEntry::new("Long sword".to_string(), 1, 1),
+                SpawnEntry::new("Health potion".to_string(), 2, 3),
+                SpawnEntry::new("Sleep scroll".to_string(), 0, 1),
+            ],
+            ..SpawnPack::default()
+        }
+    }
+
+    pub fn armory_high_tier() -> SpawnPack {
+        SpawnPack {
+            min_area: 4,
+            entities: vec![
+                SpawnEntry::new("Leather boots".to_string(), 1, 1),
+                SpawnEntry::new("Plate armor".to_string(), 1, 1).with_chance(50),
+                SpawnEntry::new("Champion sword".to_string(), 1, 1),
+                SpawnEntry::new("Health potion".to_string(), 2, 3),
+                SpawnEntry::new("Great health potion".to_string(), 0, 1),
+                SpawnEntry::new("Magic missile scroll".to_string(), 1, 2),
+            ],
+            ..SpawnPack::default()
+        }
+    }
+
+    pub fn armory_highest_tier() -> SpawnPack {
+        SpawnPack {
+            min_area: 4,
+            entities: vec![
+                SpawnEntry::new("Leather boots".to_string(), 1, 1),
+                SpawnEntry::new("Plate armor".to_string(), 1, 1),
+                SpawnEntry::new("Champion sword".to_string(), 1, 1),
+                SpawnEntry::new("Great health potion".to_string(), 2, 4),
+                SpawnEntry::new("Fireball scroll".to_string(), 2, 4),
+                SpawnEntry::new("Teleport scroll".to_string(), 1, 2),
+            ],
+            ..SpawnPack::default()
+        }
+    }
+    pub fn boss() -> SpawnPack {
+        SpawnPack {
+            min_area: 1,
+            entities: vec![SpawnEntry::new("Mighty blop".to_string(), 1, 1)],
+            ..SpawnPack::default()
+        }
+    }
 }
 
 pub struct SpawnTable {
@@ -217,6 +281,7 @@ impl SpawnTable {
                 SpawnPack::goblins_with_orc_pack()
                     .with_max_spawns(1)
                     .with_chance_perc(10),
+                SpawnPack::armory_low_tier().with_max_spawns(1),
             ],
         }
     }
@@ -230,6 +295,7 @@ impl SpawnTable {
                 SpawnPack::orcs_pack().with_max_spawns(3),
                 SpawnPack::goblins_with_orc_pack().with_max_spawns(2),
                 SpawnPack::knight_pack().with_max_spawns(1),
+                SpawnPack::armory_medium_tier().with_max_spawns(1),
             ],
         }
     }
@@ -250,8 +316,9 @@ impl SpawnTable {
             level_type: LevelType::Cave,
             weight: 0,
             spawn_packs: vec![
-                SpawnPack::blips_pack().with_max_spawns(3),
+                SpawnPack::blips_pack().with_max_spawns(5),
                 SpawnPack::blop_pack().with_max_spawns(3),
+                SpawnPack::armory_high_tier().with_max_spawns(1),
             ],
         }
     }
@@ -261,9 +328,17 @@ impl SpawnTable {
             level_type: LevelType::BasicDungeon,
             weight: 0,
             spawn_packs: vec![
-                SpawnPack::knight_pack().with_max_spawns(3),
-                SpawnPack::humans_pack().with_max_spawns(5),
+                SpawnPack::knight_pack().with_max_spawns(6),
+                SpawnPack::humans_pack().with_max_spawns(7),
+                SpawnPack::armory_highest_tier().with_max_spawns(1),
             ],
+        }
+    }
+    pub fn boss_level() -> SpawnTable {
+        SpawnTable {
+            level_type: LevelType::TestLevel,
+            weight: 0,
+            spawn_packs: vec![SpawnPack::boss().with_max_spawns(1)],
         }
     }
 }

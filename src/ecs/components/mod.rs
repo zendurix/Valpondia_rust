@@ -22,7 +22,7 @@ pub struct Renderable {
     pub texture: Option<usize>, // texture index
     pub fg: RGB,
     pub bg: RGB,
-    /// If more then one entities are on same pos ent with lowest order is drawn.
+    /// If more then one entities are on same pos, entity with lowest order is drawn.
     /// 0 - player, 1 - monster, 2 - items
     pub render_order: i32,
 }
@@ -286,3 +286,6 @@ pub struct Description {
     pub title: TextCol,
     pub text: TextCol,
 }
+
+#[derive(Component, Clone, Debug)]
+pub struct FinalBoss {}

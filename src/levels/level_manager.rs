@@ -53,9 +53,8 @@ impl LevelManager {
     ) -> Result<usize> {
         let (map, spawn_areas) = match level_type {
             LevelType::TestLevel => {
-                let mut gen = TestMap::new(width, height);
-                gen.generate(prev_down_stairs_pos)?;
-                (gen.map(), vec![])
+                let gen = TestMap::new(width, height);
+                genrate_map_and_spawn_areas(gen, prev_down_stairs_pos)?
             }
             LevelType::Cave => {
                 let gen = CAMapGen::new(width, height)?;

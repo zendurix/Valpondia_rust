@@ -77,7 +77,7 @@ pub fn spawn_goblin(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
         "Goblin",
         10,
         4,
-        1,
+        0,
     )
     .build()
 }
@@ -93,7 +93,7 @@ pub fn spawn_orc(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
         "Orc",
         32,
         12,
-        3,
+        2,
     )
     .with(components::Inventory::new_empty())
     .with(components::BodyParts::default_humanoid())
@@ -129,7 +129,7 @@ pub fn spawn_knight(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
         "Knight",
         35,
         8,
-        7,
+        3,
     )
     .with(components::Inventory::new_empty())
     .with(components::BodyParts::default_humanoid())
@@ -165,7 +165,7 @@ pub fn spawn_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
         Some(7),
         "Blop",
         50,
-        4,
+        8,
         5,
     )
     .with(components::SpawnsAfterDeath {
@@ -177,6 +177,27 @@ pub fn spawn_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     .with(components::Inventory::new_empty())
     .build();
     spawn_item_into_inventory(ecs, blop, "Leather boots".to_string(), x, y, level);
+    blop
+}
+
+pub fn spawn_mighty_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    let blop = spawn_monster(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('B'),
+        Some(7),
+        "Mighty blop",
+        300,
+        10,
+        3,
+    )
+    .with(components::SpawnsAfterDeath {
+        spawns: vec![SpawnEntry::new("Blop".to_string(), 2, 4)],
+    })
+    .with(components::FinalBoss {})
+    .build();
     blop
 }
 

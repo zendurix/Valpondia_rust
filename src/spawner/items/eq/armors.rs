@@ -16,7 +16,7 @@ pub fn spawn_leather_armor(ecs: &mut World, x: usize, y: usize, level: usize) ->
         // TODO for now same as chain armor
         Some(10),
         RGB::named(rltk::BROWN1),
-        "Dagger",
+        "Leather armor",
     )
     .with(components::DefenseBonus { defense: 2 })
     .with(components::Equippable {
@@ -36,7 +36,7 @@ pub fn spawn_leather_boots(ecs: &mut World, x: usize, y: usize, level: usize) ->
         RGB::named(rltk::BROWN1),
         "Leather boots",
     )
-    .with(components::DefenseBonus { defense: 5 })
+    .with(components::DefenseBonus { defense: 1 })
     .with(components::Equippable {
         body_part: BodyPart::Feet,
     })
@@ -54,7 +54,25 @@ pub fn spawn_chain_armor(ecs: &mut World, x: usize, y: usize, level: usize) -> E
         RGB::named(rltk::WHITE),
         "Chain armor",
     )
-    .with(components::DefenseBonus { defense: 5 })
+    .with(components::DefenseBonus { defense: 4 })
+    .with(components::Equippable {
+        body_part: BodyPart::Body,
+    })
+    .build()
+}
+
+pub fn spawn_plate_armor(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    create_base_item_components(
+        ecs,
+        x,
+        y,
+        level,
+        rltk::to_cp437('['),
+        Some(10),
+        RGB::named(rltk::WHITE),
+        "Plate armor",
+    )
+    .with(components::DefenseBonus { defense: 6 })
     .with(components::Equippable {
         body_part: BodyPart::Body,
     })
