@@ -8,11 +8,11 @@ use crate::{
     maps::TileType,
 };
 
-use super::window::SPRITE_CONSOLE_INDEX;
+use super::window::SPRITE_16x16_CONSOLE_INDEX;
 
 pub fn draw_entities(gs: &State, _ctx: &mut Rltk) {
     let mut draw_batch = rltk::DrawBatch::new();
-    draw_batch.target(SPRITE_CONSOLE_INDEX);
+    draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
 
     let positions = gs.ecs.read_storage::<components::Position>();
     let renderables = gs.ecs.read_storage::<components::Renderable>();

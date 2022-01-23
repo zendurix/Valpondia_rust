@@ -11,7 +11,9 @@ use crate::graphics::gui::menus::WindowOptionSelector;
 use crate::graphics::gui::{
     EquipmentMenuAction, InventoryMenuAction, ItemMenuAction, PopuSelection, TargetingMenuAction,
 };
-use crate::graphics::window::{CHAR_CONSOLE_INDEX, SPRITE_CONSOLE_INDEX};
+use crate::graphics::window::{
+    SPRITE_16x16_CONSOLE_INDEX, SPRITE_32x32_CONSOLE_INDEX, CHAR_CONSOLE_INDEX,
+};
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
 use crate::levels::level_manager::LevelManager;
@@ -414,15 +416,19 @@ impl State {
 
         ctx.set_active_console(CHAR_CONSOLE_INDEX);
         ctx.cls();
-        ctx.set_active_console(SPRITE_CONSOLE_INDEX);
+        ctx.set_active_console(SPRITE_16x16_CONSOLE_INDEX);
+        ctx.cls();
+        ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
         ctx.cls();
 
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_CONSOLE_INDEX);
+        draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
+        draw_batch.cls();
+        draw_batch.target(SPRITE_32x32_CONSOLE_INDEX);
         draw_batch.cls();
 
         match run_state {
-            RunState::MainMenu => {}
+            RunState::MainMenu | RunState::Controls => {}
             #[cfg(feature = "map_gen_testing")]
             RunState::MapGenTesting(_) => {}
             _ => {
@@ -431,9 +437,16 @@ impl State {
         }
 
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_CONSOLE_INDEX);
+        draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
         draw_batch
-            .submit(SPRITE_CONSOLE_INDEX)
+            .submit(SPRITE_16x16_CONSOLE_INDEX)
+            .expect("Draw Batch error");
+        rltk::render_draw_buffer(ctx).expect("Render error");
+
+        let mut draw_batch = DrawBatch::new();
+        draw_batch.target(SPRITE_32x32_CONSOLE_INDEX);
+        draw_batch
+            .submit(SPRITE_32x32_CONSOLE_INDEX)
             .expect("Draw Batch error");
         rltk::render_draw_buffer(ctx).expect("Render error");
 
@@ -771,9 +784,9 @@ fn print_tested_map(
     draw_map_without_fov(&history[current_index].0, ctx);
 
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(SPRITE_CONSOLE_INDEX);
+    draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
     draw_batch
-        .submit(SPRITE_CONSOLE_INDEX)
+        .submit(SPRITE_16x16_CONSOLE_INDEX)
         .expect("Draw Batch error");
     rltk::render_draw_buffer(ctx).expect("Render error");
 

@@ -9,6 +9,8 @@ use crate::{
     impl_window_option_selector,
 };
 
+pub const INV_TEXT_COL: (u8, u8, u8) = (255, 102, 0); // Orange
+
 use super::menus::{TextCol, WindowOptionSelector};
 
 #[derive(PartialEq, Copy, Clone)]
@@ -61,7 +63,7 @@ impl GuiInventoryManager {
             bg: rltk::RGB::named(rltk::BLACK),
             title: TextCol::new(vec![(
                 "Inventory".to_string(),
-                rltk::RGB::named(rltk::WHITE),
+                rltk::RGB::named(INV_TEXT_COL),
             )]),
             options: vec![],
             options_ent: vec![],
@@ -100,7 +102,7 @@ impl GuiInventoryManager {
             .iter()
             // .sorted_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
             .map(|(name, (num, _ent))| {
-                let mut text = TextCol::new(vec![(name.clone(), rltk::RGB::named(rltk::WHITE))]);
+                let mut text = TextCol::new(vec![(name.clone(), rltk::RGB::named(INV_TEXT_COL))]);
                 if *num > 1 {
                     text += (format!("  x{}", num), rltk::RGB::named(rltk::GREEN));
                 }
@@ -168,7 +170,7 @@ impl GuiItemActionManager {
             bg: rltk::RGB::named(rltk::BLACK),
             title: TextCol::new(vec![(
                 "Inventory".to_string(),
-                rltk::RGB::named(rltk::WHITE),
+                rltk::RGB::named(INV_TEXT_COL),
             )]),
             options: vec![],
             options_sprites_indexes: vec![],

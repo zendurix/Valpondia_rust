@@ -25,7 +25,7 @@ pub fn spawn_leather_armor(ecs: &mut World, x: usize, y: usize, level: usize) ->
     .build()
 }
 
-pub fn spawn_gino_rossi_boots(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+pub fn spawn_leather_boots(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     create_base_item_components(
         ecs,
         x,
@@ -34,7 +34,7 @@ pub fn spawn_gino_rossi_boots(ecs: &mut World, x: usize, y: usize, level: usize)
         rltk::to_cp437('['),
         Some(9),
         RGB::named(rltk::BROWN1),
-        "Gino rossi boots",
+        "Leather boots",
     )
     .with(components::DefenseBonus { defense: 5 })
     .with(components::Equippable {

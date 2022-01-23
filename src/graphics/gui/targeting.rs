@@ -8,6 +8,10 @@ use crate::{
         systems::player::{input::get_input, InputType},
         State,
     },
+    graphics::{
+        map::calculate_camera_bounds,
+        window::{SPRITE_32x32_CONSOLE_INDEX, CHAR_CONSOLE_INDEX},
+    },
     levels::level::Level,
 };
 
@@ -30,10 +34,19 @@ pub fn show_targeting(
     let view = views.get(player).unwrap();
     let map = &gs.ecs.fetch::<Level>().map;
 
+    // camera bounds
+    let (x_left, x_right, y_up, y_down) = calculate_camera_bounds(
+        player_pos.x,
+        player_pos.y,
+        map.width_max() as i32,
+        map.height_max() as i32,
+    );
+
     // TODO remove allow if there is more actions
     #[allow(clippy::single_match)]
     match action {
         TargetingAction::TargetingFromItem(item, range) => {
+            ctx.set_active_console(CHAR_CONSOLE_INDEX);
             if let Some(name) = names.get(item) {
                 ctx.print_color(
                     5,
@@ -43,13 +56,20 @@ pub fn show_targeting(
                     "Select Target for ".to_string() + name.name.as_str(),
                 );
             }
+            ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
 
             let mut available_points = Vec::new();
             for point in view.visible_tiles.iter() {
                 let distance = rltk::DistanceAlg::Pythagoras.distance2d(player_pos, *point);
                 if distance <= range as f32 {
-                    ctx.set_bg(point.x, point.y, RGB::named(rltk::BLUE));
-                    available_points.push(*point);
+                    if point.x >= x_left
+                        && point.x <= x_right
+                        && point.y >= y_up
+                        && point.y <= y_down
+                    {
+                        ctx.set_bg(point.x - x_left, point.y - y_up, RGB::named(rltk::BLUE));
+                        available_points.push(*point);
+                    }
                 }
             }
 

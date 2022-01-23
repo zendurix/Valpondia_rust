@@ -176,7 +176,7 @@ pub fn spawn_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     })
     .with(components::Inventory::new_empty())
     .build();
-    spawn_item_into_inventory(ecs, blop, "Gino rossi boots".to_string(), x, y, level);
+    spawn_item_into_inventory(ecs, blop, "Leather boots".to_string(), x, y, level);
     blop
 }
 

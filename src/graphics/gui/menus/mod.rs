@@ -2,8 +2,12 @@ use rltk::{Rltk, RGB};
 
 use crate::{
     ecs::systems::player::{input::get_input, InputType},
-    graphics::window::{CHAR_CONSOLE_INDEX, SPRITE_CONSOLE_INDEX},
+    graphics::window::{
+        SPRITE_16x16_CONSOLE_INDEX, SPRITE_32x32_CONSOLE_INDEX, CHAR_CONSOLE_INDEX,
+    },
 };
+
+use super::inventory::INV_TEXT_COL;
 
 pub mod main_menu;
 
@@ -35,7 +39,7 @@ impl TextCol {
     ///  white string with black background
     pub fn simple(string: String) -> TextCol {
         TextCol {
-            strings: vec![(string, rltk::RGB::named(rltk::WHITE))],
+            strings: vec![(string, rltk::RGB::named(INV_TEXT_COL))],
             bg: rltk::RGB::named(rltk::BLACK),
         }
     }
@@ -110,12 +114,12 @@ pub trait WindowOptionSelector {
 
     /// TODO add result
     fn draw(&self, ctx: &mut Rltk) {
-        ctx.set_active_console(SPRITE_CONSOLE_INDEX);
+        ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
         ctx.draw_box(
-            self.x(),
-            self.y(),
-            self.width(),
-            self.height(),
+            self.x() / 2 - 1,
+            self.y() / 2 - 1,
+            self.width() / 2 + 1,
+            self.height() / 2 + 1,
             RGB::named(rltk::BLACK),
             RGB::named(rltk::BLACK),
         );
@@ -126,7 +130,7 @@ pub trait WindowOptionSelector {
             self.y(),
             self.width(),
             self.height(),
-            RGB::named(rltk::WHITE),
+            RGB::named(INV_TEXT_COL),
             RGB::named(rltk::BLACK),
         );
 
@@ -158,7 +162,7 @@ pub trait WindowOptionSelector {
             ctx.set(
                 self.x() + 1,
                 current_y,
-                RGB::named(rltk::WHITE),
+                RGB::named(INV_TEXT_COL),
                 bg,
                 rltk::to_cp437('('),
             );
@@ -168,12 +172,12 @@ pub trait WindowOptionSelector {
                 if self.selected() == i {
                     RGB::named(rltk::GREEN)
                 } else {
-                    RGB::named(rltk::WHITE)
+                    RGB::named(INV_TEXT_COL)
                 },
                 bg,
                 97 + i as rltk::FontCharType,
             );
-            ctx.print_color(self.x() + 3, current_y, RGB::named(rltk::WHITE), bg, ") ");
+            ctx.print_color(self.x() + 3, current_y, RGB::named(INV_TEXT_COL), bg, ") ");
 
             // if i < self.options_sprites_indexes().len() {
             //     if let Some(sprite_index) = self.options_sprites_indexes()[i] {

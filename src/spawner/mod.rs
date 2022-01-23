@@ -5,7 +5,7 @@ use crate::{levels::level::Level, rng, spawner::monsters::spawn_goblin};
 use self::{
     items::{
         eq::{
-            armors::{spawn_chain_armor, spawn_gino_rossi_boots, spawn_leather_armor},
+            armors::{spawn_chain_armor, spawn_leather_armor, spawn_leather_boots},
             weapons::{spawn_dagger, spawn_zweihander},
         },
         potions::{spawn_great_healing_potion, spawn_healing_potion},
@@ -51,7 +51,7 @@ pub fn spawn_entity(
         "Dagger" => Some(spawn_dagger(ecs, x, y, level)),
         "Zweihander" => Some(spawn_zweihander(ecs, x, y, level)),
         "Leather armor" => Some(spawn_leather_armor(ecs, x, y, level)),
-        "Gino rossi boots" => Some(spawn_gino_rossi_boots(ecs, x, y, level)),
+        "Leather boots" => Some(spawn_leather_boots(ecs, x, y, level)),
         "Chain armor" => Some(spawn_chain_armor(ecs, x, y, level)),
 
         _ => {

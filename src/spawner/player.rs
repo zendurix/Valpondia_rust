@@ -20,7 +20,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
         })
         .with(components::Position { x, y, level: 0 })
         .with(components::Name {
-            name: "hlop".to_string(),
+            name: "player".to_string(),
         })
         .with(components::Renderable {
             ascii: rltk::to_cp437('@'),
