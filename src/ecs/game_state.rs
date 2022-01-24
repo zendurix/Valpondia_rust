@@ -634,6 +634,12 @@ impl GameState for State {
                         gamelog
                             .entries
                             .push(format!("You must kill the Mighty blop to finish the game!",));
+                        run_state = RunState::PlayerTurn;
+
+                        let mut positions = self.ecs.write_storage::<components::Position>();
+                        let player = self.ecs.fetch::<Entity>();
+                        let mut pos = positions.get_mut(*player).unwrap();
+                        pos.level -= 1;
                     }
                 } else {
                     self.player_move_level(next_level);

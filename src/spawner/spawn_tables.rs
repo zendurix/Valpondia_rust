@@ -195,7 +195,7 @@ impl SpawnPack {
             entities: vec![
                 SpawnEntry::new("Leather boots".to_string(), 1, 1),
                 SpawnEntry::new("Plate armor".to_string(), 1, 1).with_chance(50),
-                SpawnEntry::new("Champion sword".to_string(), 1, 1),
+                SpawnEntry::new("Zweihander".to_string(), 1, 1),
                 SpawnEntry::new("Health potion".to_string(), 2, 3),
                 SpawnEntry::new("Great health potion".to_string(), 0, 1),
                 SpawnEntry::new("Magic missile scroll".to_string(), 1, 2),

@@ -57,9 +57,7 @@ pub fn delete_the_dead(gs: &mut State) {
 
         for victim in dead.iter() {
             if let Some(name) = names.get(*victim) {
-                gamelog
-                    .entries
-                    .push(format!("{} dies in agony :( ", name.name));
+                gamelog.entries.push(format!("{} dies.", name.name));
             }
         }
     }

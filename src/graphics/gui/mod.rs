@@ -104,7 +104,7 @@ impl GuiDrawer {
 
         self.draw_gamelog(ecs, ctx);
 
-        self.draw_cursor_tooltips(ecs, ctx);
+        //self.draw_cursor_tooltips(ecs, ctx);
     }
 
     fn draw_console_box(&self, ctx: &mut Rltk) {
