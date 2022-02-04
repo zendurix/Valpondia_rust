@@ -1,7 +1,8 @@
 use specs::{Entities, Entity, Join, ReadExpect, System, WriteExpect, WriteStorage};
 
-use crate::{
-    ecs::{components::{self}, game_state::GameLog},
+use crate::ecs::{
+    components::{self},
+    game_state::GameLog,
 };
 
 /// used for heal potions.

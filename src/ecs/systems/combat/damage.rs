@@ -1,6 +1,9 @@
 use crate::{
     components,
-    ecs::{game_state::{RunState, GameLog}, State},
+    ecs::{
+        game_state::{GameLog, RunState},
+        State,
+    },
 };
 use specs::prelude::*;
 

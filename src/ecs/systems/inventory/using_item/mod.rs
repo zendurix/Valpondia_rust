@@ -9,7 +9,8 @@ use specs::{Entities, Entity, Join, ReadExpect, ReadStorage, System, WriteExpect
 use crate::{
     ecs::{
         components::{self},
-        systems::inventory::using_item::teleport::use_teleporting_item, game_state::GameLog,
+        game_state::GameLog,
+        systems::inventory::using_item::teleport::use_teleporting_item,
     },
     levels::level::Level,
 };

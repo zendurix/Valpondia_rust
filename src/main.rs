@@ -3,7 +3,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-pub mod base;
 pub mod ecs;
 pub mod graphics;
 pub mod levels;
@@ -20,8 +19,9 @@ use ecs::{components, game_state::RunState, State};
 use levels::level::LevelType;
 
 use crate::{
+    ecs::game_state::GameLog,
     graphics::{window::create_sprite_window, GuiDrawer},
-    spawner::player::spawn_player, ecs::game_state::GameLog,
+    spawner::player::spawn_player,
 };
 
 const WINDOW_WIDTH: usize = 80;

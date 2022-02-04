@@ -4,10 +4,10 @@ use specs::prelude::*;
 
 use specs_derive::Component;
 
-use crate::{base::Dir, graphics::gui::menus::TextCol, spawner::spawn_tables::SpawnEntry};
+use crate::{graphics::gui::menus::TextCol, spawner::spawn_tables::SpawnEntry};
 pub use rltk::{VirtualKeyCode, RGB};
 
-use super::systems::player::InputType;
+use super::systems::player::{Dir, InputType};
 
 #[derive(Component, Debug, Clone)]
 pub struct Position {

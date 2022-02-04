@@ -1,14 +1,17 @@
 use rltk::Rltk;
 use specs::{Entity, WorldExt};
 
-use crate::{
-    ecs::{components, game_state::{RunState, GameLog}, State}
+use crate::ecs::{
+    components,
+    game_state::{GameLog, RunState},
+    State,
 };
 
 pub mod input;
 mod movement;
 
 pub use input::InputType;
+pub use movement::Dir;
 
 pub fn try_player_turn(gs: &mut State, ctx: &mut Rltk) -> RunState {
     let mut is_sleeping = false;

@@ -1,13 +1,13 @@
-use crate::{
-    ecs::{components, game_state::{RunState, GameLog}, State},
+use crate::ecs::{
+    components,
+    game_state::{GameLog, RunState},
+    State,
 };
 
 use rltk::{Rltk, VirtualKeyCode};
 use specs::prelude::*;
 
-use crate::base::Dir;
-
-use super::movement::{try_move_player, try_move_player_down_level, try_move_player_up_level};
+use super::movement::{try_move_player, try_move_player_down_level, try_move_player_up_level, Dir};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputType {

@@ -1,3 +1,4 @@
+/*
 use crate::{
     ecs::{components, State},
     rng,
@@ -6,7 +7,6 @@ use crate::{
 use rltk::Rltk;
 use specs::prelude::*;
 
-use crate::base::Dir;
 
 /// ai random movement
 pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
@@ -28,3 +28,5 @@ pub fn move_all(gs: &mut State, _ctx: &mut Rltk) {
         };
     }
 }
+
+*/

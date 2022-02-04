@@ -37,8 +37,6 @@ pub struct GameLog {
     pub entries: Vec<String>,
 }
 
-
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetingAction {
     TargetingFromItem(Entity, usize),

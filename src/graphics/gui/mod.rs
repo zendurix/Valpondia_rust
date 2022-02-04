@@ -9,7 +9,8 @@ use specs::prelude::*;
 use crate::{
     ecs::{
         components,
-        systems::player::{input::get_input, InputType}, game_state::GameLog,
+        game_state::GameLog,
+        systems::player::{input::get_input, InputType},
     },
     levels::level::Level,
 };

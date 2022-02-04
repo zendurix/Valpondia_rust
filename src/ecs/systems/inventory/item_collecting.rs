@@ -1,6 +1,6 @@
 use specs::prelude::*;
 
-use crate::{ecs::{components, game_state::GameLog}};
+use crate::ecs::{components, game_state::GameLog};
 
 pub struct ItemCollectionSystem {}
 
