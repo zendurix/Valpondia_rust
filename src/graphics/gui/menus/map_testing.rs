@@ -18,7 +18,6 @@ pub enum MapGenTestingMenuAction {
     TestBSPInteriorGen,
     TestDrunkardWalkGen,
 
-    //... more to come!
     Cancel,
     NoResponse,
 }

@@ -19,7 +19,7 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new() -> MainMenu {
         MainMenu {
-            title: "Roguelike by Michal Majda".to_string(),
+            title: "Roguelike Game".to_string(),
             options: vec![
                 ("New Game".to_string(), MainMenuSelection::NewGame),
                 #[cfg(feature = "map_gen_testing")]

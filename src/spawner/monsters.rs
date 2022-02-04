@@ -60,7 +60,7 @@ pub fn spawn_random_monster(ecs: &mut World, x: usize, y: usize, level: usize) -
     match rand {
         1 => spawn_goblin(ecs, x, y, level),
         2 => spawn_orc(ecs, x, y, level),
-        3 => spawn_human(ecs, x, y, level),
+        3 => spawn_rogue(ecs, x, y, level),
         4 => spawn_knight(ecs, x, y, level),
         _ => panic!("Wrong random number during monster spawning"),
     }
@@ -102,7 +102,7 @@ pub fn spawn_orc(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     orc
 }
 
-pub fn spawn_human(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+pub fn spawn_rogue(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     spawn_monster(
         ecs,
         x,
@@ -110,9 +110,9 @@ pub fn spawn_human(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity 
         level,
         rltk::to_cp437('h'),
         Some(6),
-        "Human",
-        20,
+        "Rogue",
         15,
+        26,
         2,
     )
     .build()

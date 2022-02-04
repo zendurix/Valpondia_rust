@@ -128,11 +128,11 @@ impl SpawnPack {
         }
     }
 
-    pub fn humans_pack() -> SpawnPack {
+    pub fn rogues_pack() -> SpawnPack {
         SpawnPack {
             min_area: 5,
             entities: vec![
-                SpawnEntry::new("Human".to_string(), 2, 4),
+                SpawnEntry::new("Rogue".to_string(), 2, 4),
                 SpawnEntry::new("Great health potion".to_string(), 2, 3).with_chance(90),
                 SpawnEntry::new("Fireball scroll".to_string(), 1, 2).with_chance(70),
                 SpawnEntry::new("Teleport scroll".to_string(), 1, 1).with_chance(70),
@@ -329,7 +329,7 @@ impl SpawnTable {
             weight: 0,
             spawn_packs: vec![
                 SpawnPack::knight_pack().with_max_spawns(6),
-                SpawnPack::humans_pack().with_max_spawns(7),
+                SpawnPack::rogues_pack().with_max_spawns(7),
                 SpawnPack::armory_highest_tier().with_max_spawns(1),
             ],
         }

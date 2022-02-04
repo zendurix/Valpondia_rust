@@ -367,9 +367,9 @@ Wait One Turn - Numpad'5' / 'W'
 
 Fighting - walk over enemy
 
-Go Down Stairs - '.' (<) / '-'
+Go Down Stairs - '.' (>)
 
-Go Up Stairs - ',' (>) / '+'
+Go Up Stairs - ',' (<)
 
 Inventory - 'I'
 Equipped items - 'E'

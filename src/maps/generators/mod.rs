@@ -67,7 +67,7 @@ pub trait MapGenerator {
 }
 
 #[allow(clippy::type_complexity)]
-pub fn genrate_map_and_spawn_areas<T: MapGenerator>(
+pub fn generate_map_and_spawn_areas<T: MapGenerator>(
     mut generator: T,
     prev_down_stairs_pos: Option<Point>,
 ) -> Result<(Map, Vec<Vec<(usize, usize)>>)> {

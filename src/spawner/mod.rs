@@ -19,7 +19,7 @@ use self::{
             spawn_sleep_scroll, spawn_teleport_scroll,
         },
     },
-    monsters::{spawn_blip, spawn_blop, spawn_human, spawn_knight, spawn_mighty_blop, spawn_orc},
+    monsters::{spawn_blip, spawn_blop, spawn_rogue, spawn_knight, spawn_mighty_blop, spawn_orc},
     spawn_tables::SpawnTable,
 };
 
@@ -39,7 +39,7 @@ pub fn spawn_entity(
         "Orc" => Some(spawn_orc(ecs, x, y, level)),
         "Goblin" => Some(spawn_goblin(ecs, x, y, level)),
         "Knight" => Some(spawn_knight(ecs, x, y, level)),
-        "Human" => Some(spawn_human(ecs, x, y, level)),
+        "Rogue" => Some(spawn_rogue(ecs, x, y, level)),
 
         "Blip" => Some(spawn_blip(ecs, x, y, level)),
         "Blop" => Some(spawn_blop(ecs, x, y, level)),
