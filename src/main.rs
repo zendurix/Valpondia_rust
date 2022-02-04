@@ -5,8 +5,6 @@ extern crate lazy_static;
 
 pub mod base;
 pub mod ecs;
-pub mod errors;
-pub mod gamelog;
 pub mod graphics;
 pub mod levels;
 pub mod maps;
@@ -23,7 +21,7 @@ use levels::level::LevelType;
 
 use crate::{
     graphics::{window::create_sprite_window, GuiDrawer},
-    spawner::player::spawn_player,
+    spawner::player::spawn_player, ecs::game_state::GameLog,
 };
 
 const WINDOW_WIDTH: usize = 80;
@@ -53,7 +51,7 @@ fn main() {
     gs.register_all_components();
 
     gs.ecs.insert(RunState::MainMenu);
-    gs.ecs.insert(gamelog::GameLog {
+    gs.ecs.insert(GameLog {
         entries: vec![
             "  =====WELCOME INTO ROGUELIKE======  ".to_string(),
             "Your task is to delve deep into dungeon and slain Mighty Blop ".to_string(),

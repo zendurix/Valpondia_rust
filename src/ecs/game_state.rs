@@ -5,7 +5,6 @@ use specs::prelude::*;
 use crate::ecs::components;
 use crate::ecs::errors::Result;
 use crate::ecs::systems;
-use crate::gamelog::GameLog;
 use crate::graphics::gui::menus::main_menu::MainMenu;
 use crate::graphics::gui::menus::WindowOptionSelector;
 use crate::graphics::gui::{
@@ -33,6 +32,12 @@ use crate::maps::generators::cellular_automata::CAMapGen;
 use gui::menus::map_testing::MapGenTestingMenuAction;
 
 use super::components::BodyPart;
+
+pub struct GameLog {
+    pub entries: Vec<String>,
+}
+
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetingAction {

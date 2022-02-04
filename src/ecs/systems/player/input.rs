@@ -1,6 +1,5 @@
 use crate::{
-    ecs::{components, game_state::RunState, State},
-    gamelog::GameLog,
+    ecs::{components, game_state::{RunState, GameLog}, State},
 };
 
 use rltk::{Rltk, VirtualKeyCode};

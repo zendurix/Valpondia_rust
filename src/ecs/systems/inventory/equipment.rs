@@ -2,8 +2,7 @@ use itertools::Itertools;
 use specs::prelude::*;
 
 use crate::{
-    ecs::components::{self, BodyPart},
-    gamelog::GameLog,
+    ecs::{components::{self, BodyPart}, game_state::GameLog},
 };
 
 pub struct ItemEquipSystem {}

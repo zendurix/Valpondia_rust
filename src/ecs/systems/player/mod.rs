@@ -2,8 +2,7 @@ use rltk::Rltk;
 use specs::{Entity, WorldExt};
 
 use crate::{
-    ecs::{components, game_state::RunState, State},
-    gamelog::GameLog,
+    ecs::{components, game_state::{RunState, GameLog}, State}
 };
 
 pub mod input;

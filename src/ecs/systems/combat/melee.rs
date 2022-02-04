@@ -1,4 +1,4 @@
-use crate::{components, gamelog::GameLog};
+use crate::{components, ecs::game_state::GameLog};
 use specs::prelude::*;
 
 pub struct MeleeCombatSystem {}
