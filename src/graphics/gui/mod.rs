@@ -371,6 +371,7 @@ Go Down Stairs - '.' (>)
 
 Go Up Stairs - ',' (<)
 
+Pick up item - 'G'
 Inventory - 'I'
 Equipped items - 'E'
 Selection in menus - 'Enter'
