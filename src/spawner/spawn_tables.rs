@@ -229,7 +229,6 @@ impl SpawnPack {
 
 pub struct SpawnTable {
     pub level_type: LevelType,
-    pub weight: usize,
     pub spawn_packs: Vec<SpawnPack>,
 }
 
@@ -266,7 +265,6 @@ impl SpawnTable {
     pub fn empty() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::TestLevel,
-            weight: 0,
             spawn_packs: vec![],
         }
     }
@@ -274,7 +272,6 @@ impl SpawnTable {
     pub fn basic_dungeon() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
-            weight: 0,
             spawn_packs: vec![
                 SpawnPack::blips_pack().with_max_spawns(5),
                 SpawnPack::goblins_pack().with_max_spawns(2),
@@ -289,7 +286,6 @@ impl SpawnTable {
     pub fn bsp_dungeon() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
-            weight: 0,
             spawn_packs: vec![
                 SpawnPack::goblins_pack().with_max_spawns(4),
                 SpawnPack::orcs_pack().with_max_spawns(3),
@@ -303,7 +299,6 @@ impl SpawnTable {
     pub fn caves() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::Cave,
-            weight: 0,
             spawn_packs: vec![
                 SpawnPack::goblins_pack().with_max_spawns(10),
                 SpawnPack::orcs_pack().with_max_spawns(2),
@@ -314,7 +309,6 @@ impl SpawnTable {
     pub fn drunkard_walk() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::Cave,
-            weight: 0,
             spawn_packs: vec![
                 SpawnPack::blips_pack().with_max_spawns(5),
                 SpawnPack::blop_pack().with_max_spawns(3),
@@ -326,7 +320,6 @@ impl SpawnTable {
     pub fn bsp_interior() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
-            weight: 0,
             spawn_packs: vec![
                 SpawnPack::knight_pack().with_max_spawns(6),
                 SpawnPack::rogues_pack().with_max_spawns(7),
@@ -337,7 +330,6 @@ impl SpawnTable {
     pub fn boss_level() -> SpawnTable {
         SpawnTable {
             level_type: LevelType::TestLevel,
-            weight: 0,
             spawn_packs: vec![SpawnPack::boss().with_max_spawns(1)],
         }
     }

@@ -16,13 +16,13 @@ impl<'a> System<'a> for DamageSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut stats, mut damage) = data;
+        let (mut hps, mut damages) = data;
 
-        for (mut stats, damage) in (&mut stats, &damage).join() {
-            stats.hp -= damage.amount.iter().sum::<i32>();
+        for (mut hp, damage) in (&mut hps, &damages).join() {
+            hp.hp -= damage.amount.iter().sum::<i32>();
         }
 
-        damage.clear();
+        damages.clear();
     }
 }
 
