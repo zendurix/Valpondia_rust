@@ -2,9 +2,7 @@ use rltk::{Rltk, RGB};
 
 use crate::{
     ecs::systems::player::{input::get_input, InputType},
-    graphics::window::{
-        SPRITE_16x16_CONSOLE_INDEX, SPRITE_32x32_CONSOLE_INDEX, CHAR_CONSOLE_INDEX,
-    },
+    graphics::window::{CHAR_CONSOLE_INDEX, SPRITE_32X32_CONSOLE_INDEX},
 };
 
 use super::inventory::INV_TEXT_COL;
@@ -114,7 +112,7 @@ pub trait WindowOptionSelector {
 
     /// TODO add result
     fn draw(&self, ctx: &mut Rltk) {
-        ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
+        ctx.set_active_console(SPRITE_32X32_CONSOLE_INDEX);
         ctx.draw_box(
             self.x() / 2 - 1,
             self.y() / 2 - 1,

@@ -129,12 +129,10 @@ impl BSPDungeonGen {
             let i_adder = |counter: usize| {
                 if tree_level != 1 {
                     2
+                } else if counter < additional_connections {
+                    0
                 } else {
-                    if counter < additional_connections {
-                        0
-                    } else {
-                        2
-                    }
+                    2
                 }
             } as usize;
 
@@ -309,7 +307,8 @@ impl MapGenerator for BSPDungeonGen {
         self.replace_debug_walls_with_walls();
         #[cfg(feature = "map_gen_testing")]
         {
-            self.history.push((self.map.clone(), format!("Finished")));
+            self.history
+                .push((self.map.clone(), "Finished".to_string()));
         }
 
         Ok(())

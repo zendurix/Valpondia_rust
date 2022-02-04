@@ -12,7 +12,7 @@ use crate::graphics::gui::{
     EquipmentMenuAction, InventoryMenuAction, ItemMenuAction, PopuSelection, TargetingMenuAction,
 };
 use crate::graphics::window::{
-    SPRITE_16x16_CONSOLE_INDEX, SPRITE_32x32_CONSOLE_INDEX, CHAR_CONSOLE_INDEX,
+    CHAR_CONSOLE_INDEX, SPRITE_16X16_CONSOLE_INDEX, SPRITE_32X32_CONSOLE_INDEX,
 };
 use crate::graphics::{self, gui, GuiDrawer};
 use crate::levels::level::{Level, LevelType};
@@ -423,15 +423,15 @@ impl State {
 
         ctx.set_active_console(CHAR_CONSOLE_INDEX);
         ctx.cls();
-        ctx.set_active_console(SPRITE_16x16_CONSOLE_INDEX);
+        ctx.set_active_console(SPRITE_16X16_CONSOLE_INDEX);
         ctx.cls();
-        ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
+        ctx.set_active_console(SPRITE_32X32_CONSOLE_INDEX);
         ctx.cls();
 
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
+        draw_batch.target(SPRITE_16X16_CONSOLE_INDEX);
         draw_batch.cls();
-        draw_batch.target(SPRITE_32x32_CONSOLE_INDEX);
+        draw_batch.target(SPRITE_32X32_CONSOLE_INDEX);
         draw_batch.cls();
 
         match run_state {
@@ -444,16 +444,16 @@ impl State {
         }
 
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
+        draw_batch.target(SPRITE_16X16_CONSOLE_INDEX);
         draw_batch
-            .submit(SPRITE_16x16_CONSOLE_INDEX)
+            .submit(SPRITE_16X16_CONSOLE_INDEX)
             .expect("Draw Batch error");
         rltk::render_draw_buffer(ctx).expect("Render error");
 
         let mut draw_batch = DrawBatch::new();
-        draw_batch.target(SPRITE_32x32_CONSOLE_INDEX);
+        draw_batch.target(SPRITE_32X32_CONSOLE_INDEX);
         draw_batch
-            .submit(SPRITE_32x32_CONSOLE_INDEX)
+            .submit(SPRITE_32X32_CONSOLE_INDEX)
             .expect("Draw Batch error");
         rltk::render_draw_buffer(ctx).expect("Render error");
 
@@ -633,7 +633,7 @@ impl GameState for State {
                         let mut gamelog = self.ecs.write_resource::<GameLog>();
                         gamelog
                             .entries
-                            .push(format!("You must kill the Mighty blop to finish the game!",));
+                            .push("You must kill the Mighty blop to finish the game!".to_string());
                         run_state = RunState::PlayerTurn;
 
                         let mut positions = self.ecs.write_storage::<components::Position>();
@@ -804,9 +804,9 @@ fn print_tested_map(
     draw_map_without_fov(&history[current_index].0, ctx);
 
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
+    draw_batch.target(SPRITE_16X16_CONSOLE_INDEX);
     draw_batch
-        .submit(SPRITE_16x16_CONSOLE_INDEX)
+        .submit(SPRITE_16X16_CONSOLE_INDEX)
         .expect("Draw Batch error");
     rltk::render_draw_buffer(ctx).expect("Render error");
 

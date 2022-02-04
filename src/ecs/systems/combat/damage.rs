@@ -44,7 +44,7 @@ pub fn delete_the_dead(gs: &mut State) {
                     }
                 }
 
-                if let Some(_) = final_boss.get(entity) {
+                if final_boss.get(entity).is_some() {
                     gs.game_won = true;
                 }
             }

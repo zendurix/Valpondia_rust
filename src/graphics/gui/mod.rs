@@ -165,6 +165,7 @@ impl GuiDrawer {
         }
     }
 
+    #[allow(dead_code)]
     fn draw_cursor_tooltips(&self, ecs: &World, ctx: &mut Rltk) {
         let map = &ecs.fetch::<Level>().map;
         let names = ecs.read_storage::<components::Name>();

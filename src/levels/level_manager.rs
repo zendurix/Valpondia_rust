@@ -7,7 +7,6 @@ use crate::maps::generators::{
     drunkard_walk::{DrunkardWalkConfig, DrunkardWalkGen},
     generate_map_and_spawn_areas,
     test_map::TestMap,
-    MapGenerator,
 };
 
 use super::level::{Level, LevelType};

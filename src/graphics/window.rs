@@ -2,8 +2,8 @@ use rltk::Rltk;
 
 const WINDOW_TITLE: &str = "ROGUELIKE";
 
-pub const SPRITE_16x16_CONSOLE_INDEX: usize = 1;
-pub const SPRITE_32x32_CONSOLE_INDEX: usize = 0;
+pub const SPRITE_16X16_CONSOLE_INDEX: usize = 1;
+pub const SPRITE_32X32_CONSOLE_INDEX: usize = 0;
 pub const CHAR_CONSOLE_INDEX: usize = 2;
 
 pub fn create_window(width: usize, height: usize) -> Rltk {

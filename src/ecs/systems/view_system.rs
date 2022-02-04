@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use rltk::field_of_view_set;
 use specs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
 
-use crate::{ecs::components, graphics::gui::menus::WindowOptionSelector, levels::level::Level};
+use crate::{ecs::components, levels::level::Level};
 
 pub struct ViewSystem {}
 

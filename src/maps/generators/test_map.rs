@@ -1,5 +1,4 @@
 use rltk::Point;
-use specs::rayon::vec;
 
 use crate::{
     maps::{errors::Result, Map, TileType},

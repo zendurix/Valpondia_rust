@@ -19,7 +19,7 @@ use self::{
             spawn_sleep_scroll, spawn_teleport_scroll,
         },
     },
-    monsters::{spawn_blip, spawn_blop, spawn_rogue, spawn_knight, spawn_mighty_blop, spawn_orc},
+    monsters::{spawn_blip, spawn_blop, spawn_knight, spawn_mighty_blop, spawn_orc, spawn_rogue},
     spawn_tables::SpawnTable,
 };
 

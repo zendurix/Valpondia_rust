@@ -25,8 +25,8 @@ impl BTree {
 
         let mut last_map_state = self.split_history.last().unwrap().clone();
 
-        apply_color_to_walls(&rect1, &mut last_map_state.0);
-        apply_color_to_walls(&rect2, &mut last_map_state.0);
+        apply_color_to_walls(rect1, &mut last_map_state.0);
+        apply_color_to_walls(rect2, &mut last_map_state.0);
 
         self.split_history.push((
             last_map_state.0,
@@ -309,7 +309,7 @@ impl BSPNode {
         let y = rng::range(self.area.y1 as i32, max_y as i32) as usize;
 
         let room = Rect::new(x, y, width, height);
-        self.room = Some(room.clone());
+        self.room = Some(room);
         room
     }
 }

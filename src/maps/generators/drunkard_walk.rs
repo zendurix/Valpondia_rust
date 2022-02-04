@@ -61,8 +61,8 @@ impl DrunkardWalkGen {
 
         let mut floor_tile_perc = self.map.floor_tiles_perc();
 
-        let mut digger_count = 0;
-        let mut active_digger_count = 0;
+        // let mut digger_count = 0;
+        // let mut active_digger_count = 0;
 
         while floor_tile_perc < self.config.min_area_perc {
             let mut did_something = false;
@@ -117,9 +117,9 @@ impl DrunkardWalkGen {
                     self.history.push((self.map.clone(), "TODO".to_string()));
                 }
             }
-            active_digger_count += 1;
+            // active_digger_count += 1;
 
-            digger_count += 1;
+            //digger_count += 1;
 
             #[cfg(feature = "map_gen_testing")]
             {
@@ -173,7 +173,8 @@ impl MapGenerator for DrunkardWalkGen {
         self.replace_debug_walls_with_walls();
         #[cfg(feature = "map_gen_testing")]
         {
-            self.history.push((self.map.clone(), format!("Finished")));
+            self.history
+                .push((self.map.clone(), "Finished".to_string()));
         }
         Ok(())
     }

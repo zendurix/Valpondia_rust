@@ -8,7 +8,7 @@ use crate::{
     maps::{Map, TileType},
 };
 
-use super::window::{SPRITE_16x16_CONSOLE_INDEX, SPRITE_32x32_CONSOLE_INDEX};
+use super::window::{SPRITE_16X16_CONSOLE_INDEX, SPRITE_32X32_CONSOLE_INDEX};
 
 pub const CAMERA_SIZE_X: i32 = 38;
 pub const CAMERA_SIZE_Y: i32 = 22;
@@ -56,8 +56,8 @@ pub fn draw_map_and_entities_with_fov_and_camera(gs: &State, ctx: &mut Rltk) {
     let player_view_memory = views_memories.get(player).unwrap();
 
     let mut draw_batch = DrawBatch::new();
-    ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
-    draw_batch.target(SPRITE_32x32_CONSOLE_INDEX);
+    ctx.set_active_console(SPRITE_32X32_CONSOLE_INDEX);
+    draw_batch.target(SPRITE_32X32_CONSOLE_INDEX);
 
     // camera bounds
     let (x_left, x_right, y_up, y_down) = calculate_camera_bounds(
@@ -70,11 +70,9 @@ pub fn draw_map_and_entities_with_fov_and_camera(gs: &State, ctx: &mut Rltk) {
     let seen_tiles_opt = player_view_memory
         .seen_tiles
         .get(&current_level.level_index)
-        .and_then(|t| {
-            Some(
-                t.symmetric_difference(&player_view.visible_tiles)
-                    .collect_vec(),
-            )
+        .map(|t| {
+            t.symmetric_difference(&player_view.visible_tiles)
+                .collect_vec()
         });
 
     for i in 0..=(y_down - y_up) {
@@ -140,7 +138,7 @@ pub fn draw_map_with_fov(gs: &State, _ctx: &mut Rltk) {
     let current_level = gs.ecs.fetch::<Level>();
 
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
+    draw_batch.target(SPRITE_16X16_CONSOLE_INDEX);
 
     for (view, view_memory, _player) in (&views, &views_memories, &players).join() {
         for pos in view.visible_tiles.iter() {
@@ -173,7 +171,7 @@ pub fn draw_map_with_fov(gs: &State, _ctx: &mut Rltk) {
 
 pub fn draw_map_without_fov(map: &Map, _ctx: &mut Rltk) {
     let mut draw_batch = DrawBatch::new();
-    draw_batch.target(SPRITE_16x16_CONSOLE_INDEX);
+    draw_batch.target(SPRITE_16X16_CONSOLE_INDEX);
 
     let mut x = 0;
     let mut y = 0;

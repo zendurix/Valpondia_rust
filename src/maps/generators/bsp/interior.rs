@@ -82,7 +82,7 @@ impl BSPInteriorGen {
 
         for node in self.tree.nodes.iter_mut() {
             if node.childreen.is_none() {
-                let room = node.area.clone();
+                let room = node.area;
                 node.room = Some(room);
                 rooms.push((room, node.index));
             }
@@ -112,12 +112,10 @@ impl BSPInteriorGen {
             let i_adder = |counter: usize| {
                 if tree_level != 1 {
                     2
+                } else if counter < additional_connections {
+                    0
                 } else {
-                    if counter < additional_connections {
-                        0
-                    } else {
-                        2
-                    }
+                    2
                 }
             } as usize;
 
@@ -281,7 +279,8 @@ impl MapGenerator for BSPInteriorGen {
         self.replace_debug_walls_with_walls();
         #[cfg(feature = "map_gen_testing")]
         {
-            self.history.push((self.map.clone(), format!("Finished")));
+            self.history
+                .push((self.map.clone(), "Finished".to_string()));
         }
 
         Ok(())

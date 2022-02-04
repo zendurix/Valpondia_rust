@@ -10,7 +10,7 @@ use crate::{
     },
     graphics::{
         map::calculate_camera_bounds,
-        window::{SPRITE_32x32_CONSOLE_INDEX, CHAR_CONSOLE_INDEX},
+        window::{CHAR_CONSOLE_INDEX, SPRITE_32X32_CONSOLE_INDEX},
     },
     levels::level::Level,
 };
@@ -55,20 +55,19 @@ pub fn show_targeting(
                     "Select Target for ".to_string() + name.name.as_str(),
                 );
             }
-            ctx.set_active_console(SPRITE_32x32_CONSOLE_INDEX);
+            ctx.set_active_console(SPRITE_32X32_CONSOLE_INDEX);
 
             let mut available_points = Vec::new();
             for point in view.visible_tiles.iter() {
                 let distance = rltk::DistanceAlg::Pythagoras.distance2d(player_pos, *point);
-                if distance <= range as f32 {
-                    if point.x >= x_left
-                        && point.x <= x_right
-                        && point.y >= y_up
-                        && point.y <= y_down
-                    {
-                        ctx.set_bg(point.x - x_left, point.y - y_up, RGB::named(rltk::BLUE));
-                        available_points.push(*point);
-                    }
+                if distance <= range as f32
+                    && point.x >= x_left
+                    && point.x <= x_right
+                    && point.y >= y_up
+                    && point.y <= y_down
+                {
+                    ctx.set_bg(point.x - x_left, point.y - y_up, RGB::named(rltk::BLUE));
+                    available_points.push(*point);
                 }
             }
 
