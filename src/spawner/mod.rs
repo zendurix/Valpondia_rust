@@ -19,7 +19,7 @@ use self::{
             spawn_sleep_scroll, spawn_teleport_scroll,
         },
     },
-    monsters::{spawn_blip, spawn_blop, spawn_knight, spawn_mighty_blop, spawn_orc, spawn_rogue},
+    monsters::{spawn_small_slime, spawn_slime, spawn_knight, spawn_mighty_slime, spawn_orc, spawn_rogue},
     spawn_tables::SpawnTable,
 };
 
@@ -41,8 +41,8 @@ pub fn spawn_entity(
         "Knight" => Some(spawn_knight(ecs, x, y, level)),
         "Rogue" => Some(spawn_rogue(ecs, x, y, level)),
 
-        "Blip" => Some(spawn_blip(ecs, x, y, level)),
-        "Blop" => Some(spawn_blop(ecs, x, y, level)),
+        "Small slime" => Some(spawn_small_slime(ecs, x, y, level)),
+        "Slime" => Some(spawn_slime(ecs, x, y, level)),
 
         "Health potion" => Some(spawn_healing_potion(ecs, x, y, level)),
         "Great health potion" => Some(spawn_great_healing_potion(ecs, x, y, level)),
@@ -61,7 +61,7 @@ pub fn spawn_entity(
         "Plate armor" => Some(spawn_plate_armor(ecs, x, y, level)),
         "Long sword" => Some(spawn_longsword(ecs, x, y, level)),
         "Short sword" => Some(spawn_shortsword(ecs, x, y, level)),
-        "Mighty blop" => Some(spawn_mighty_blop(ecs, x, y, level)),
+        "Mighty slime" => Some(spawn_mighty_slime(ecs, x, y, level)),
         "Champion sword" => Some(spawn_champion_sword(ecs, x, y, level)),
 
         _ => {

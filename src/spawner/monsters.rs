@@ -139,7 +139,7 @@ pub fn spawn_knight(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
     knight
 }
 
-pub fn spawn_blip(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+pub fn spawn_small_slime(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     spawn_monster(
         ecs,
         x,
@@ -147,7 +147,7 @@ pub fn spawn_blip(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
         level,
         rltk::to_cp437('b'),
         Some(8),
-        "Blip",
+        "Small slime",
         8,
         3,
         2,
@@ -155,50 +155,50 @@ pub fn spawn_blip(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
     .build()
 }
 
-pub fn spawn_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    let blop = spawn_monster(
+pub fn spawn_slime(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    let slime = spawn_monster(
         ecs,
         x,
         y,
         level,
         rltk::to_cp437('B'),
         Some(7),
-        "Blop",
+        "Slime",
         50,
         8,
         5,
     )
     .with(components::SpawnsAfterDeath {
         spawns: vec![
-            SpawnEntry::new("Blip".to_string(), 3, 5),
-            SpawnEntry::new("Blop".to_string(), 1, 1).with_chance(10),
+            SpawnEntry::new("Small slime".to_string(), 3, 5),
+            SpawnEntry::new("Slime".to_string(), 1, 1).with_chance(10),
         ],
     })
     .with(components::Inventory::new_empty())
     .build();
-    spawn_item_into_inventory(ecs, blop, "Leather boots".to_string(), x, y, level);
-    blop
+    spawn_item_into_inventory(ecs, slime, "Leather boots".to_string(), x, y, level);
+    slime
 }
 
-pub fn spawn_mighty_blop(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    let blop = spawn_monster(
+pub fn spawn_mighty_slime(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
+    let slime = spawn_monster(
         ecs,
         x,
         y,
         level,
         rltk::to_cp437('B'),
         Some(7),
-        "Mighty blop",
+        "Mighty slime",
         300,
         10,
         3,
     )
     .with(components::SpawnsAfterDeath {
-        spawns: vec![SpawnEntry::new("Blop".to_string(), 2, 4)],
+        spawns: vec![SpawnEntry::new("Slime".to_string(), 2, 4)],
     })
     .with(components::FinalBoss {})
     .build();
-    blop
+    slime
 }
 
 #[allow(clippy::too_many_arguments)]

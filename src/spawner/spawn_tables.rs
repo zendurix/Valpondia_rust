@@ -141,12 +141,12 @@ impl SpawnPack {
         }
     }
 
-    pub fn blop_pack() -> SpawnPack {
+    pub fn slime_pack() -> SpawnPack {
         SpawnPack {
             min_area: 8,
             entities: vec![
-                SpawnEntry::new("Blop".to_string(), 1, 1),
-                SpawnEntry::new("Blip".to_string(), 2, 6),
+                SpawnEntry::new("Slime".to_string(), 1, 1),
+                SpawnEntry::new("Small slime".to_string(), 2, 6),
                 SpawnEntry::new("Area sleep scroll".to_string(), 1, 1),
                 SpawnEntry::new("Great health potion".to_string(), 1, 1),
             ],
@@ -154,10 +154,10 @@ impl SpawnPack {
         }
     }
 
-    pub fn blips_pack() -> SpawnPack {
+    pub fn small_slimes_pack() -> SpawnPack {
         SpawnPack {
             min_area: 7,
-            entities: vec![SpawnEntry::new("Blip".to_string(), 2, 6)],
+            entities: vec![SpawnEntry::new("Small slime".to_string(), 2, 6)],
             ..SpawnPack::default()
         }
     }
@@ -221,7 +221,7 @@ impl SpawnPack {
     pub fn boss() -> SpawnPack {
         SpawnPack {
             min_area: 1,
-            entities: vec![SpawnEntry::new("Mighty blop".to_string(), 1, 1)],
+            entities: vec![SpawnEntry::new("Mighty slime".to_string(), 1, 1)],
             ..SpawnPack::default()
         }
     }
@@ -273,7 +273,7 @@ impl SpawnTable {
         SpawnTable {
             level_type: LevelType::BasicDungeon,
             spawn_packs: vec![
-                SpawnPack::blips_pack().with_max_spawns(5),
+                SpawnPack::small_slimes_pack().with_max_spawns(5),
                 SpawnPack::goblins_pack().with_max_spawns(2),
                 SpawnPack::goblins_with_orc_pack()
                     .with_max_spawns(1)
@@ -310,8 +310,8 @@ impl SpawnTable {
         SpawnTable {
             level_type: LevelType::Cave,
             spawn_packs: vec![
-                SpawnPack::blips_pack().with_max_spawns(5),
-                SpawnPack::blop_pack().with_max_spawns(3),
+                SpawnPack::small_slimes_pack().with_max_spawns(5),
+                SpawnPack::slime_pack().with_max_spawns(3),
                 SpawnPack::armory_high_tier().with_max_spawns(1),
             ],
         }

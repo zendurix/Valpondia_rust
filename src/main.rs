@@ -54,7 +54,7 @@ fn main() {
     gs.ecs.insert(GameLog {
         entries: vec![
             "  =====WELCOME INTO ROGUELIKE======  ".to_string(),
-            "Your task is to delve deep into dungeon and slain Mighty Blop ".to_string(),
+            "Your task is to delve deep into dungeon and slain Mighty Slime ".to_string(),
         ],
     });
 

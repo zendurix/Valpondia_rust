@@ -383,7 +383,7 @@ impl State {
         let new_gamelog = GameLog {
             entries: vec![
                 "  =====WELCOME INTO ROGUELIKE======  ".to_string(),
-                "Your task is to delve deep into dungeon and slain Mighty Blop ".to_string(),
+                "Your task is to delve deep into dungeon and slain Mighty Slime ".to_string(),
             ],
         };
         self.ecs.remove::<Level>();
@@ -636,7 +636,7 @@ impl GameState for State {
                         let mut gamelog = self.ecs.write_resource::<GameLog>();
                         gamelog
                             .entries
-                            .push("You must kill the Mighty blop to finish the game!".to_string());
+                            .push("You must kill the Mighty Slime to finish the game!".to_string());
                         run_state = RunState::PlayerTurn;
 
                         let mut positions = self.ecs.write_storage::<components::Position>();
