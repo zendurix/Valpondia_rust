@@ -1,0 +1,44 @@
+{
+    "entities":[
+       {
+         "name":{
+            "name":"Goblin"
+         },
+         "blocks_tile":{
+            
+         },
+         "ai":{
+            
+         },
+         "position":{
+            "x":0,
+            "y":0,
+            "level":0
+         },
+         "renderable":{
+            "texture":3,
+            "render_order":1
+         },
+         "hp":{
+            "max_hp": 10,
+            "hp": 10
+         },
+         "view":{
+            "visible_tiles": [],
+            "range": 10,
+            "should_update": true
+         },
+         "combat_base_stats":{
+            "attack": 4,
+            "defense": 0
+         },
+        "inventory":{
+            "items": ["Dagger"]
+         },
+         "body_parts": {
+            "parts": "default_humanoid"
+         }
+      }       
+    ]
+ }
+

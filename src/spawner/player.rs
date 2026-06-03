@@ -23,10 +23,7 @@ pub fn spawn_player(ecs: &mut World, x: usize, y: usize) -> Entity {
             name: "player".to_string(),
         })
         .with(components::Renderable {
-            ascii: rltk::to_cp437('@'),
             texture: Some(2),
-            fg: RGB::named(rltk::YELLOW),
-            bg: RGB::named(rltk::BLACK),
             render_order: 0,
         })
         .with(components::Hp {

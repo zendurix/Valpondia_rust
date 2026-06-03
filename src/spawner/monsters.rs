@@ -67,7 +67,7 @@ pub fn spawn_random_monster(ecs: &mut World, x: usize, y: usize, level: usize) -
 }
 
 pub fn spawn_goblin(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
-    spawn_monster(
+   let goblin =  spawn_monster(
         ecs,
         x,
         y,
@@ -79,7 +79,11 @@ pub fn spawn_goblin(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity
         4,
         0,
     )
-    .build()
+    .with(components::Inventory::new_empty())
+    .with(components::BodyParts::default_humanoid())
+    .build();
+    spawn_item_in_eq(ecs, goblin, "Dagger".to_string(), x, y, level);
+    goblin
 }
 
 pub fn spawn_orc(ecs: &mut World, x: usize, y: usize, level: usize) -> Entity {
@@ -217,10 +221,7 @@ fn spawn_monster<S: ToString>(
     ecs.create_entity()
         .with(components::Position { x, y, level })
         .with(components::Renderable {
-            ascii: glyph,
             texture: texture_index,
-            fg: RGB::named(rltk::RED),
-            bg: RGB::named(rltk::BLACK),
             render_order: 1,
         })
         .with(components::Name {

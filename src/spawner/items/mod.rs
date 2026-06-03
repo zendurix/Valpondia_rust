@@ -22,10 +22,7 @@ pub(crate) fn create_base_item_components<S: ToString>(
         .with(components::Item {})
         .with(components::Position { x, y, level })
         .with(components::Renderable {
-            ascii: glyph,
             texture: texture_index,
-            fg: color,
-            bg: RGB::named(rltk::BLACK),
             render_order: 2,
         })
         .with(components::Name {
